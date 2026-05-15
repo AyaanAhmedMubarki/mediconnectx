@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\2499458\\\\Downloads\\\\mediconnectx\" -Force)",
+      "Bash(Select-Object Name, FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\2499458\\\\Downloads\\\\frontend\" -Force)",
+      "Bash(Select-Object Name, FullName, PSIsContainer)",
+      "Bash(grep -E \"\\\\.\\(js|html|css|json\\)$\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\2499458\\\\Downloads\\\\frontend\\\\frontend\\\\frontend\\\\frontend\\\\\" -File | Select-Object Name | Sort-Object Name)"
+    ]
+  }
+}
