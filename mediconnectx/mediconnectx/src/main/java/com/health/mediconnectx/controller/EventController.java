@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:63342")
+
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -32,7 +32,7 @@ public class EventController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createEvent(@RequestParam("eventDTO") String eventDTO, @RequestParam(value = "imageLink") MultipartFile imageLink){
+    public ResponseEntity<?> createEvent(@RequestParam("eventDTO") String eventDTO, @RequestParam(value = "imageLink", required = false) MultipartFile imageLink){
 
         // Convert JSON string to AdminDTO
         ObjectMapper objectMapper = new ObjectMapper();
@@ -71,7 +71,7 @@ public class EventController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateEvent(@RequestParam("eventDTO") String eventDTO, @RequestParam(value = "imageLink") MultipartFile imageLink) {
+    public ResponseEntity<?> updateEvent(@RequestParam("eventDTO") String eventDTO, @RequestParam(value = "imageLink", required = false) MultipartFile imageLink) {
         // Convert JSON string to AdminDTO
         ObjectMapper objectMapper = new ObjectMapper();
         EventDTO eventDTOObject;

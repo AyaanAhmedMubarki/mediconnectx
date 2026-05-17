@@ -34,28 +34,27 @@ public class AuthController {
         // Generate JWT token
         String token = jwtTokenProvider.generateToken(user.getEmail());
 
-        // Create a response message
-        String message = "Login successful for user: " + user.getName();
-
+        // Resolve role and roleId
         String role = user.getRoles().stream()
                 .map(Role::getName)
                 .findFirst()
                 .orElse("UNKNOWN");
         Long roleId = 0L;
-        if ("ADMIN".equalsIgnoreCase(role)){
-            Admin admin = user.getAdmin();
-            roleId = admin.getId();
-        }else if ("PATIENT".equalsIgnoreCase(role)){
-            Patient patient = user.getPatient();
-            roleId = patient.getId();
-        }else  if ("DOCTOR".equalsIgnoreCase(role)){
-            Doctor doctor = user.getDoctor();
-            roleId = doctor.getId();
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            roleId = user.getAdmin().getId();
+        } else if ("PATIENT".equalsIgnoreCase(role)) {
+            roleId = user.getPatient().getId();
+        } else if ("DOCTOR".equalsIgnoreCase(role)) {
+            roleId = user.getDoctor().getId();
         }
-        else{
-            System.out.println("No role type found");
-        }
-        // Return token and message in response
-        return ResponseEntity.ok(new AuthResponse(token, message, role, roleId)); // Create an AuthResponse class to hold the token and message
+
+        // Resolve display name — fall back to email prefix if name was never saved
+        String name = (user.getName() != null && !user.getName().isBlank())
+                ? user.getName()
+                : user.getEmail().split("@")[0];
+
+        String message = "Login successful for user: " + name;
+
+        return ResponseEntity.ok(new AuthResponse(token, message, name, role, roleId));
     }
 }
