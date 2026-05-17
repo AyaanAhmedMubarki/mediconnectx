@@ -5,6 +5,7 @@ import com.health.mediconnectx.entity.Meet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class MeetController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/set")
     public ResponseEntity<String> createMeet(@RequestBody Meet meet) {
         try {
@@ -39,6 +41,7 @@ public class MeetController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteMeet(@RequestParam Long id){
         meetService.deleteMeet(id);
