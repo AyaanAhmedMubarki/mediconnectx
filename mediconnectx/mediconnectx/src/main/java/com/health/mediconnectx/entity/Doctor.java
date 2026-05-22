@@ -17,60 +17,53 @@ public class Doctor {
     private User user;
 
     private String birthDate;
-
     private String gender;
-
     private String category;
+
+    // ── New clinical fields ───────────────────────────────────────────
+    private String licenseNumber;
+    private String experience;       // e.g. "8 years"
+    private String consultationFee;  // e.g. "500"
+    private String contactNumber;
+
+    @Lob
+    private String bio;
 
     @Lob
     private String imageLink;
 
-    public String getBirthDate() {
-        return birthDate;
-    }
+    // ── Getters & Setters ─────────────────────────────────────────────
 
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getCategory() {
-        return category;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    public String getBirthDate() { return birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
 
-    public String getGender() {
-        return gender;
-    }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public User getUser() {
-        return user;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public String getLicenseNumber() { return licenseNumber; }
+    public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+    public String getExperience() { return experience; }
+    public void setExperience(String experience) { this.experience = experience; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getConsultationFee() { return consultationFee; }
+    public void setConsultationFee(String consultationFee) { this.consultationFee = consultationFee; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public String getImageLink() {
-        return imageLink;
-    }
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
-    }
+    public String getImageLink() { return imageLink; }
+    public void setImageLink(String imageLink) { this.imageLink = imageLink; }
 }
-

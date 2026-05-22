@@ -40,9 +40,8 @@ public class AdminService {
                 admin.getId(),
                 user.getName(),
                 user.getEmail(),
-                admin.getExperience(),
-                // Assign the profile image directly, since it's already Base64-encoded
-                admin.getProfileImage() // No need for Base64 encoding
+                admin.getProfileImage(),
+                admin.getContactNumber()
         );
 
         return adminDTO;
@@ -63,7 +62,11 @@ public class AdminService {
 
         // Update the username in the User table (from the AdminDTO)
         user.setName(adminDTO.getName());
-        admin.setExperience(adminDTO.getExperience());
+
+        // Update contact number if provided
+        if (adminDTO.getContactNumber() != null) {
+            admin.setContactNumber(adminDTO.getContactNumber().trim());
+        }
 
         // Convert byte[] to Base64 string and set it in the Admin entity
         if (imageData != null && imageData.length > 0) {

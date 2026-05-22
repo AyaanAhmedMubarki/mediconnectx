@@ -16,23 +16,13 @@ public class Admin {
     private User user;
 
 
-    private String experience; // Example: "15 Years"
-
-
     @Lob
     private String profileImage; // URL or path to the profile image
 
+    private String contactNumber;
 
 //    getter and setter
 
-
-    public String getExperience() {
-        return experience;
-    }
-
-    public void setExperience(String experience) {
-        this.experience = experience;
-    }
 
     public Long getId() {
         return id;
@@ -48,6 +38,14 @@ public class Admin {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
     }
 
     public User getUser() {

@@ -17,81 +17,63 @@ public class Patient {
     private User user;
 
     private String birthDate;
-
     private String gender;
-
-    private Long height;
-
-    private Long weight;
-
+    private Long   height;
+    private Long   weight;
     private String category;
+
+    // ── New health / contact fields ───────────────────────────────────
+    private String contactNumber;
+    private String bloodGroup;         // e.g. "A+", "O-"
+    private String allergies;          // comma-separated, e.g. "Penicillin, Peanuts"
+    private String emergencyContactName;
+    private String emergencyContactNumber;
+    private String address;
 
     @Lob
     private String imageLink;
 
-    public String getBirthDate() {
-        return birthDate;
-    }
+    // ── Getters & Setters ─────────────────────────────────────────────
 
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getWeight() {
-        return weight;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public void setWeight(Long weight) {
-        this.weight = weight;
-    }
+    public String getBirthDate() { return birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
 
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public User getUser() {
-        return user;
-    }
+    public Long getHeight() { return height; }
+    public void setHeight(Long height) { this.height = height; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public Long getWeight() { return weight; }
+    public void setWeight(Long weight) { this.weight = weight; }
 
-    public String getImageLink() {
-        return imageLink;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
-    }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getBloodGroup() { return bloodGroup; }
+    public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getAllergies() { return allergies; }
+    public void setAllergies(String allergies) { this.allergies = allergies; }
 
-    public Long getHeight() {
-        return height;
-    }
+    public String getEmergencyContactName() { return emergencyContactName; }
+    public void setEmergencyContactName(String emergencyContactName) { this.emergencyContactName = emergencyContactName; }
 
-    public void setHeight(Long height) {
-        this.height = height;
-    }
+    public String getEmergencyContactNumber() { return emergencyContactNumber; }
+    public void setEmergencyContactNumber(String emergencyContactNumber) { this.emergencyContactNumber = emergencyContactNumber; }
 
-    public String getGender() {
-        return gender;
-    }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    public String getImageLink() { return imageLink; }
+    public void setImageLink(String imageLink) { this.imageLink = imageLink; }
 }
-

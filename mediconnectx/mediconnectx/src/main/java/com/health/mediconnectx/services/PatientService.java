@@ -21,104 +21,82 @@ public class PatientService {
     @Autowired
     private UserRepository userRepository;
 
+    // ── Helper: entity → DTO ──────────────────────────────────────────
+    private PatientDTO toDTO(Patient patient, User user) {
+        return new PatientDTO(
+                patient.getId(),
+                user.getName(),
+                user.getEmail(),
+                patient.getBirthDate(),
+                patient.getGender(),
+                patient.getHeight(),
+                patient.getWeight(),
+                patient.getCategory(),
+                patient.getContactNumber(),
+                patient.getBloodGroup(),
+                patient.getAllergies(),
+                patient.getEmergencyContactName(),
+                patient.getEmergencyContactNumber(),
+                patient.getAddress(),
+                patient.getImageLink()
+        );
+    }
+
+    // ── GET by email ──────────────────────────────────────────────────
     public PatientDTO getPatientByEmail(String email) {
-
-        // Find the user by email
         User user = userRepository.findByEmail(email);
+        if (user == null) throw new RuntimeException("User not found");
 
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-
-        // Find the associated Athlete profile by userId
         Patient patient = patientRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
-        // Return PatientDTO with user and patient data
-        PatientDTO patientDTO = new PatientDTO(
-                user.getName(),
-                patient.getBirthDate(),
-                patient.getGender(),
-                patient.getId(),
-                patient.getWeight(),
-                patient.getImageLink(),
-                patient.getHeight(),
-                patient.getCategory(),
-                user.getEmail()
-        );
-
-        return patientDTO;
+        return toDTO(patient, user);
     }
 
-    public void updatePatientByEmail(String email, PatientDTO patientDTOObject, byte[] imageBytes) {
+    // ── GET by id ─────────────────────────────────────────────────────
+    public PatientDTO getPatientById(Long id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient profile not found"));
+        return toDTO(patient, patient.getUser());
+    }
 
+    // ── GET all ───────────────────────────────────────────────────────
+    public List<PatientDTO> getAllPatient() {
+        return patientRepository.findAll()
+                .stream()
+                .map(p -> toDTO(p, p.getUser()))
+                .collect(Collectors.toList());
+    }
+
+    // ── UPDATE by email ───────────────────────────────────────────────
+    public void updatePatientByEmail(String email, PatientDTO dto, byte[] imageBytes) {
         User user = userRepository.findByEmail(email);
+        if (user == null) throw new RuntimeException("User not found");
 
-        if (user == null) {
-            throw new RuntimeException("User not found");
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            user.setName(dto.getName());
         }
-        user.setName(patientDTOObject.getName());
 
-        // Find the associated Admin profile by userId
         Patient patient = patientRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Athlete profile not found"));
-        patient.setBirthDate(patientDTOObject.getBirthDate());
-        patient.setGender(patientDTOObject.getGender());
-        patient.setWeight(patientDTOObject.getWeight());
-        patient.setHeight(patientDTOObject.getHeight());
-        patient.setCategory(patientDTOObject.getCategory());
+                .orElseThrow(() -> new RuntimeException("Patient profile not found"));
 
-        // Convert byte[] to Base64 string and set it in the Patient entity
+        patient.setBirthDate(dto.getBirthDate());
+        patient.setGender(dto.getGender());
+        patient.setHeight(dto.getHeight());
+        patient.setWeight(dto.getWeight());
+        patient.setCategory(dto.getCategory());
+        patient.setContactNumber(dto.getContactNumber());
+        patient.setBloodGroup(dto.getBloodGroup());
+        patient.setAllergies(dto.getAllergies());
+        patient.setEmergencyContactName(dto.getEmergencyContactName());
+        patient.setEmergencyContactNumber(dto.getEmergencyContactNumber());
+        patient.setAddress(dto.getAddress());
+
         if (imageBytes != null && imageBytes.length > 0) {
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-            patient.setImageLink(base64Image);
+            patient.setImageLink(Base64.getEncoder().encodeToString(imageBytes));
         }
 
         userRepository.save(user);
         patientRepository.save(patient);
-    }
-
-    public PatientDTO getPatientById(Long id) {
-
-        // Find the associated Patient profile by id
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient profile not found"));
-
-        User user = patient.getUser();
-
-        // Return PatientDTO with user and patient data
-        PatientDTO patientDTO = new PatientDTO(
-                user.getName(),
-                patient.getBirthDate(),
-                patient.getGender(),
-                patient.getId(),
-                patient.getWeight(),
-                patient.getImageLink(),
-                patient.getHeight(),
-                patient.getCategory(),
-                user.getEmail()
-        );
-
-        return patientDTO;
-    }
-
-    public List<PatientDTO> getAllPatient() {
-        List<Patient> patients = patientRepository.findAll();
-
-        // Transform entities into DTOs
-        return patients.stream()
-                .map(patient -> new PatientDTO(
-                        patient.getUser().getName(),
-                        patient.getBirthDate(),
-                        patient.getGender(),
-                        patient.getId(),
-                        patient.getWeight(),
-                        patient.getImageLink(),
-                        patient.getHeight(),
-                        patient.getCategory(),
-                        patient.getUser().getEmail()
-                ))
-                .collect(Collectors.toList());
     }
 }

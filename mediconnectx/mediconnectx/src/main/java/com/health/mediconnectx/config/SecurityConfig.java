@@ -52,6 +52,10 @@ public class SecurityConfig
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/user/event_register/**").permitAll()
+                        .requestMatchers("/api/payments/**").permitAll()
+                        .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/api/appointments/**").authenticated()
+                        .requestMatchers("/api/video/**").authenticated()
                         .anyRequest().authenticated()
                 )
 

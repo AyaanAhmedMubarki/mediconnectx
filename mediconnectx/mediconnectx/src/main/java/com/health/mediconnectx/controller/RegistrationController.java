@@ -31,11 +31,9 @@ public class RegistrationController {
         }
     }
 
-    // POST: Request a new registration
+    // POST: Request a new registration — returns the saved Registration so the frontend has the id
     @PostMapping("/create")
-    public ResponseEntity<?> createRegistration (@RequestParam("registrationDTO") String registrationDTO){
-
-        // Convert JSON string to RegistrationDTO
+    public ResponseEntity<?> createRegistration(@RequestParam("registrationDTO") String registrationDTO) {
         ObjectMapper objectMapper = new ObjectMapper();
         RegistrationDTO registrationDTOObject;
         try {
@@ -43,33 +41,22 @@ public class RegistrationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error parsing registrationDTO: " + e.getMessage());
         }
-
-        // Pass the DTO and image bytes to the service for updating the profile
-        registrationService.createRegistration(registrationDTOObject);
-
-        return ResponseEntity.ok("Registration request Successful!");
+        Registration saved = registrationService.createRegistration(registrationDTOObject);
+        return ResponseEntity.ok(saved);
     }
 
-
-    // PUT: Update registration status
+    // PUT: Update registration status (PENDING → APPROVED or REJECTED only; final states are locked)
     @PutMapping("/update")
     public ResponseEntity<?> updateRegistration(@RequestParam Long id, @RequestParam String status) {
-
-        // Pass the DTO to the service for updating the registrations
         registrationService.updateRegistration(id, status);
-
-        return ResponseEntity.ok("Event update successful");
-
+        return ResponseEntity.ok("Registration status updated to " + status);
     }
 
+    // DELETE: Cancel registration (only allowed when status is PENDING)
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRegistration(@PathVariable Long id){
-        try {
-            registrationService.deleteRegistration(id);
-            return ResponseEntity.ok("Registration cancelled successfully");
-        }catch (RuntimeException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No request to delete");
-        }
+    public ResponseEntity<?> deleteRegistration(@PathVariable Long id) {
+        registrationService.deleteRegistration(id);
+        return ResponseEntity.ok("Registration cancelled successfully");
     }
 
     @GetMapping("/search")

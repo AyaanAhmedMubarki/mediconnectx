@@ -2,73 +2,78 @@ package com.health.mediconnectx.dto;
 
 public class DoctorDTO {
 
-    private Long id;
-    private String name; // From User entity
+    private Long   id;
+    private String name;
+    private String email;
     private String birthDate;
     private String gender;
     private String category;
+    private String licenseNumber;
+    private String experience;
+    private String consultationFee;
+    private String contactNumber;
+    private String bio;
     private String imageLink;
 
-    // Default constructor
-    public DoctorDTO(){
+    // ── Constructors ──────────────────────────────────────────────────
 
+    public DoctorDTO() {}
+
+    /** Full constructor used by service layer */
+    public DoctorDTO(Long id, String name, String email,
+                     String birthDate, String gender, String category,
+                     String licenseNumber, String experience,
+                     String consultationFee, String contactNumber,
+                     String bio, String imageLink) {
+        this.id             = id;
+        this.name           = name;
+        this.email          = email;
+        this.birthDate      = birthDate;
+        this.gender         = gender;
+        this.category       = category;
+        this.licenseNumber  = licenseNumber;
+        this.experience     = experience;
+        this.consultationFee = consultationFee;
+        this.contactNumber  = contactNumber;
+        this.bio            = bio;
+        this.imageLink      = imageLink;
     }
 
-    public DoctorDTO(Long id, String birthDate, String gender, String category, String imageLink, String name) {
-        this.birthDate = birthDate;
-        this.gender = gender;
-        this.category = category;
-        this.id = id;
-        this.imageLink = imageLink;
-        this.name = name;
-    }
+    // ── Getters & Setters ─────────────────────────────────────────────
 
-    public String getBirthDate() {
-        return birthDate;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getCategory() {
-        return category;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    public String getBirthDate() { return birthDate; }
+    public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
 
-    public String getGender() {
-        return gender;
-    }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getLicenseNumber() { return licenseNumber; }
+    public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getExperience() { return experience; }
+    public void setExperience(String experience) { this.experience = experience; }
 
-    public String getImageLink() {
-        return imageLink;
-    }
+    public String getConsultationFee() { return consultationFee; }
+    public void setConsultationFee(String consultationFee) { this.consultationFee = consultationFee; }
 
-    public void setImageLink(String imageLink) {
-        this.imageLink = imageLink;
-    }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public String getName() {
-        return name;
-    }
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getImageLink() { return imageLink; }
+    public void setImageLink(String imageLink) { this.imageLink = imageLink; }
 }
-

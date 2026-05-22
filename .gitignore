@@ -1,0 +1,15 @@
+# Credentials - NEVER commit
+mediconnectx/mediconnectx/src/main/resources/application.properties
+
+# IDE / local settings
+.claude/
+.idea/
+*.iml
+.vscode/
+
+# Maven build output
+mediconnectx/mediconnectx/target/
+
+# OS
+.DS_Store
+Thumbs.db

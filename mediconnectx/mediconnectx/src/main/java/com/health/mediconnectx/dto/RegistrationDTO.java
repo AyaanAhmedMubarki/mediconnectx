@@ -8,16 +8,23 @@ public class RegistrationDTO {
     private String registrationDate; // Stored as String
     private String status;
 
+    /** "PATIENT" or "DOCTOR" */
+    private String userRole;
+
     // Constructors
     public RegistrationDTO() {}
 
-    public RegistrationDTO(Long id, Long patientId, Long eventId, String registrationDate, String status) {
+    public RegistrationDTO(Long id, Long patientId, Long eventId, String registrationDate, String status, String userRole) {
         this.id = id;
         this.patientId = patientId;
         this.eventId = eventId;
         this.registrationDate = registrationDate;
         this.status = status;
+        this.userRole = userRole;
     }
+
+    public String getUserRole() { return userRole; }
+    public void setUserRole(String userRole) { this.userRole = userRole; }
 
     public Long getPatientId() {
         return patientId;

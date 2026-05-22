@@ -18,6 +18,12 @@ public class Registration{
 
     private String status;
 
+    /** "PATIENT" or "DOCTOR" — set at registration time so the admin table knows which profile API to call */
+    private String userRole;
+
+    public String getUserRole() { return userRole; }
+    public void setUserRole(String userRole) { this.userRole = userRole; }
+
     public Long getPatientId() {
         return patientId;
     }
