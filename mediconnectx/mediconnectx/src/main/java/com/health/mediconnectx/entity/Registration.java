@@ -14,7 +14,7 @@ public class Registration{
 
     private Long eventId;
 
-    private String registrationDate; // Stored as String to match the database schema
+    private String registrationDate;
 
     private String status;
 

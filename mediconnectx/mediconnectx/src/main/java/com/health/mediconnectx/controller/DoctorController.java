@@ -2,11 +2,13 @@ package com.health.mediconnectx.controller;
 
 import com.health.mediconnectx.services.DoctorService;
 import com.health.mediconnectx.dto.DoctorDTO;
+import com.health.mediconnectx.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,19 +17,34 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/doctor")
-@CrossOrigin(origins = "*")
 public class DoctorController {
 
     @Autowired
     private DoctorService doctorService;
 
+    // ── Helper ──────────────────────────────────────────────────────────
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (principal instanceof User) ? (User) principal : null;
+    }
+
+    /**
+     * SEC-09 fix: Get own doctor profile.
+     * Email is extracted from JWT, not accepted as request parameter.
+     * Prevents any user from reading arbitrary doctor profiles.
+     */
     @GetMapping("/profile")
-    public ResponseEntity<?> getDoctorByEmail(@RequestParam String email) {
+    public ResponseEntity<?> getDoctorProfile() {
         try {
-            DoctorDTO doctorProfile = doctorService.getDoctorByEmail(email);
+            User currentUser = getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Authentication required.");
+            }
+            DoctorDTO doctorProfile = doctorService.getDoctorByEmail(currentUser.getEmail());
             return ResponseEntity.ok(doctorProfile);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with email " + email + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor profile not found.");
         }
     }
 
@@ -76,30 +93,45 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.getAvailableDoctors(specialization, date));
     }
 
+    /**
+     * SEC-09 fix: Update own doctor profile.
+     * Email is extracted from JWT, not accepted as request parameter.
+     * Prevents any user from updating arbitrary doctor profiles.
+     */
     @PutMapping("/profile")
-    public ResponseEntity<?> updateDoctorByEmail(
-            @RequestParam String email,
+    public ResponseEntity<?> updateDoctorProfile(
             @RequestParam("DoctorDTO") String doctorDTO,
             @RequestParam(value = "imageLink", required = false) MultipartFile imageLink) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        DoctorDTO doctorDTOObject;
         try {
-            doctorDTOObject = objectMapper.readValue(doctorDTO, DoctorDTO.class);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error parsing patientDTO: " + e.getMessage());
-        }
-
-        byte[] imageBytes = null;
-        if (imageLink != null && !imageLink.isEmpty()) {
-            try {
-                imageBytes = imageLink.getBytes();
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Error processing image: " + e.getMessage());
+            User currentUser = getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Authentication required.");
             }
-        }
 
-        doctorService.updateDoctorByEmail(email, doctorDTOObject, imageBytes);
-        return ResponseEntity.ok("Doctor profile updated successfully!");
+            ObjectMapper objectMapper = new ObjectMapper();
+            DoctorDTO doctorDTOObject;
+            try {
+                doctorDTOObject = objectMapper.readValue(doctorDTO, DoctorDTO.class);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Error parsing doctorDTO: " + e.getMessage());
+            }
+
+            byte[] imageBytes = null;
+            if (imageLink != null && !imageLink.isEmpty()) {
+                try {
+                    imageBytes = imageLink.getBytes();
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().body("Error processing image: " + e.getMessage());
+                }
+            }
+
+            doctorService.updateDoctorByEmail(currentUser.getEmail(), doctorDTOObject, imageBytes);
+            return ResponseEntity.ok("Doctor profile updated successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update profile: " + e.getMessage());
+        }
     }
 }

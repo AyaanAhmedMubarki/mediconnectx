@@ -43,11 +43,17 @@ public class DoctorShiftController {
                                                  @RequestBody ShiftDTO dto) {
         ShiftDTO created = doctorShiftService.createShift(doctorId, dto);
 
-        // Auto-generate slots immediately so patients can book without a separate step.
-        // If slots already exist for this date (idempotency guard inside the service),
-        // the call is a no-op and the shift is still saved successfully.
+        // Auto-generate slots for this specific shift immediately.
+        // We use generateSlotsForShift() (not generateSlotsForDoctor()) so that
+        // the per-date idempotency guard in the broad method does NOT block slot
+        // creation when the doctor already has other slots on the same date.
         try {
-            int n = slotGenerationService.generateSlotsForDoctor(doctorId);
+            int n = slotGenerationService.generateSlotsForShift(
+                    doctorId,
+                    created.getShiftDate(),
+                    created.getStartTime(),
+                    created.getEndTime()
+            );
             if (n > 0) {
                 System.out.printf("[DoctorShiftController] Auto-generated %d slot(s) for doctor %d%n", n, doctorId);
             }
@@ -60,9 +66,12 @@ public class DoctorShiftController {
     }
 
     @DeleteMapping("/{shiftId}")
-    public ResponseEntity<Void> deleteShift(@PathVariable Long shiftId) {
-        doctorShiftService.deleteShift(shiftId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, Object>> deleteShift(@PathVariable Long shiftId) {
+        int deletedSlots = doctorShiftService.deleteShift(shiftId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Shift and associated unbooked slots removed.");
+        response.put("unbookedSlotsDeleted", deletedSlots);
+        return ResponseEntity.ok(response);
     }
 
     /**

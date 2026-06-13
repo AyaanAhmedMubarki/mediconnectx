@@ -31,6 +31,12 @@ public class Appointment {
     @Column(name = "prescription_file", columnDefinition = "LONGBLOB")
     private byte[] prescriptionFile;
 
+    // ── FEAT-01: Refund tracking ──────────────────────────────────────
+    private String refundTransactionId;  // ID of the refund transaction if refunded
+    private Integer refundAmount;         // Amount refunded in rupees
+    private LocalDateTime refundedAt;     // When the refund was processed
+    private String cancellationReason;    // Why the appointment was cancelled
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
@@ -66,4 +72,17 @@ public class Appointment {
 
     public Long getSlotId() { return slotId; }
     public void setSlotId(Long slotId) { this.slotId = slotId; }
+
+    // ── FEAT-01: Refund getters & setters ──────────────────────────
+    public String getRefundTransactionId() { return refundTransactionId; }
+    public void setRefundTransactionId(String refundTransactionId) { this.refundTransactionId = refundTransactionId; }
+
+    public Integer getRefundAmount() { return refundAmount; }
+    public void setRefundAmount(Integer refundAmount) { this.refundAmount = refundAmount; }
+
+    public LocalDateTime getRefundedAt() { return refundedAt; }
+    public void setRefundedAt(LocalDateTime refundedAt) { this.refundedAt = refundedAt; }
+
+    public String getCancellationReason() { return cancellationReason; }
+    public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }
 }

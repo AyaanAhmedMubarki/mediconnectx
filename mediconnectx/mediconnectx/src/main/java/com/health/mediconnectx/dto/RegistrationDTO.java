@@ -5,7 +5,7 @@ public class RegistrationDTO {
     private Long id;
     private Long patientId;
     private Long eventId;
-    private String registrationDate; // Stored as String
+    private String registrationDate;
     private String status;
 
     /** "PATIENT" or "DOCTOR" */

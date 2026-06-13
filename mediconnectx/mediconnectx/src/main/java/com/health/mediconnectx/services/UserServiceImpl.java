@@ -87,7 +87,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(request.getEmail());
 
         if (user == null) {
-            throw new ApiException("User not found");
+            // UNDO CODE-05: Show specific error message (user doesn't exist)
+            throw new ApiException("No account exists with this email. Please register.");
         }
 
         // Compare the plaintext password from the request with the hashed password stored in the database
@@ -95,7 +96,8 @@ public class UserServiceImpl implements UserService {
 
 
         if (!passwordMatches) {
-            throw new ApiException("Invalid username or password");
+            // UNDO CODE-05: Show specific error message (password is wrong)
+            throw new ApiException("Invalid password. Please try again.");
         }
 
         // Return the user if authentication is successful

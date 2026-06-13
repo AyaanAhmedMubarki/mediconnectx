@@ -12,7 +12,7 @@ public class Event {
 
     private String category;
 
-    private String eventDate; // Consider using LocalDate or LocalDateTime for date handling
+    private String eventDate;
 
     private String eventName;
 

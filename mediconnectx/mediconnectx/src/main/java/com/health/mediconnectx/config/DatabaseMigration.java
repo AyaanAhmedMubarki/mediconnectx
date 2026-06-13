@@ -46,6 +46,18 @@ public class DatabaseMigration implements ApplicationRunner {
             "appointments.status → VARCHAR(30)",
             "ALTER TABLE appointments MODIFY COLUMN status VARCHAR(30) NOT NULL"
         );
+        // Same ENUM→VARCHAR fix for registrations.status.
+        // If the column was ever created as an ENUM, inserting "PENDING" fails.
+        runPatch(
+            "registrations.status → VARCHAR(30)",
+            "ALTER TABLE registrations MODIFY COLUMN status VARCHAR(30) NOT NULL"
+        );
+        // Ensure user_role column exists (added later; ddl-auto=update should add it,
+        // but this guarantees it on older DBs where the column may be missing).
+        runPatch(
+            "registrations.user_role column",
+            "ALTER TABLE registrations ADD COLUMN user_role VARCHAR(20) NULL"
+        );
     }
 
     /** Executes a single DDL statement and logs success or skip. */

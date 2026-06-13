@@ -23,7 +23,7 @@ public class Doctor {
     // ── New clinical fields ───────────────────────────────────────────
     private String licenseNumber;
     private String experience;       // e.g. "8 years"
-    private String consultationFee;  // e.g. "500"
+    private Integer consultationFee; // VAL-03 fix: numeric type instead of String (in rupees)
     private String contactNumber;
 
     @Lob
@@ -55,8 +55,8 @@ public class Doctor {
     public String getExperience() { return experience; }
     public void setExperience(String experience) { this.experience = experience; }
 
-    public String getConsultationFee() { return consultationFee; }
-    public void setConsultationFee(String consultationFee) { this.consultationFee = consultationFee; }
+    public Integer getConsultationFee() { return consultationFee; }
+    public void setConsultationFee(Integer consultationFee) { this.consultationFee = consultationFee; }
 
     public String getContactNumber() { return contactNumber; }
     public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }

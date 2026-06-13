@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
@@ -31,15 +32,13 @@ public class DoctorService {
     // ── Helper: entity → DTO ──────────────────────────────────────────
     // Applies two fallbacks:
     //   category null/blank  → "General Practitioner"
-    //   consultationFee null/blank → "500"
+    //   consultationFee null → 500 (Integer, in rupees)
     private DoctorDTO toDTO(Doctor doctor, User user) {
         String specialization = (doctor.getCategory() == null || doctor.getCategory().isBlank())
                 ? "General Practitioner"
                 : doctor.getCategory().trim();
 
-        String fee = (doctor.getConsultationFee() == null || doctor.getConsultationFee().isBlank())
-                ? "500"
-                : doctor.getConsultationFee().trim();
+        Integer fee = (doctor.getConsultationFee() == null) ? 500 : doctor.getConsultationFee();
 
         return new DoctorDTO(
                 doctor.getId(),
@@ -115,10 +114,20 @@ public class DoctorService {
                     .collect(Collectors.toList());
         }
 
-        // Date filter: keep only doctors who have ≥1 OPEN slot on the requested date
+        // Date filter: keep only doctors who have relevant slots on the requested date.
+        // For TODAY: include any doctor who has at least one non-past slot (open OR taken),
+        // so patients can see both bookable and fully-booked slots within the shift —
+        // only individual past 15-min blocks are hidden on the frontend.
+        // For FUTURE dates: only doctors with at least one OPEN slot (actually bookable).
         if (date != null) {
-            Set<Long> available = new HashSet<>(
-                    slotRepository.findDoctorIdsWithOpenSlotsOnDate(date));
+            Set<Long> available;
+            if (date.equals(LocalDate.now())) {
+                available = new HashSet<>(
+                        slotRepository.findDoctorIdsWithAnySlotsOnDateFromTime(date, LocalTime.now()));
+            } else {
+                available = new HashSet<>(
+                        slotRepository.findDoctorIdsWithOpenSlotsOnDate(date));
+            }
             doctors = doctors.stream()
                     .filter(d -> available.contains(d.getId()))
                     .collect(Collectors.toList());

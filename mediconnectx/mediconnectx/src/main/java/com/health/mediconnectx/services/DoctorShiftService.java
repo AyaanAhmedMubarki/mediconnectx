@@ -2,6 +2,7 @@ package com.health.mediconnectx.services;
 
 import com.health.mediconnectx.dto.ShiftDTO;
 import com.health.mediconnectx.entity.DoctorShift;
+import com.health.mediconnectx.repository.AppointmentSlotRepository;
 import com.health.mediconnectx.repository.DoctorShiftRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +19,9 @@ public class DoctorShiftService {
 
     @Autowired
     private DoctorShiftRepository doctorShiftRepository;
+
+    @Autowired
+    private AppointmentSlotRepository appointmentSlotRepository;
 
     /** Save a new date-specific shift template for a doctor. */
     @Transactional
@@ -81,13 +86,33 @@ public class DoctorShiftService {
                 .collect(Collectors.toList());
     }
 
-    /** Delete a single shift by ID. */
+    /**
+     * Delete a single shift by ID.
+     * When a shift is deleted, all OPEN (unbooked) slots within its timeframe are also deleted.
+     * Booked slots are preserved so that patients' confirmed appointments are not affected.
+     * Returns the number of unbooked slots that were deleted.
+     */
     @Transactional
-    public void deleteShift(Long shiftId) {
-        if (!doctorShiftRepository.existsById(shiftId)) {
+    public int deleteShift(Long shiftId) {
+        Optional<DoctorShift> shiftOpt = doctorShiftRepository.findById(shiftId);
+        if (shiftOpt.isEmpty()) {
             throw new IllegalArgumentException("Shift " + shiftId + " not found.");
         }
+
+        DoctorShift shift = shiftOpt.get();
+
+        // Delete all OPEN slots within this shift's timeframe on this date
+        int deletedSlots = appointmentSlotRepository.deleteOpenSlotsInTimeRange(
+                shift.getDoctorId(),
+                shift.getShiftDate(),
+                shift.getStartTime(),
+                shift.getEndTime()
+        );
+
+        // Delete the shift template itself
         doctorShiftRepository.deleteById(shiftId);
+
+        return deletedSlots;
     }
 
     // ── Mapping ──────────────────────────────────────────────────

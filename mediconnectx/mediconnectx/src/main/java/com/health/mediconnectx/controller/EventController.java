@@ -1,6 +1,5 @@
 package com.health.mediconnectx.controller;
 
-import com.health.mediconnectx.dto.AdminDTO;
 import com.health.mediconnectx.dto.EventDTO;
 import com.health.mediconnectx.entity.Event;
 import com.health.mediconnectx.services.EventService;

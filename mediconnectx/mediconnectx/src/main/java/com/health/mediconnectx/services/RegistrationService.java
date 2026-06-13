@@ -1,8 +1,6 @@
 package com.health.mediconnectx.services;
 
 import com.health.mediconnectx.exception.ApiException;
-import com.health.mediconnectx.repository.PatientRepository;
-import com.health.mediconnectx.repository.EventRepository;
 import com.health.mediconnectx.repository.RegistrationRepository;
 import com.health.mediconnectx.dto.RegistrationDTO;
 import com.health.mediconnectx.entity.Registration;
@@ -18,25 +16,36 @@ public class RegistrationService {
     @Autowired
     private RegistrationRepository registrationRepository;
 
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private EventRepository eventRepository;
-
     //get All registrations
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
     }
     public Registration createRegistration(RegistrationDTO registrationDTOObject) {
+        Long patientId = registrationDTOObject.getPatientId();
+        Long eventId   = registrationDTOObject.getEventId();
+
+        // Normalise the role once — used for both the duplicate check and the new row.
+        // We MUST include userRole in the duplicate check so that a PATIENT and a DOCTOR
+        // who share the same numeric profile ID (both tables auto-increment from 1) do
+        // not accidentally receive each other's registration record.
+        String normalizedRole = (registrationDTOObject.getUserRole() != null)
+                ? registrationDTOObject.getUserRole().toUpperCase()
+                : "PATIENT";
+
+        if (patientId != null && eventId != null) {
+            Optional<Registration> existing =
+                    registrationRepository.findByEventIdAndPatientIdAndUserRole(eventId, patientId, normalizedRole);
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        }
+
         Registration registration = new Registration();
-        registration.setPatientId(registrationDTOObject.getPatientId());
-        registration.setEventId(registrationDTOObject.getEventId());
+        registration.setPatientId(patientId);
+        registration.setEventId(eventId);
         registration.setRegistrationDate(registrationDTOObject.getRegistrationDate());
         registration.setStatus("PENDING");
-        // Default to PATIENT for backwards-compatibility with existing rows that have no role
-        String role = registrationDTOObject.getUserRole();
-        registration.setUserRole(role != null ? role.toUpperCase() : "PATIENT");
+        registration.setUserRole(normalizedRole);   // reuse already-computed value, no duplicate declaration
         return registrationRepository.save(registration);
     }
 
@@ -68,14 +77,24 @@ public class RegistrationService {
         registrationRepository.delete(registration);
     }
 
+    // Find a single registration by its primary key
+    public Optional<Registration> findById(Long id) {
+        return registrationRepository.findById(id);
+    }
+
     // Find registration by eventId and patientId
     public Optional<Registration> findByEventIdAndPatientId(Long eventId, Long patientId) {
         return registrationRepository.findByEventIdAndPatientId(eventId, patientId);
     }
 
-    // Find all registrations for a specific athlete
+    // Find all registrations for a given profile ID (any role)
     public List<Registration> findByPatientId(Long patientId) {
         return registrationRepository.findByPatientId(patientId);
+    }
+
+    // Find all registrations for a given profile ID filtered by role (PATIENT or DOCTOR)
+    public List<Registration> findByPatientIdAndUserRole(Long patientId, String userRole) {
+        return registrationRepository.findByPatientIdAndUserRole(patientId, userRole);
     }
 
     // Find all registrations for a specific event

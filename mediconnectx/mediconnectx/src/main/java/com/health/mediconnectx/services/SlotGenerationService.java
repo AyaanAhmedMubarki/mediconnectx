@@ -40,6 +40,52 @@ public class SlotGenerationService {
     private AppointmentSlotRepository appointmentSlotRepository;
 
     /**
+     * Generates 15-minute AppointmentSlot rows for ONE specific shift.
+     * Called immediately after a new shift is saved (from DoctorShiftController)
+     * so that slots are always created even when other shifts on the same date
+     * already have slots — the broad date-level guard in generateSlotsForDoctor()
+     * would silently skip this shift in that scenario.
+     *
+     * Idempotency: checks whether a slot at exactly shiftStartTime already exists;
+     * if it does, the generation is skipped (safe to call multiple times).
+     *
+     * @return Number of new slots inserted (0 if already generated or past date)
+     */
+    @Transactional
+    public int generateSlotsForShift(Long doctorId,
+                                     LocalDate shiftDate,
+                                     LocalTime startTime,
+                                     LocalTime endTime) {
+        if (shiftDate == null) return 0;
+        if (shiftDate.isBefore(LocalDate.now())) return 0;
+
+        // Per-shift idempotency: if the first slot already exists, skip.
+        if (appointmentSlotRepository.existsByDoctorIdAndSlotDateAndStartTime(
+                doctorId, shiftDate, startTime)) {
+            return 0;
+        }
+
+        List<AppointmentSlot> slotsToSave = new ArrayList<>();
+        LocalTime cursor = startTime;
+
+        while (!cursor.plusMinutes(SLOT_DURATION_MINUTES).isAfter(endTime)) {
+            AppointmentSlot slot = new AppointmentSlot();
+            slot.setDoctorId(doctorId);
+            slot.setSlotDate(shiftDate);
+            slot.setStartTime(cursor);
+            slot.setEndTime(cursor.plusMinutes(SLOT_DURATION_MINUTES));
+            slot.setStatus(SlotStatus.OPEN);
+            slotsToSave.add(slot);
+            cursor = cursor.plusMinutes(SLOT_DURATION_MINUTES);
+        }
+
+        if (!slotsToSave.isEmpty()) {
+            appointmentSlotRepository.saveAll(slotsToSave);
+        }
+        return slotsToSave.size();
+    }
+
+    /**
      * Generates 15-minute AppointmentSlot rows for all of this doctor's future shifts
      * that do not already have slots.
      *
@@ -62,8 +108,12 @@ public class SlotGenerationService {
             // Skip past dates (already elapsed, no point generating)
             if (shiftDate.isBefore(today)) continue;
 
-            // Idempotency: if slots already exist for this doctor on this date, skip
-            if (appointmentSlotRepository.existsByDoctorIdAndSlotDate(doctorId, shiftDate)) continue;
+            // Per-shift idempotency: if a slot at this exact start time already exists,
+            // this shift was already generated — skip it.
+            // (Using startTime rather than a date-level check so that multiple shifts
+            // on the same date are each generated independently.)
+            if (appointmentSlotRepository.existsByDoctorIdAndSlotDateAndStartTime(
+                    doctorId, shiftDate, shift.getStartTime())) continue;
 
             List<AppointmentSlot> slotsToSave = new ArrayList<>();
             LocalTime cursor = shift.getStartTime();

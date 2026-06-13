@@ -10,7 +10,7 @@ public class EventDTO {
     private String meetName;
     private String location;
 
-    public EventDTO(String category, String meetName, String imageLink, Long id, String eventName, String eventDate,String location) {
+    public EventDTO(String category, String meetName, String imageLink, Long id, String eventName, String eventDate, String location) {
         this.category = category;
         this.meetName = meetName;
         this.imageLink = imageLink;

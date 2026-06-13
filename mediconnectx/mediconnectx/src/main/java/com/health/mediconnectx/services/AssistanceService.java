@@ -1,8 +1,6 @@
 package com.health.mediconnectx.services;
 
 import com.health.mediconnectx.repository.AssistanceRepository;
-import com.health.mediconnectx.repository.PatientRepository;
-import com.health.mediconnectx.repository.DoctorRepository;
 import com.health.mediconnectx.dto.AssistanceDTO;
 import com.health.mediconnectx.entity.Assistance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +14,6 @@ public class AssistanceService {
 
     @Autowired
     private AssistanceRepository assistanceRepository;
-
-    @Autowired
-    private PatientRepository patientRepository;
-
-    @Autowired
-    private DoctorRepository doctorRepository;
 
     public Optional<Assistance> findByDoctorIdAndPatientId(Long doctorId, Long patientId) {
         return assistanceRepository.findByDoctorIdAndPatientId(doctorId, patientId);

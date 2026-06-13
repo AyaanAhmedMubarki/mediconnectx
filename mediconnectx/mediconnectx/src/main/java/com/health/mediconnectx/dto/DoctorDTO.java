@@ -2,18 +2,18 @@ package com.health.mediconnectx.dto;
 
 public class DoctorDTO {
 
-    private Long   id;
-    private String name;
-    private String email;
-    private String birthDate;
-    private String gender;
-    private String category;
-    private String licenseNumber;
-    private String experience;
-    private String consultationFee;
-    private String contactNumber;
-    private String bio;
-    private String imageLink;
+    private Long     id;
+    private String   name;
+    private String   email;
+    private String   birthDate;
+    private String   gender;
+    private String   category;
+    private String   licenseNumber;
+    private String   experience;
+    private Integer  consultationFee; // VAL-03 fix: numeric type
+    private String   contactNumber;
+    private String   bio;
+    private String   imageLink;
 
     // ── Constructors ──────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ public class DoctorDTO {
     public DoctorDTO(Long id, String name, String email,
                      String birthDate, String gender, String category,
                      String licenseNumber, String experience,
-                     String consultationFee, String contactNumber,
+                     Integer consultationFee, String contactNumber,
                      String bio, String imageLink) {
         this.id             = id;
         this.name           = name;
@@ -65,8 +65,8 @@ public class DoctorDTO {
     public String getExperience() { return experience; }
     public void setExperience(String experience) { this.experience = experience; }
 
-    public String getConsultationFee() { return consultationFee; }
-    public void setConsultationFee(String consultationFee) { this.consultationFee = consultationFee; }
+    public Integer getConsultationFee() { return consultationFee; }
+    public void setConsultationFee(Integer consultationFee) { this.consultationFee = consultationFee; }
 
     public String getContactNumber() { return contactNumber; }
     public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
