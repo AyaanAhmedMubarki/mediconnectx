@@ -1,7 +1,9 @@
 package com.health.mediconnectx.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "doctors")
@@ -18,19 +20,25 @@ public class Doctor {
 
     private String birthDate;
     private String gender;
-    private String category;
+    private String category;        // Specialization
 
     // ── New clinical fields ───────────────────────────────────────────
     private String licenseNumber;
     private String experience;       // e.g. "8 years"
     private Integer consultationFee; // VAL-03 fix: numeric type instead of String (in rupees)
     private String contactNumber;
+    private String degree;           // Doctor's degree/qualification
 
     @Lob
     private String bio;
 
     @Lob
     private String imageLink;
+
+    // ── FEAT-02: Multiple clinic locations ──────────────────────────
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("doctor")
+    private List<DoctorLocation> locations;
 
     // ── Getters & Setters ─────────────────────────────────────────────
 
@@ -66,4 +74,10 @@ public class Doctor {
 
     public String getImageLink() { return imageLink; }
     public void setImageLink(String imageLink) { this.imageLink = imageLink; }
+
+    public String getDegree() { return degree; }
+    public void setDegree(String degree) { this.degree = degree; }
+
+    public List<DoctorLocation> getLocations() { return locations; }
+    public void setLocations(List<DoctorLocation> locations) { this.locations = locations; }
 }

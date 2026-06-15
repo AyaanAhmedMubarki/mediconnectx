@@ -37,6 +37,12 @@ public class Appointment {
     private LocalDateTime refundedAt;     // When the refund was processed
     private String cancellationReason;    // Why the appointment was cancelled
 
+    // ── FEAT-02: Offline booking - Symptoms & details ──────────────────
+    @Lob
+    private String symptoms;              // Patient's symptoms
+    @Lob
+    private String notes;                 // Additional appointment notes
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
@@ -85,4 +91,11 @@ public class Appointment {
 
     public String getCancellationReason() { return cancellationReason; }
     public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }
+
+    // ── FEAT-02: Symptoms & notes getters & setters ──────────────────
+    public String getSymptoms() { return symptoms; }
+    public void setSymptoms(String symptoms) { this.symptoms = symptoms; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 }

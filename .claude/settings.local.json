@@ -62,7 +62,11 @@
       "Bash(dir /s /b \"pom.xml\")",
       "Bash(curl -s http://localhost:8080/api/events -H \"Authorization: Bearer test\")",
       "Bash(netstat -ano)",
-      "Bash(findstr :8080)"
+      "Bash(findstr :8080)",
+      "Bash(git config *)",
+      "Bash(ls -la \"C:\\\\Users\\\\2499458\\\\Downloads\\\\frontend\\\\frontend\\\\frontend\\\\frontend\\\\..\" 2>&1 | head -20)",
+      "Bash(cp -r /c/Users/2499458/Downloads/mediconnectx/mediconnectx/mediconnectx ./backend)",
+      "Read(//c/c/Users/2499458/Downloads/frontend/frontend/**)"
     ]
   }
 }
