@@ -60,6 +60,33 @@ public class SecurityConfig {
                         // SEC-03 fix: Payments — must be authenticated (ownership checked in controller)
                         .requestMatchers("/api/payments/**").authenticated()
 
+                        // Medicines — admin only (for management), doctors and patients can read
+                        .requestMatchers(HttpMethod.POST, "/api/medicines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/medicines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/medicines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/medicines/**").authenticated()
+
+                        // Doctor Locations — doctors can write, everyone can read
+                        .requestMatchers(HttpMethod.POST, "/api/doctor-locations/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/doctor-locations/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/doctor-locations/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/doctor-locations/**").authenticated()
+
+                        // Offline Slots — doctors can create/delete, patients can book, everyone can read
+                        .requestMatchers(HttpMethod.POST, "/api/offline-slots/*/book").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/offline-slots/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/offline-slots/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/offline-slots/**").authenticated()
+
+                        // Medical Records — authenticated users only
+                        .requestMatchers("/api/medical-records/**").authenticated()
+
+                        // Prescriptions — authenticated users only
+                        .requestMatchers("/api/prescriptions/**").authenticated()
+
+                        // Tests — authenticated users only
+                        .requestMatchers("/api/tests/**").authenticated()
+
                         // Registrations — must be authenticated (ownership checked in controller)
                         .requestMatchers("/api/registration/**").authenticated()
 

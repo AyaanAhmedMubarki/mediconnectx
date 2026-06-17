@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediConnectX - Complete Project Documentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #005580 0%, #003d3d 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { font-size: 1.1rem; opacity: 0.9; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    nav {
+      background: white;
+      padding: 15px 0;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 20px;
+    }
+
+    nav a {
+      color: #005580;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    nav a:hover { background: #f0f0f0; }
+
+    section {
+      background: white;
+      margin: 20px 0;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #005580;
+      border-bottom: 3px solid #0077aa;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+
+    h3 {
+      color: #006666;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+    }
+
+    h4 {
+      color: #333;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #0077aa;
+      transition: transform 0.2s;
+    }
+
+    .feature-card:hover { transform: translateY(-5px); }
+    .feature-card h4 { color: #005580; }
+
+    .tech-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .tech-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .tech-item strong { color: #005580; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    table th {
+      background: #005580;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    table td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table tr:hover { background: #f8f9fa; }
+
+    .code-block {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .endpoint {
+      background: #f0f8ff;
+      border-left: 4px solid #0077aa;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .method-get { color: #27ae60; font-weight: bold; }
+    .method-post { color: #e74c3c; font-weight: bold; }
+    .method-put { color: #f39c12; font-weight: bold; }
+    .method-delete { color: #c0392b; font-weight: bold; }
+
+    .workflow-diagram {
+      background: #f8f9fa;
+      border: 2px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+      font-family: monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .role-section {
+      background: #f8f9fa;
+      border-left: 4px solid #0077aa;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+
+    ul, ol { margin-left: 20px; margin-top: 10px; }
+    li { margin: 8px 0; }
+
+    .highlight { background: #fff3cd; padding: 2px 5px; border-radius: 3px; }
+    .success { color: #27ae60; font-weight: bold; }
+    .warning { color: #e74c3c; font-weight: bold; }
+
+    footer {
+      background: #005580;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 40px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .database-schema {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    @media(max-width: 768px) {
+      header h1 { font-size: 1.8rem; }
+      nav ul { flex-direction: column; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .tech-stack { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏥 MediConnectX</h1>
+  <p>Smart Medical Management System - Complete Project Documentation</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#tech">Tech Stack</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#database">Database</a></li>
+    <li><a href="#api">API Endpoints</a></li>
+    <li><a href="#frontend">Frontend</a></li>
+    <li><a href="#flow">How It Works</a></li>
+    <li><a href="#setup">Setup</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+<!-- ==================== OVERVIEW ==================== -->
+<section id="overview">
+  <h2>📋 Project Overview</h2>
+
+  <h3>What is MediConnectX?</h3>
+  <p>MediConnectX is a comprehensive <span class="highlight">digital healthcare platform</span> that connects patients, doctors, and administrators in one unified system. It enables doctors to manage appointments (online and offline), patients to book consultations, and admins to oversee the entire platform.</p>
+
+  <h3>Key Objectives</h3>
+  <ul>
+    <li><strong>Reduce Healthcare Friction:</strong> Eliminate the need for phone calls and manual booking</li>
+    <li><strong>24/7 Accessibility:</strong> Patients can book appointments anytime, anywhere</li>
+    <li><strong>AI-Powered Support:</strong> Built-in chatbot for health guidance</li>
+    <li><strong>Revenue Tracking:</strong> Automatic payment and earnings management</li>
+    <li><strong>Event Management:</strong> Health camps and wellness events</li>
+    <li><strong>Dual Booking System:</strong> Both online (video) and offline (clinic) consultations</li>
+  </ul>
+
+  <h3>Who Uses It?</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>👨‍⚕️ Doctors</h4>
+      <p>Manage availability, accept bookings, conduct video consultations, track earnings, view patient details</p>
+    </div>
+    <div class="feature-card">
+      <h4>👨‍💼 Patients</h4>
+      <p>Book online/offline appointments, view medical records, chat with AI assistant, join video calls</p>
+    </div>
+    <div class="feature-card">
+      <h4>⚙️ Admins</h4>
+      <p>Oversee doctors & patients, manage events, view platform statistics, generate reports</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<section id="architecture">
+  <h2>🏗️ System Architecture</h2>
+
+  <h3>High-Level Architecture</h3>
+  <div class="workflow-diagram">Frontend (HTML/CSS/JS)
+        ↓↑ (HTTP Requests)
+    API Gateway / Security Layer
+        ↓↑ (REST Endpoints)
+    Spring Boot Backend
+        ↓↑
+    Database (MySQL)
+        ↓↑
+    External Services (Google Meet, OpenAI, Email)
+  </div>
+
+  <h3>Architecture Layers</h3>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>Components</th>
+      <th>Responsibility</th>
+    </tr>
+    <tr>
+      <td><strong>Presentation Layer</strong></td>
+      <td>HTML, CSS, JavaScript</td>
+      <td>User Interface - What users see and interact with</td>
+    </tr>
+    <tr>
+      <td><strong>API Layer</strong></td>
+      <td>REST Endpoints (@RestController)</td>
+      <td>Handles HTTP requests from frontend</td>
+    </tr>
+    <tr>
+      <td><strong>Business Logic Layer</strong></td>
+      <td>Services (@Service)</td>
+      <td>Core logic for bookings, payments, authentication</td>
+    </tr>
+    <tr>
+      <td><strong>Data Access Layer</strong></td>
+      <td>Repositories (JPA)</td>
+      <td>Database queries using Spring Data JPA</td>
+    </tr>
+    <tr>
+      <td><strong>Database Layer</strong></td>
+      <td>MySQL with Hibernate</td>
+      <td>Persistent data storage</td>
+    </tr>
+  </table>
+
+  <h3>Authentication & Security</h3>
+  <div class="role-section">
+    <h4>JWT Token-Based Authentication</h4>
+    <p>When users login, the system generates a JWT token that proves who they are. This token is sent with every request to verify the user's identity.</p>
+    <div class="code-block">Login Flow:
+User enters email/password
+  ↓
+Backend validates credentials
+  ↓
+Backend generates JWT token
+  ↓
+Token sent to frontend & stored in localStorage
+  ↓
+Every API request includes token in Authorization header
+  ↓
+Backend verifies token is valid before processing request
+    </div>
+  </div>
+
+  <div class="role-section">
+    <h4>Role-Based Access Control (RBAC)</h4>
+    <p>Three roles with different permissions:</p>
+    <ul>
+      <li><strong>PATIENT:</strong> Can book appointments, view own records, chat with AI</li>
+      <li><strong>DOCTOR:</strong> Can create availability, view bookings, conduct consultations</li>
+      <li><strong>ADMIN:</strong> Can view all data, manage users, oversee events</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== TECH STACK ==================== -->
+<section id="tech">
+  <h2>⚙️ Technology Stack</h2>
+
+  <h3>Backend Technologies</h3>
+  <div class="tech-stack">
+    <div class="tech-item">
+      <strong>Java 11+</strong>
+      <p>Programming language for backend logic</p>
+    </div>
+    <div class="tech-item">
+      <strong>Spring Boot 4.0.2</strong>
+      <p>Framework that simplifies Java application development</p>
+    </div>
+    <div class="tech-item">
+      <strong>Spring Security 6</strong>
+      <p>Handles authentication and authorization (JWT tokens)</p>
+    </div>
+    <div class="tech-item">
+      <strong>Spring Data JPA</strong>
+      <p>Makes database queries easier with predefined methods</p>
+    </div>
+    <div class="tech-item">
+      <strong>Hibernate</strong>
+      <p>ORM (Object-Relational Mapping) - converts Java objects to database records</p>
+    </div>
+    <div class="tech-item">
+      <strong>MySQL 8.0</strong>
+      <p>Relational database for storing all application data</p>
+    </div>
+  </div>
+
+  <h3>Frontend Technologies</h3>
+  <div class="tech-stack">
+    <div class="tech-item">
+      <strong>HTML5</strong>
+      <p>Structure of web pages</p>
+    </div>
+    <div class="tech-item">
+      <strong>CSS3</strong>
+      <p>Styling and layout</p>
+    </div>
+    <div class="tech-item">
+      <strong>JavaScript (Vanilla)</strong>
+      <p>Interactivity without external frameworks</p>
+    </div>
+    <div class="tech-item">
+      <strong>Bootstrap 5.3</strong>
+      <p>CSS framework for responsive design</p>
+    </div>
+    <div class="tech-item">
+      <strong>Bootstrap Icons</strong>
+      <p>Pre-made icons for UI enhancement</p>
+    </div>
+    <div class="tech-item">
+      <strong>Fetch API</strong>
+      <p>For making HTTP requests to backend</p>
+    </div>
+  </div>
+
+  <h3>External Services</h3>
+  <div class="tech-stack">
+    <div class="tech-item">
+      <strong>Google Meet API</strong>
+      <p>For video consultations between doctors and patients</p>
+    </div>
+    <div class="tech-item">
+      <strong>OpenAI API</strong>
+      <p>GPT-4o-mini model for AI Health Chatbot</p>
+    </div>
+    <div class="tech-item">
+      <strong>Email Service</strong>
+      <p>Async email notifications for bookings & confirmations</p>
+    </div>
+    <div class="tech-item">
+      <strong>Localhost:8080</strong>
+      <p>Backend server (development)</p>
+    </div>
+  </div>
+
+  <h3>Why These Technologies?</h3>
+  <ul>
+    <li><strong>Java/Spring Boot:</strong> Robust, scalable, widely used in enterprise healthcare systems</li>
+    <li><strong>MySQL:</strong> Reliable relational database perfect for structured healthcare data</li>
+    <li><strong>JWT:</strong> Stateless authentication - scales well for large user bases</li>
+    <li><strong>Vanilla JS:</strong> Lightweight, no framework overhead, easy to understand</li>
+    <li><strong>Google Meet:</strong> Free, reliable, integrates well with web applications</li>
+    <li><strong>OpenAI:</strong> State-of-the-art AI for health guidance</li>
+  </ul>
+</section>
+
+<!-- ==================== FEATURES ==================== -->
+<section id="features">
+  <h2>✨ Features by User Role</h2>
+
+  <h3>👨‍💼 Patient Features</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Online Consultations</h4>
+      <p>Search doctors by specialization, check availability, book video calls, join meeting links</p>
+    </div>
+    <div class="feature-card">
+      <h4>Offline Clinic Bookings</h4>
+      <p>Book in-person appointments at clinic locations with specific time slots</p>
+    </div>
+    <div class="feature-card">
+      <h4>Booking History</h4>
+      <p>View all past and upcoming consultations (online and offline)</p>
+    </div>
+    <div class="feature-card">
+      <h4>AI Health Chatbot</h4>
+      <p>Ask health questions and get instant guidance from OpenAI-powered assistant</p>
+    </div>
+    <div class="feature-card">
+      <h4>Profile Management</h4>
+      <p>Update personal details, health metrics, and profile photo</p>
+    </div>
+    <div class="feature-card">
+      <h4>Event Registration</h4>
+      <p>Browse and register for health camps and wellness events</p>
+    </div>
+  </div>
+
+  <h3>👨‍⚕️ Doctor Features</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Availability Management</h4>
+      <p>Set clinic locations, available hours, and automatically generate 30-min slots</p>
+    </div>
+    <div class="feature-card">
+      <h4>Online Consultations</h4>
+      <p>View booked appointments, generate Google Meet links, conduct video consultations</p>
+    </div>
+    <div class="feature-card">
+      <h4>Offline Consultations</h4>
+      <p>View offline clinic bookings with patient details and clinic information</p>
+    </div>
+    <div class="feature-card">
+      <h4>Clinical Support</h4>
+      <p>Access AI assistant for medical information and clinical decision support</p>
+    </div>
+    <div class="feature-card">
+      <h4>Earnings Tracking</h4>
+      <p>View total consultation fees, payment breakdown, and revenue analytics</p>
+    </div>
+    <div class="feature-card">
+      <h4>Profile & Events</h4>
+      <p>Manage professional profile, create health events, view registrations</p>
+    </div>
+  </div>
+
+  <h3>⚙️ Admin Features</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Dashboard Overview</h4>
+      <p>View platform statistics: total doctors, patients, events, registrations</p>
+    </div>
+    <div class="feature-card">
+      <h4>Event Management</h4>
+      <p>Create, edit, delete health events; manage registrations</p>
+    </div>
+    <div class="feature-card">
+      <h4>Online Consultation Overview</h4>
+      <p>Monitor all video consultations, revenue tracking, booking statistics</p>
+    </div>
+    <div class="feature-card">
+      <h4>Offline Consultation Overview</h4>
+      <p>Track all clinic appointments with status filters (Booked/Completed/Available)</p>
+    </div>
+    <div class="feature-card">
+      <h4>Platform Operations</h4>
+      <p>Access AI assistant for compliance guidance and operational support</p>
+    </div>
+    <div class="feature-card">
+      <h4>Quick Actions</h4>
+      <p>Fast access to events, online appointments, and offline appointments</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DATABASE ==================== -->
+<section id="database">
+  <h2>🗄️ Database Design</h2>
+
+  <h3>Core Entities (Tables)</h3>
+  <table>
+    <tr>
+      <th>Entity</th>
+      <th>Purpose</th>
+      <th>Key Fields</th>
+    </tr>
+    <tr>
+      <td><strong>User</strong></td>
+      <td>All system users</td>
+      <td>id, email, password (hashed), name, role, phone</td>
+    </tr>
+    <tr>
+      <td><strong>Doctor</strong></td>
+      <td>Doctor-specific info</td>
+      <td>id, specialization, experience, bio, photo, user (reference)</td>
+    </tr>
+    <tr>
+      <td><strong>Patient</strong></td>
+      <td>Patient-specific info</td>
+      <td>id, medicalHistory, healthMetrics, photo, user (reference)</td>
+    </tr>
+    <tr>
+      <td><strong>DoctorLocation</strong></td>
+      <td>Clinic locations</td>
+      <td>id, doctor, clinicName, address, city, state, pincode, phone</td>
+    </tr>
+    <tr>
+      <td><strong>OfflineSlot</strong></td>
+      <td>Clinic appointment slots</td>
+      <td>id, doctor, location, slotDate, startTime, endTime, status, patient, createdAt</td>
+    </tr>
+    <tr>
+      <td><strong>Meet</strong></td>
+      <td>Online consultations</td>
+      <td>id, doctor, patient, appointmentDate, startTime, endTime, meetLink, status</td>
+    </tr>
+    <tr>
+      <td><strong>Event</strong></td>
+      <td>Health events/camps</td>
+      <td>id, name, description, eventDate, location, capacity, registrations</td>
+    </tr>
+    <tr>
+      <td><strong>EventRegistration</strong></td>
+      <td>Event participant records</td>
+      <td>id, user, event, registrationDate, status</td>
+    </tr>
+  </table>
+
+  <h3>Entity Relationships</h3>
+  <div class="database-schema">
+User (1) ─────────── (Many) Doctor
+  │
+  └─ (1) ─────────── (Many) Patient
+  │
+  └─ (1) ─────────── (Many) EventRegistration
+
+Doctor (1) ─────────── (Many) DoctorLocation
+Doctor (1) ─────────── (Many) OfflineSlot
+Doctor (1) ─────────── (Many) Meet
+
+DoctorLocation (1) ─────────── (Many) OfflineSlot
+
+Patient (1) ─────────── (Many) OfflineSlot (as booker)
+Patient (1) ─────────── (Many) Meet (as consultant)
+Patient (1) ─────────── (Many) EventRegistration
+
+Event (1) ─────────── (Many) EventRegistration
+  </div>
+
+  <h3>Key Database Concepts</h3>
+  <ul>
+    <li><strong>Foreign Keys:</strong> Create relationships between tables (e.g., Doctor table references User table)</li>
+    <li><strong>Eager Fetching:</strong> When fetching a Doctor, automatically load their User info and Locations</li>
+    <li><strong>Timestamps:</strong> createdAt, updatedAt fields track when records are created/modified</li>
+    <li><strong>Enums:</strong> Slot status is OPEN or BOOKED (not stored as text)</li>
+    <li><strong>Indexing:</strong> Frequently searched fields (email, specialization) are indexed for faster queries</li>
+  </ul>
+</section>
+
+<!-- ==================== API ENDPOINTS ==================== -->
+<section id="api">
+  <h2>📡 REST API Endpoints</h2>
+
+  <h3>Authentication</h3>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/auth/register
+    <p>Create new user account (patient or doctor)</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/auth/login
+    <p>User login - returns JWT token</p>
+  </div>
+
+  <h3>Doctor Endpoints</h3>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/doctor
+    <p>Get all doctors (for patient searching)</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/doctor/{doctorId}
+    <p>Get specific doctor details</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-put">PUT</span> /api/doctor/{doctorId}
+    <p>Update doctor profile (name, bio, photo)</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/doctor/{doctorId}/location
+    <p>Add clinic location</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/doctor/{doctorId}/location
+    <p>Get doctor's all clinic locations</p>
+  </div>
+
+  <h3>Online Consultations (Meets)</h3>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/meets
+    <p>Doctor books a meet slot (creates availability)</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/meets/doctor/{doctorId}
+    <p>Get all meets for a doctor</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/meets/patient/{patientId}
+    <p>Get all meets for a patient</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/meets/{meetId}/book
+    <p>Patient books a meet with doctor</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/meets/{meetId}/available
+    <p>Get available meets for specific doctor and date</p>
+  </div>
+
+  <h3>Offline Consultations (Slots)</h3>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/offline-slots/create
+    <p>Doctor creates offline availability slots</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/offline-slots
+    <p>Get all offline slots (admin view)</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/offline-slots/doctor/{doctorId}
+    <p>Get doctor's offline consultations</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/offline-slots/patient/{patientId}
+    <p>Get patient's offline booking history</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/offline-slots/{slotId}/book
+    <p>Patient books an offline slot</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/offline-slots/available
+    <p>Get all available slots for filtering</p>
+  </div>
+
+  <h3>Events</h3>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/events
+    <p>Admin creates new health event</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-get">GET</span> /api/events
+    <p>Get all events</p>
+  </div>
+  <div class="endpoint">
+    <span class="method-post">POST</span> /api/events/{eventId}/register
+    <p>Patient registers for event</p>
+  </div>
+
+  <h3>Request Format Example</h3>
+  <div class="code-block">{
+  "email": "patient@example.com",
+  "password": "SecurePass123!",
+  "name": "John Doe",
+  "role": "PATIENT"
+}</div>
+
+  <h3>Response Format Example</h3>
+  <div class="code-block">{
+  "status": "SUCCESS",
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "email": "patient@example.com",
+    "name": "John Doe",
+    "role": "PATIENT"
+  }
+}</div>
+</section>
+
+<!-- ==================== FRONTEND ==================== -->
+<section id="frontend">
+  <h2>🎨 Frontend Structure</h2>
+
+  <h3>Page Organization</h3>
+  <h4>Public Pages (No Login Required)</h4>
+  <div class="role-section">
+    <ul>
+      <li><strong>Welcome.html:</strong> Landing page with registration/login buttons</li>
+      <li><strong>Chatbot.html:</strong> Full-page AI health chatbot (anyone can use)</li>
+      <li><strong>News.html:</strong> Health news and updates</li>
+      <li><strong>AboutUs.html:</strong> Company information</li>
+      <li><strong>Contact.html:</strong> Contact form</li>
+    </ul>
+  </div>
+
+  <h4>Patient Pages (After Login)</h4>
+  <div class="role-section">
+    <ul>
+      <li><strong>PatientHome.html:</strong> Dashboard with quick access to features</li>
+      <li><strong>Patient.html:</strong> Patient dashboard with assistance requests</li>
+      <li><strong>PatientMeets.html:</strong> Book online consultations with doctors</li>
+      <li><strong>PatientOfflineBooking.html:</strong> Book offline clinic appointments</li>
+      <li><strong>PatientProfile.html:</strong> Manage personal health details</li>
+      <li><strong>PatientEvents.html:</strong> Browse and register for health events</li>
+    </ul>
+  </div>
+
+  <h4>Doctor Pages (After Login)</h4>
+  <div class="role-section">
+    <ul>
+      <li><strong>DoctorHome.html:</strong> Dashboard with patient requests and stats</li>
+      <li><strong>Doctor.html:</strong> View patient assistance requests</li>
+      <li><strong>DoctorLocations.html:</strong> Manage clinic locations</li>
+      <li><strong>DoctorAvailability.html:</strong> Set working hours and create slots</li>
+      <li><strong>DoctorMeets.html:</strong> View online consultation bookings</li>
+      <li><strong>DoctorOfflineConsults.html:</strong> View offline clinic appointments</li>
+      <li><strong>DoctorProfile.html:</strong> Manage professional profile</li>
+      <li><strong>DoctorEarnings.html:</strong> Track consultation fees and revenue</li>
+      <li><strong>DoctorEvents.html:</strong> Create and manage health events</li>
+    </ul>
+  </div>
+
+  <h4>Admin Pages (After Login)</h4>
+  <div class="role-section">
+    <ul>
+      <li><strong>AdminHome.html:</strong> Platform overview dashboard</li>
+      <li><strong>AdminDashboard.html:</strong> Key metrics and quick actions</li>
+      <li><strong>AdminMeets.html:</strong> Monitor all online consultations</li>
+      <li><strong>AdminOfflineConsults.html:</strong> Monitor all offline consultations</li>
+      <li><strong>AdminEvents.html:</strong> Manage all health events</li>
+      <li><strong>AdminProfile.html:</strong> Admin account settings</li>
+    </ul>
+  </div>
+
+  <h3>Frontend Technologies Used</h3>
+  <h4>HTML Structure</h4>
+  <div class="code-block"><!-- Navigation (from navbar.js) -->
+<!-- Page-specific content -->
+<!-- Modals for chatbot, forms, etc. -->
+<!-- Footer with copyright --></div>
+
+  <h4>CSS Styling Approach</h4>
+  <ul>
+    <li><strong>Inline Styles:</strong> Each page has its own CSS for unique look</li>
+    <li><strong>Bootstrap 5.3:</strong> Grid system, buttons, forms, responsive design</li>
+    <li><strong>Color Scheme:</strong>
+      <ul>
+        <li>Doctor (Blue): #005580, #012b40</li>
+        <li>Patient (Teal): #006666, #003d3d</li>
+        <li>Admin (Dark): #333, #111</li>
+      </ul>
+    </li>
+    <li><strong>Responsive Design:</strong> Works on mobile, tablet, and desktop</li>
+  </ul>
+
+  <h4>JavaScript Functionality</h4>
+  <ul>
+    <li><strong>api.js:</strong> Common functions for API calls, authentication, error handling</li>
+    <li><strong>navbar.js:</strong> Dynamic navbar generation based on user role</li>
+    <li><strong>customModal.js:</strong> Reusable modal dialogs</li>
+    <li><strong>Page Scripts:</strong> Each page has its own JavaScript for loading data and handling interactions</li>
+  </ul>
+
+  <h3>Key Frontend Features</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h4>Embedded AI Chatbot</h4>
+      <p>Modal chatbot available on all home pages without leaving the page</p>
+    </div>
+    <div class="feature-card">
+      <h4>Real-time Data Loading</h4>
+      <p>Fetches data from backend API and updates UI dynamically</p>
+    </div>
+    <div class="feature-card">
+      <h4>Role-Based Navigation</h4>
+      <p>Navbar changes based on user role using navbar.js</p>
+    </div>
+    <div class="feature-card">
+      <h4>Form Validation</h4>
+      <p>Client-side validation before sending data to backend</p>
+    </div>
+    <div class="feature-card">
+      <h4>Error Handling</h4>
+      <p>User-friendly error messages and notifications</p>
+    </div>
+    <div class="feature-card">
+      <h4>Auto-refresh</h4>
+      <p>Data refreshes on page load and when actions are performed</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section id="flow">
+  <h2>🔄 How It All Works Together</h2>
+
+  <h3>User Registration & Login Flow</h3>
+  <div class="workflow-diagram">User fills registration form
+          ↓
+   Frontend sends email/password/name/role to /api/auth/register
+          ↓
+  Backend validates input (not empty, email format valid)
+          ↓
+  Backend checks if email already exists in database
+          ↓
+  Backend hashes password using bcrypt (for security)
+          ↓
+  Backend creates User record in database
+          ↓
+  If role is DOCTOR or PATIENT, creates Doctor/Patient record
+          ↓
+  Response sent to frontend with success message
+  </div>
+
+  <h3>Patient Booking Online Consultation</h3>
+  <div class="workflow-diagram">Patient opens PatientMeets.html
+          ↓
+  Page loads all doctors from /api/doctor endpoint
+          ↓
+  Patient selects doctor and dates using filters
+          ↓
+  Page calls /api/meets/doctor/{doctorId}/available
+          ↓
+  Backend returns available meeting slots for that doctor
+          ↓
+  Patient sees slots with doctor name, date, time
+          ↓
+  Patient clicks "Book Appointment"
+          ↓
+  Frontend sends POST to /api/meets/{meetId}/book with patientId
+          ↓
+  Backend checks if slot is still available
+          ↓
+  Backend sets patientId on the Meet record
+          ↓
+  Backend changes Meet status from AVAILABLE to BOOKED
+          ↓
+  Email sent to patient and doctor about booking
+          ↓
+  Frontend shows "Booking Successful"
+  </div>
+
+  <h3>Doctor Creating Offline Clinic Slots</h3>
+  <div class="workflow-diagram">Doctor opens DoctorAvailability.html
+          ↓
+  Page shows list of doctor's clinic locations
+          ↓
+  Doctor selects a location
+          ↓
+  Doctor picks a date, start time, end time
+          ↓
+  If time is 2 hours (e.g., 5:00 PM - 7:00 PM):
+    - Automatically creates 4 slots of 30 minutes each
+    - Slot 1: 5:00 - 5:30 PM
+    - Slot 2: 5:30 - 6:00 PM
+    - Slot 3: 6:00 - 6:30 PM
+    - Slot 4: 6:30 - 7:00 PM
+          ↓
+  Frontend sends POST to /api/offline-slots/create
+          ↓
+  Backend validates all 4 slots don't overlap with existing slots
+          ↓
+  Backend creates all 4 OfflineSlot records with status=OPEN
+          ↓
+  Frontend shows "Slots created successfully"
+  </div>
+
+  <h3>Patient Booking Offline Clinic Appointment</h3>
+  <div class="workflow-diagram">Patient opens PatientOfflineBooking.html
+          ↓
+  Page loads all available offline slots from /api/offline-slots/available
+          ↓
+  Slots are grouped by doctor and clinic location
+          ↓
+  Patient sees doctor cards with clinic details
+          ↓
+  Patient selects a doctor to see available time slots
+          ↓
+  Page filters slots by date if patient selects a date
+          ↓
+  Patient clicks on a specific slot (e.g., 5:30 - 6:00 PM)
+          ↓
+  Frontend sends POST to /api/offline-slots/{slotId}/book
+          ↓
+  Backend sets patientId on OfflineSlot record
+          ↓
+  Backend changes slot status from OPEN to BOOKED
+          ↓
+  Email sent to patient with slot details and clinic info
+          ↓
+  Patient can see booking in "My Offline Consultations"
+  </div>
+
+  <h3>Admin Viewing Platform Data</h3>
+  <div class="workflow-diagram">Admin opens AdminDashboard.html
+          ↓
+  Page calls multiple API endpoints in parallel:
+    - /api/doctor → count total doctors
+    - /api/patient → count total patients
+    - /api/events → count total events
+    - /api/event-registrations → count registrations
+          ↓
+  Backend returns counts
+          ↓
+  Page displays statistics in cards
+          ↓
+  Admin clicks "All Online Appointments"
+          ↓
+  Opens AdminMeets.html and loads all meets
+          ↓
+  Admin can filter by status, doctor, date
+          ↓
+  Admin clicks "All Offline Appointments"
+          ↓
+  Opens AdminOfflineConsults.html and loads all slots
+          ↓
+  Admin can see status (Booked/Completed/Open)
+          ↓
+  Admin can view doctor name, patient name, clinic info
+  </div>
+
+  <h3>AI Chatbot Conversation</h3>
+  <div class="workflow-diagram">User clicks "AI Health Chatbot" card on home page
+          ↓
+  Modal dialog opens with chat interface
+          ↓
+  User types question and presses Enter
+          ↓
+  Frontend creates chatHistory array (max 20 messages)
+          ↓
+  Frontend sends POST to OpenAI API with:
+    - System prompt (role-specific: doctor/patient/admin)
+    - Chat history (previous messages for context)
+    - User's new message
+    - API key in Authorization header
+          ↓
+  OpenAI processes request and returns response
+          ↓
+  Response displayed in chat as "bot" message
+          ↓
+  Previous 20 messages kept for context
+          ↓
+  Older messages discarded (to save tokens and costs)
+  </div>
+
+  <h3>Status Determination Logic</h3>
+  <h4>How System Knows if Appointment is "Completed" or "Booked"</h4>
+  <div class="code-block">Current Time: 2026-06-17 10:00 AM
+
+Appointment Details:
+  - Date: 2026-06-17
+  - Start Time: 09:00 AM
+  - End Time: 10:30 AM
+
+Calculation:
+  Appointment End DateTime = 2026-06-17 10:30 AM
+  Current Time = 2026-06-17 10:00 AM
+
+  If (appointmentEndDateTime <= currentTime):
+      Status = "COMPLETED" (show blue badge)
+  Else:
+      Status = "BOOKED" (show green badge)
+
+Result: 10:30 AM > 10:00 AM → Still ongoing → "BOOKED"
+  </div>
+</section>
+
+<!-- ==================== SETUP ==================== -->
+<section id="setup">
+  <h2>🚀 Project Setup & Deployment</h2>
+
+  <h3>Backend Setup</h3>
+  <h4>Prerequisites</h4>
+  <ul>
+    <li>Java 11 or higher installed</li>
+    <li>Maven installed (for dependency management)</li>
+    <li>MySQL 8.0 installed and running</li>
+    <li>Git for version control</li>
+  </ul>
+
+  <h4>Database Setup</h4>
+  <div class="code-block">-- Create database
+CREATE DATABASE mediconnectx;
+
+-- All tables are created automatically by Hibernate
+-- (Spring Boot does this on first run)</div>
+
+  <h4>Configuration File (application.properties)</h4>
+  <div class="code-block">spring.application.name=mediconnectx
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.jdbc.batch_size=10
+
+# Database Connection
+spring.datasource.url=jdbc:mysql://localhost:3306/mediconnectx
+spring.datasource.username=root
+spring.datasource.password=yourpassword
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JWT Configuration
+security.jwt.secret=YourSecretKeyHere123!@#
+security.jwt.expiration=86400000
+
+# Server Port
+server.port=8080</div>
+
+  <h4>Run Backend</h4>
+  <div class="code-block">cd mediconnectx
+mvn clean install
+mvn spring-boot:run
+
+Backend starts on: http://localhost:8080</div>
+
+  <h3>Frontend Setup</h3>
+  <h4>File Structure</h4>
+  <div class="code-block">frontend/frontend/
+├── index.html (or Welcome.html)
+├── api.js (API communication)
+├── navbar.js (Navigation)
+├── customModal.js (Modal dialogs)
+├── PatientHome.html
+├── DoctorHome.html
+├── AdminHome.html
+├── ... (other pages)
+└── images/
+    ├── DoctorsImages.jpg
+    ├── ChatbotImage.jpg
+    └── ... (other images)</div>
+
+  <h4>Run Frontend (Development)</h4>
+  <div class="code-block">1. Use any HTTP server (recommended: Live Server VS Code extension)
+2. Open: http://localhost:5500/frontend/frontend/Welcome.html
+
+OR
+
+1. Use Python built-in server:
+   cd frontend/frontend
+   python -m http.server 5500
+
+2. Open: http://localhost:5500

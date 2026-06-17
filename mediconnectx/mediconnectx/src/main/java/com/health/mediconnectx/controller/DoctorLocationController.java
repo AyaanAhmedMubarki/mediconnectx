@@ -24,6 +24,11 @@ public class DoctorLocationController {
         return service.getLocationsByDoctorId(doctorId);
     }
 
+    @GetMapping("/all")
+    public List<DoctorLocation> getAllLocations() {
+        return service.getAllLocations();
+    }
+
     @GetMapping("/{id}")
     public DoctorLocation getLocation(@PathVariable Long id) {
         return service.getLocationById(id);

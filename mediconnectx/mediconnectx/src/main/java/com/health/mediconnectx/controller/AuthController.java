@@ -31,9 +31,6 @@ public class AuthController {
         // Authenticate the user
         User user = userService.authenticateUser(request);
 
-        // Generate JWT token
-        String token = jwtTokenProvider.generateToken(user.getEmail());
-
         // Resolve role and roleId
         String role = user.getRoles().stream()
                 .map(Role::getName)
@@ -47,6 +44,9 @@ public class AuthController {
         } else if ("DOCTOR".equalsIgnoreCase(role)) {
             roleId = user.getDoctor().getId();
         }
+
+        // Generate JWT token with role included
+        String token = jwtTokenProvider.generateTokenWithRole(user.getEmail(), role);
 
         // Resolve display name — fall back to email prefix if name was never saved
         String name = (user.getName() != null && !user.getName().isBlank())

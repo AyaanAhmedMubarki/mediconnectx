@@ -32,6 +32,17 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // Generate Token with Role
+    public String generateTokenWithRole(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
     // Validate Token
     public boolean validateToken(String token) {
         try {
@@ -54,5 +65,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    // Extract Role from Token
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("role", String.class);
     }
 }

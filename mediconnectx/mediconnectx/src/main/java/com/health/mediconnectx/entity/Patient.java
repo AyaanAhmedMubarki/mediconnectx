@@ -38,6 +38,11 @@ public class Patient {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    @Transient
+    public String getName() {
+        return user != null ? user.getName() : null;
+    }
+
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
