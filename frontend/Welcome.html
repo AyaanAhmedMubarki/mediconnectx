@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediConnect – Welcome</title>
+    <style>
+      /* Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: url("images/HomePageImage.png") no-repeat center center/cover;
+        
+        /* Layout Setup for Centering */
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        
+        color: #003333;
+        position: relative;
+        /* Padding top prevents content from hiding behind the fixed navbar */
+        padding-top: 80px; 
+      }
+
+      /* Overlay */
+      body::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.15);
+        z-index: 1;
+        /* Ensure overlay covers full height even if content scrolls */
+        height: 100%; 
+        width: 100%;
+        position: fixed;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: #003d3d;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.01em;
+      }
+
+      .hamburger {
+        display: none;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.8rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+      .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+      .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+      .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+
+      /* Welcome container */
+      .welcome-container {
+        text-align: center;
+        max-width: 700px;
+        width: 90%;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(3px);
+        animation: fadeIn 1.5s ease-out;
+        position: relative;
+        z-index: 2;
+
+        /* This centers the card vertically in the remaining space */
+        margin: auto; 
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #004d4d;
+      }
+
+      /* Global paragraph style */
+      p {
+        font-size: 1.15rem;
+        margin-bottom: 35px;
+        line-height: 1.8;
+        color: #222;
+      }
+
+      /* Buttons */
+      .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .welcome-btn {
+        padding: 14px 36px;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #fff;
+        background-color: #00a3a3;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 163, 163, 0.4);
+      }
+
+      .welcome-btn:hover {
+        background-color: #008b8b;
+        transform: scale(1.05);
+      }
+
+      .welcome-btn.secondary {
+        background-color: #006666;
+      }
+
+      .welcome-btn.secondary:hover {
+        background-color: #008080;
+      }
+
+      /* Floating Bubbles */
+      .background-bubbles {
+        position: fixed; /* Fixed so they don't affect scroll */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .bubble {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        background: rgba(0, 179, 179, 0.377);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+      }
+
+      .bubble:nth-child(1) {
+        top: 10%;
+        left: 15%;
+        animation-delay: 0s;
+      }
+
+      .bubble:nth-child(2) {
+        top: 75%;
+        left: 75%;
+        width: 150px;
+        height: 150px;
+        animation-delay: 2.5s;
+      }
+
+      .bubble:nth-child(3) {
+        top: 45%;
+        left: 50%;
+        width: 100px;
+        height: 100px;
+        animation-delay: 5s;
+      }
+
+      /* Footer */
+      footer {
+        width: 100%;
+        background-color: #003d3d;
+        text-align: center;
+        padding: 10px;
+        color: white;
+        position: relative;
+        z-index: 3;
+        
+        /* This pushes the footer to the bottom of the flex container */
+        margin-top: auto; 
+      }
+
+      /* Ensure no gap in footer */
+      footer p {
+        margin: 0;
+        padding: 0;
+        font-size: 1rem;
+        color: white;
+      }
+
+      /* Animations */
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-30px); }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 { font-size: 2rem; }
+        p  { font-size: 1rem; }
+        .logo { font-size: 1.1rem; }
+        .hamburger { display: block; }
+        .navbar nav { position: absolute; top: 100%; left: 0; width: 100%; z-index: 99; }
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          background: #006666;
+          padding: 0.8rem 1.5rem;
+          gap: 0;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .nav-links.open { display: flex; }
+        .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.15); }
+        .nav-links li:last-child { border-bottom: none; }
+        .nav-links a { display: block; padding: 0.65rem 0; }
+        .welcome-container { padding: 28px 20px; }
+        .button-container { flex-direction: column; align-items: center; }
+        .welcome-btn { width: 100%; max-width: 260px; text-align: center; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="logo">MediConnectX</div>
+      <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">&#9776;</button>
+      <nav>
+        <ul class="nav-links" id="mainNav">
+          <li><a href="Welcome.html">Home</a></li>
+          <li><a href="Chatbot.html">AI Chatbot</a></li>
+          <li><a href="News.html">News</a></li>
+          <li><a href="AboutUs.html">About Us</a></li>
+          <li><a href="Contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="background-bubbles">
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+    </div>
+
+    <div class="welcome-container">
+      <h1>Welcome to MediConnectX</h1>
+      <p>
+        Your one-stop digital healthcare platform — book doctor appointments,
+        access your medical records, and get AI-powered health support. Join us
+        and experience smarter healthcare today.
+      </p>
+
+      <div class="button-container">
+        <a href="Register.html" class="welcome-btn">Register</a>
+        <a href="Login.html" class="welcome-btn secondary">Login</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p>
+    </footer>
+  <script>
+    function toggleNav() {
+      document.getElementById('mainNav').classList.toggle('open');
+    }
+  </script>
+  <script>
+(function(){
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.nav-links a,.nav-menu a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').split('/').pop();
+    if(h&&h!=='#'&&h===page)a.classList.add('nav-active');
+  });
+})();
+</script>
+  </body>
+</html>

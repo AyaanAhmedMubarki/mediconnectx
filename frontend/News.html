@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>MediConnectX – Health News</title>
+  <style>
+    /* ── Reset & base ── */
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:"Segoe UI",sans-serif;background:#f5fbfb;color:#222;}
+
+    /* ── Navbar ── */
+    .navbar{background:#003d3d;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:200;box-shadow:0 4px 8px rgba(0,0,0,.15);}
+    .logo{color:#fff;font-size:1.4rem;font-weight:700;white-space:nowrap;letter-spacing:0.01em;}
+    .hamburger{display:none;background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;padding:0;line-height:1;}
+    .nav-links{list-style:none;display:flex;gap:0.25rem;align-items:center;}
+    .nav-links a{color:rgba(255,255,255,0.88);text-decoration:none;font-size:0.95rem;padding:6px 15px;border-radius:20px;transition:background 0.2s,color 0.2s;white-space:nowrap;letter-spacing:0.02em;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.nav-active{background:rgba(255,255,255,0.28);color:#fff;font-weight:600;}
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:199;}
+      .nav-links{display:none;flex-direction:column;flex-wrap:nowrap;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.15);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .page-header h1{font-size:1.8rem;}
+      .news-wrapper{padding:20px 12px 48px;}
+      .location-input-row{flex-direction:column;}
+      .location-btn{width:100%;}
+    }
+
+    /* ── Page header ── */
+    .page-header{
+      background:linear-gradient(rgba(26, 202, 202, 0.589),rgba(0,40,40,.78)),
+                 url("images/NewsContactAndAboutUsImage.jpg") no-repeat center/cover;
+      padding:70px 20px 50px;text-align:center;color:#fff;
+    }
+    .page-header h1{font-size:2.6rem;font-weight:700;letter-spacing:.5px;text-shadow:1px 2px 8px rgba(0,0,0,.4);}
+    .page-header p{font-size:1.1rem;color:#ccf0f0;margin-top:14px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7;}
+
+    /* ── Tab bar ── */
+    .tab-bar{background:#fff;border-bottom:2px solid #ddf0f0;position:sticky;top:68px;z-index:150;overflow-x:auto;scrollbar-width:none;}
+    .tab-bar::-webkit-scrollbar{display:none;}
+    .tab-list{display:flex;list-style:none;padding:0 20px;gap:0;min-width:max-content;}
+    .tab-list li a{
+      display:block;padding:15px 22px;
+      color:#666;text-decoration:none;font-weight:600;font-size:.93rem;
+      border-bottom:3px solid transparent;
+      transition:color .2s,border-color .2s;white-space:nowrap;
+    }
+    .tab-list li a:hover{color:#003d3d;}
+    .tab-list li a.active{color:#003d3d;border-bottom-color:#003d3d;}
+
+    /* ── News wrapper ── */
+    .news-wrapper{max-width:1180px;margin:0 auto;padding:32px 20px 64px;}
+
+    /* ── Loading ── */
+    .loading{text-align:center;padding:60px 20px;color:#003d3d;}
+    .spinner{width:46px;height:46px;border:4px solid #cceaea;border-top-color:#003d3d;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 16px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading p{font-size:.97rem;color:#559999;}
+
+    /* ── Error ── */
+    .error-box{text-align:center;padding:50px 20px;color:#c0392b;background:#fff8f8;border-radius:14px;border:1px solid #fdd;}
+    .error-box h3{font-size:1.15rem;margin-bottom:8px;}
+    .error-box p{font-size:.9rem;color:#888;max-width:500px;margin:0 auto;line-height:1.6;}
+
+    /* ── Cards grid ── */
+    .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+    @media(max-width:960px){.cards-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:580px){.cards-grid{grid-template-columns:1fr;}}
+
+    /* ── News card ── */
+    .news-card{
+      background:#fff;border-radius:14px;
+      box-shadow:0 4px 14px rgba(0,0,0,.07);overflow:hidden;
+      text-decoration:none;color:inherit;
+      display:flex;flex-direction:column;
+      transition:transform .2s,box-shadow .2s;
+    }
+    .news-card:hover{transform:translateY(-5px);box-shadow:0 10px 28px rgba(0,0,0,.12);}
+    .card-img{width:100%;height:185px;object-fit:cover;display:block;}
+    .card-ph{height:185px;background:linear-gradient(135deg,#e0f5f5,#aadedc);display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
+    .card-body{padding:16px 18px 20px;flex:1;display:flex;flex-direction:column;}
+    .source-tag{font-size:.72rem;font-weight:700;color:#003d3d;text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px;}
+    .card-title{font-size:.96rem;font-weight:700;line-height:1.45;color:#111;flex:1;
+      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .card-footer{display:flex;justify-content:space-between;align-items:center;
+      margin-top:14px;padding-top:12px;border-top:1px solid #f0f8f8;}
+    .time-ago{font-size:.78rem;color:#bbb;}
+    .read-link{font-size:.78rem;font-weight:700;color:#009999;text-decoration:none;}
+    .read-link:hover{color:#003d3d;}
+
+    /* ── No results ── */
+    .no-results{text-align:center;padding:50px 20px;color:#888;background:#fff;border-radius:14px;}
+    .no-results p{margin-top:10px;font-size:.92rem;}
+
+    /* ── Empty state (Following) ── */
+    .empty-state{
+      text-align:center;padding:80px 20px;
+      background:#fff;border-radius:16px;
+      box-shadow:0 4px 14px rgba(0,0,0,.06);
+    }
+    .empty-icon{font-size:3.2rem;margin-bottom:18px;}
+    .empty-state h3{font-size:1.25rem;color:#333;margin-bottom:10px;font-weight:700;}
+    .empty-state p{font-size:.93rem;color:#888;max-width:380px;margin:0 auto 24px;line-height:1.65;}
+    .empty-btn{
+      display:inline-block;padding:12px 30px;
+      background:#003d3d;color:#fff;border-radius:8px;
+      text-decoration:none;font-weight:700;font-size:.92rem;
+      border:none;cursor:pointer;transition:background .2s;
+    }
+    .empty-btn:hover{background:#008080;}
+
+    /* ── Topic chips (For You) ── */
+    .chips-section{
+      background:#fff;border-radius:14px;
+      padding:22px 24px;margin-bottom:26px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+    }
+    .chips-title{font-size:.78rem;font-weight:700;color:#009999;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+    .chips-row{display:flex;flex-wrap:wrap;gap:10px;}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 16px;border-radius:22px;
+      font-size:.85rem;font-weight:600;cursor:pointer;
+      border:1.5px solid #cce8e8;background:#f5fbfb;color:#555;
+      transition:all .18s;user-select:none;
+    }
+    .chip:hover{border-color:#009999;color:#003d3d;background:#eaf8f8;}
+    .chip.followed{background:#003d3d;color:#fff;border-color:#003d3d;}
+    .chip.followed:hover{background:#008080;border-color:#008080;}
+    .chip-icon{font-size:.85rem;font-weight:900;}
+    .foryou-feed-label{
+      font-size:.75rem;font-weight:700;color:#aaa;
+      text-transform:uppercase;letter-spacing:1.2px;
+      margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid #e0eeee;
+    }
+
+    /* ── Local tab ── */
+    .location-box{
+      background:#fff;border-radius:14px;
+      padding:28px 30px;margin-bottom:24px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);text-align:center;
+    }
+    .location-box h3{font-size:1.05rem;font-weight:700;color:#333;margin-bottom:8px;}
+    .location-box p{font-size:.9rem;color:#888;margin-bottom:18px;}
+    .location-input-row{display:flex;gap:10px;max-width:420px;margin:0 auto;}
+    .location-input{
+      flex:1;padding:11px 14px;
+      border:1.5px solid #cce8e8;border-radius:8px;
+      font-size:.95rem;outline:none;font-family:inherit;background:#f9fefe;
+    }
+    .location-input:focus{border-color:#009999;box-shadow:0 0 0 3px rgba(0,179,179,.12);}
+    .location-btn{
+      padding:11px 22px;background:#003d3d;color:#fff;
+      border:none;border-radius:8px;font-weight:700;
+      font-size:.9rem;cursor:pointer;transition:background .2s;white-space:nowrap;
+    }
+    .location-btn:hover{background:#008080;}
+    .detected-bar{
+      display:flex;align-items:center;justify-content:space-between;
+      background:#eaf8f5;border:1px solid #b0e8de;
+      border-radius:10px;padding:12px 18px;margin-bottom:22px;
+      font-size:.88rem;color:#003d3d;
+    }
+    .detected-bar strong{font-weight:700;}
+    .link-btn{
+      background:none;border:none;color:#009999;
+      font-weight:700;cursor:pointer;font-size:.85rem;
+      text-decoration:underline;padding:0;
+    }
+    .link-btn:hover{color:#003d3d;}
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #003d3d;
+      color: #fff;
+    }
+    footer p { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">MediConnectX</div>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">&#9776;</button>
+    <nav><ul class="nav-links" id="mainNav">
+      <li><a href="Welcome.html">Home</a></li>
+      <li><a href="Chatbot.html">AI Chatbot</a></li>
+      <li><a href="News.html">News</a></li>
+      <li><a href="AboutUs.html">About Us</a></li>
+      <li><a href="Contact.html">Contact</a></li>
+    </ul></nav>
+  </header>
+
+  <div class="page-header">
+    <h1>🩺 Health News</h1>
+    <p>The latest in medical science, healthcare technology, patient care and global wellness — curated for MediConnectX.</p>
+  </div>
+
+  <nav class="tab-bar" aria-label="News sections">
+    <ul class="tab-list" id="tabList">
+      <li><a href="#" class="active" data-tab="home">Home</a></li>
+      <li><a href="#" data-tab="foryou">For You</a></li>
+      <li><a href="#" data-tab="following">Following</a></li>
+      <li><a href="#" data-tab="india">India</a></li>
+      <li><a href="#" data-tab="world">World</a></li>
+      <li><a href="#" data-tab="local">Local</a></li>
+    </ul>
+  </nav>
+
+  <div class="news-wrapper" id="newsWrapper">
+    <div class="loading"><div class="spinner"></div><p>Loading health news…</p></div>
+  </div>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script>
+    const API_KEY = '218020ae6d2449188d06695408cc1e5c';
+    const BASE    = 'https://newsapi.org/v2';
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TOPIC CHIPS  (For You / Following system)
+    ───────────────────────────────────────────────────────────────────── */
+    const TOPICS = [
+      { id:'medical-research',  label:'Medical Research',  query:'"medical research" OR "health study" OR "clinical research" OR "biomedical research"' },
+      { id:'digital-health',    label:'Digital Health',    query:'"digital health" OR "health technology" OR "health app" OR ehealth OR "health informatics"' },
+      { id:'patient-care',      label:'Patient Care',      query:'"patient care" OR "patient safety" OR "healthcare quality" OR "patient experience" OR "nursing care"' },
+      { id:'telemedicine',      label:'Telemedicine',      query:'telemedicine OR telehealth OR "online doctor" OR "virtual care" OR "remote patient monitoring"' },
+      { id:'mental-health',     label:'Mental Health',     query:'"mental health" OR depression OR anxiety OR psychiatry OR psychology OR "mental wellness"' },
+      { id:'nutrition',         label:'Nutrition',         query:'nutrition OR diet OR "healthy eating" OR "food science" OR dietary OR "nutritional health"' },
+      { id:'india-medicine',    label:'India Medicine',    query:'Ayurveda OR "Indian medicine" OR AYUSH OR "traditional medicine India" OR "Indian herbal" OR "naturopathy India"' },
+      { id:'fitness',           label:'Fitness',           query:'fitness OR exercise OR wellness OR "physical health" OR workout OR "sports medicine" OR rehabilitation' },
+      { id:'pharmaceuticals',   label:'Pharmaceuticals',   query:'pharmaceutical OR "drug company" OR "drug development" OR "medicine approval" OR "drug trial" OR "drug discovery"' },
+      { id:'surgery',           label:'Surgery',           query:'surgery OR surgical OR "surgical procedure" OR "minimally invasive" OR "robotic surgery" OR "orthopaedic"' },
+    ];
+
+    /* ── LocalStorage helpers ── */
+    const LS_KEY = 'mcx_followed_topics';
+    function getFollowed()     { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+    function saveFollowed(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+    /* ── Build combined NewsAPI query from an array of topic ids ── */
+    function buildQuery(ids) {
+      return ids
+        .map(id => TOPICS.find(t => t.id === id))
+        .filter(Boolean)
+        .map(t => `(${t.query})`)
+        .join(' OR ');
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       GENERIC TABS  (Home, India, World)
+    ───────────────────────────────────────────────────────────────────── */
+    const TAB_URLS = {
+      home  : `${BASE}/top-headlines?category=health&language=en&pageSize=12&apiKey=${API_KEY}`,
+      india : `${BASE}/everything?q=AIIMS OR ICMR OR "Ayushman Bharat" OR "Indian hospital" OR "health ministry India" OR NIMHANS OR "PGI Chandigarh" OR "medical college India" OR "India health" OR "India healthcare" OR "India vaccination" OR "India disease" OR "Indian pharmacy" OR "Apollo hospital" OR "Fortis hospital" OR "Indian medical" OR "NITI Aayog health" OR "Delhi hospital" OR "Mumbai hospital" OR "Narayana Health" OR "Max hospital"&language=en&sortBy=publishedAt&pageSize=12&apiKey=${API_KEY}`,
+      world : `${BASE}/everything?q=WHO OR "World Health Organization" OR "global health" OR "international health" OR pandemic OR "global disease" OR "global healthcare" OR "health emergency" OR "disease outbreak"&language=en&sortBy=publishedAt&pageSize=12&apiKey=${API_KEY}`,
+    };
+
+    /* Session cache */
+    const cache = {};
+
+    /* ─────────────────────────────────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────────────────────────────────── */
+    function timeAgo(iso) {
+      const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+      if (s < 60)     return 'just now';
+      if (s < 3600)   return Math.floor(s / 60)    + ' min ago';
+      if (s < 86400)  return Math.floor(s / 3600)  + ' hr ago';
+      if (s < 604800) return Math.floor(s / 86400) + ' days ago';
+      return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    }
+
+    function safeImg(url) {
+      return url && url.length > 10 && !url.toLowerCase().includes('removed') ? url : null;
+    }
+
+    function onImgErr(el) {
+      el.parentNode.innerHTML = '<div class="card-ph">🩺</div>';
+    }
+
+    function filterArticles(arr) {
+      return (arr || []).filter(a =>
+        a.title && !a.title.includes('[Removed]') &&
+        a.url   && a.url !== 'https://removed.com'
+      );
+    }
+
+    /* ── Single card ── */
+    function renderCard(a) {
+      const img = safeImg(a.urlToImage);
+      const imgHtml = img
+        ? `<img src="${img}" class="card-img" alt="" loading="lazy" onerror="onImgErr(this)">`
+        : `<div class="card-ph">🩺</div>`;
+      return `
+        <a class="news-card" href="${a.url}" target="_blank" rel="noopener noreferrer">
+          ${imgHtml}
+          <div class="card-body">
+            <div class="source-tag">${a.source?.name || 'Unknown'}</div>
+            <p class="card-title">${a.title}</p>
+            <div class="card-footer">
+              <span class="time-ago">${timeAgo(a.publishedAt)}</span>
+              <span class="read-link">Read more →</span>
+            </div>
+          </div>
+        </a>`;
+    }
+
+    function loadingHtml(msg = 'Loading health news…') {
+      return `<div class="loading"><div class="spinner"></div><p>${msg}</p></div>`;
+    }
+
+    function errorHtml(msg) {
+      const isCors = msg === 'Failed to fetch';
+      return `
+        <div class="error-box">
+          <h3>⚠️ Could not load news</h3>
+          <p>${isCors
+            ? 'NewsAPI requires a local server. Open this file via VS Code Live Server or IntelliJ on <strong>localhost</strong>.'
+            : msg
+          }</p>
+        </div>`;
+    }
+
+    function gridHtml(articles) {
+      const valid = filterArticles(articles);
+      if (!valid.length) return `<div class="no-results"><div style="font-size:2rem">🔍</div><p>No articles found. Try another tab or check back later.</p></div>`;
+      return `<div class="cards-grid">${valid.map(renderCard).join('')}</div>`;
+    }
+
+    /* ── Fetch a URL and put result in a target element (by id or element) ── */
+    async function fetchInto(url, targetId, cacheKey) {
+      const el = typeof targetId === 'string' ? document.getElementById(targetId) : targetId;
+      if (!el) return;
+      if (cacheKey && cache[cacheKey]) { el.innerHTML = gridHtml(cache[cacheKey]); return; }
+      el.innerHTML = loadingHtml();
+      try {
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (data.status !== 'ok') throw new Error(data.message || 'NewsAPI error');
+        if (cacheKey) cache[cacheKey] = data.articles;
+        el.innerHTML = gridHtml(data.articles);
+      } catch (err) {
+        el.innerHTML = errorHtml(err.message);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TAB: HOME / INDIA / WORLD
+    ───────────────────────────────────────────────────────────────────── */
+    function loadGenericTab(key) {
+      const wrapper = document.getElementById('newsWrapper');
+      wrapper.innerHTML = loadingHtml();
+      if (cache[key]) { wrapper.innerHTML = gridHtml(cache[key]); return; }
+      fetchInto(TAB_URLS[key], wrapper, key);
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TAB: FOR YOU
+    ───────────────────────────────────────────────────────────────────── */
+    function loadForYouTab() {
+      const wrapper  = document.getElementById('newsWrapper');
+      const followed = getFollowed();
+      wrapper.innerHTML = `
+        <div class="chips-section">
+          <div class="chips-title">🏷️ Follow topics to personalise your feed — click + to follow</div>
+          <div class="chips-row" id="chipsRow">
+            ${TOPICS.map(t => chipHtml(t, followed.includes(t.id))).join('')}
+          </div>
+        </div>
+        <p class="foryou-feed-label" id="feedLabel">${followed.length ? 'Your feed' : 'General health feed (follow topics above to personalise)'}</p>
+        <div id="forYouNews">${loadingHtml('Building your feed…')}</div>`;
+      fetchForYouNews();
+    }
+
+    function chipHtml(topic, isFollowed) {
+      return `<div class="chip${isFollowed ? ' followed' : ''}" onclick="toggleTopic('${topic.id}')">
+        <span class="chip-icon">${isFollowed ? '✓' : '+'}</span>${topic.label}
+      </div>`;
+    }
+
+    function toggleTopic(id) {
+      const followed = getFollowed();
+      const idx = followed.indexOf(id);
+      if (idx === -1) followed.push(id); else followed.splice(idx, 1);
+      saveFollowed(followed);
+
+      /* Refresh chips */
+      const chipsRow = document.getElementById('chipsRow');
+      if (chipsRow) chipsRow.innerHTML = TOPICS.map(t => chipHtml(t, followed.includes(t.id))).join('');
+
+      /* Update feed label */
+      const lbl = document.getElementById('feedLabel');
+      if (lbl) lbl.textContent = followed.length ? 'Your feed' : 'General health feed (follow topics above to personalise)';
+
+      fetchForYouNews();
+    }
+
+    function fetchForYouNews() {
+      const followed = getFollowed();
+      const url = followed.length
+        ? `${BASE}/everything?q=${encodeURIComponent(buildQuery(followed))}&language=en&sortBy=relevancy&pageSize=12&apiKey=${API_KEY}`
+        : TAB_URLS.home; /* default: general health if nothing followed */
+      fetchInto(url, 'forYouNews', null); /* no cache — changes with each chip toggle */
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TAB: FOLLOWING
+    ───────────────────────────────────────────────────────────────────── */
+    function loadFollowingTab() {
+      const wrapper  = document.getElementById('newsWrapper');
+      const followed = getFollowed();
+
+      if (!followed.length) {
+        wrapper.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📌</div>
+            <h3>You haven't followed anything yet</h3>
+            <p>Go to <strong>For You</strong> and tap <strong>+</strong> on topics that interest you. Your personalised news will appear here.</p>
+            <button class="empty-btn" onclick="switchTab('foryou')">Go to For You →</button>
+          </div>`;
+        return;
+      }
+
+      wrapper.innerHTML = loadingHtml('Loading your followed topics…');
+      const url = `${BASE}/everything?q=${encodeURIComponent(buildQuery(followed))}&language=en&sortBy=publishedAt&pageSize=12&apiKey=${API_KEY}`;
+      fetchInto(url, wrapper, null);
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TAB: LOCAL  (Geolocation → Nominatim → NewsAPI)
+    ───────────────────────────────────────────────────────────────────── */
+    let detectedCity = null;
+
+    function loadLocalTab() {
+      const wrapper = document.getElementById('newsWrapper');
+
+      if (detectedCity) { renderLocalNews(wrapper, detectedCity, false); return; }
+
+      if (!navigator.geolocation) { showCitySearch(wrapper); return; }
+
+      wrapper.innerHTML = loadingHtml('📍 Detecting your location…');
+
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          try {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            const r    = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`);
+            const data = await r.json();
+            const city = data.address?.city
+                      || data.address?.town
+                      || data.address?.county
+                      || data.address?.state_district
+                      || data.address?.state;
+            if (city) { detectedCity = city; renderLocalNews(wrapper, city, true); }
+            else        showCitySearch(wrapper, 'Could not determine your city. Please enter it manually.');
+          } catch {
+            showCitySearch(wrapper, 'Location lookup failed. Please enter your city manually.');
+          }
+        },
+        () => showCitySearch(wrapper, 'Location access denied. Enter your city to see local health news.'),
+        { timeout: 8000 }
+      );
+    }
+
+    function showCitySearch(wrapper, subtitle = 'Enter your city to see local health and medical news.') {
+      wrapper.innerHTML = `
+        <div class="location-box">
+          <h3>📍 Local Health News</h3>
+          <p>${subtitle}</p>
+          <div class="location-input-row">
+            <input type="text" id="cityInput" class="location-input" placeholder="e.g. Mumbai, Chennai, Bangalore, Hyderabad…"/>
+            <button class="location-btn" onclick="submitCity()">Search</button>
+          </div>
+        </div>
+        <div id="localNews"></div>`;
+
+      const inp = document.getElementById('cityInput');
+      if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitCity(); });
+    }
+
+    function submitCity() {
+      const city = document.getElementById('cityInput')?.value?.trim();
+      if (!city) return;
+      detectedCity = city;
+      renderLocalNews(document.getElementById('newsWrapper'), city, false);
+    }
+
+    /* Called by "Change location" button — always goes straight to the search box */
+    function changeLocation() {
+      detectedCity = null;
+      showCitySearch(document.getElementById('newsWrapper'));
+    }
+
+    function renderLocalNews(wrapper, city, autoDetected) {
+      const detectedBar = `
+        <div class="detected-bar">
+          <span>📍 Showing local health news for <strong>${city}</strong></span>
+          <button class="link-btn" onclick="changeLocation()">Change location</button>
+        </div>`;
+
+      wrapper.innerHTML = detectedBar + `<div id="localNews">${loadingHtml('Loading local news…')}</div>`;
+
+      const q   = `"${city}" (health OR medical OR hospital OR doctor OR clinic OR healthcare OR disease OR medicine OR pharmacy)`;
+      const url = `${BASE}/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=12&apiKey=${API_KEY}`;
+
+      fetchInto(url, 'localNews', null);
+    }
+
+    function toggleNav(){document.getElementById('mainNav').classList.toggle('open');}
+    (function(){
+      var page=location.pathname.split('/').pop()||'index.html';
+      document.querySelectorAll('.nav-links a,.nav-menu a').forEach(function(a){
+        var h=(a.getAttribute('href')||'').split('/').pop();
+        if(h&&h!=='#'&&h===page)a.classList.add('nav-active');
+      });
+    })();
+
+    /* ─────────────────────────────────────────────────────────────────────
+       TAB ROUTER
+    ───────────────────────────────────────────────────────────────────── */
+    function loadTab(key) {
+      if (key === 'foryou')    { loadForYouTab();    return; }
+      if (key === 'following') { loadFollowingTab(); return; }
+      if (key === 'local')     { loadLocalTab();     return; }
+      loadGenericTab(key); /* home, india, world */
+    }
+
+    function switchTab(key) {
+      document.querySelectorAll('.tab-list a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.tab-list a[data-tab="${key}"]`);
+      if (link) link.classList.add('active');
+      loadTab(key);
+    }
+
+    /* ── Tab click ── */
+    document.getElementById('tabList').addEventListener('click', e => {
+      const link = e.target.closest('a[data-tab]');
+      if (!link) return;
+      e.preventDefault();
+      switchTab(link.dataset.tab);
+    });
+
+    /* ── Boot ── */
+    loadTab('home');
+  </script>
+
+</body>
+</html>

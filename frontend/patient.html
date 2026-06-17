@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard – MediConnectX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Poppins', sans-serif; }
+    body { background: #f4f9f9; color: #333; min-height: 100vh; }
+
+    .container-main { max-width: 1200px; margin: 0 auto; padding: 30px 16px 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(0,102,102,0.85), rgba(0,51,51,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: #fff; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p  { font-size: 1.05rem; font-weight: 300; }
+
+    /* ── Welcome strip ── */
+    .welcome-strip {
+      background: #fff; border-radius: 14px; padding: 18px 24px;
+      margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .welcome-strip h2 { color: #003d3d; font-size: 1.3rem; font-weight: 700; margin: 0; }
+    .welcome-strip span { color: #666; font-size: 0.9rem; display: block; margin-top: 2px; }
+    .btn-profile {
+      background: #003d3d; color: #fff; border: none;
+      padding: 9px 20px; border-radius: 22px; font-size: 0.88rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .btn-profile:hover { background: #006666; color: #fff; }
+
+    /* ── Section titles ── */
+    .section-title { text-align: center; font-size: 2rem; color: #333; margin-bottom: 35px; font-weight: bold; }
+
+    /* ── Stat grid ── */
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 22px; margin-bottom: 50px;
+    }
+    .stat-card {
+      background: #fff; border-radius: 14px; padding: 28px 20px; text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1); transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-6px); }
+    .stat-card > i      { font-size: 2.8rem; color: #00b3b3; margin-bottom: 12px; display: block; }
+    .stat-card .stat-num   { font-size: 2.4rem; font-weight: 700; color: #333; line-height: 1; }
+    .stat-card .stat-label { font-size: 1rem; color: #777; margin-top: 6px; }
+    .stat-card .stat-sub   { font-size: 0.78rem; color: #aaa; margin-top: 4px; }
+
+    /* ── Next Appointment card ── */
+    .next-apt-card {
+      background: linear-gradient(135deg, #003d3d 0%, #006666 100%);
+      border-radius: 14px; padding: 24px 28px; margin-bottom: 30px;
+      box-shadow: 0 6px 24px rgba(0,61,61,0.28);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 18px; color: #fff;
+    }
+    .next-apt-card .nac-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem; flex-shrink: 0;
+    }
+    .next-apt-card .nac-body { flex: 1; min-width: 160px; }
+    .next-apt-card .nac-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+                                 letter-spacing: 0.7px; opacity: 0.75; margin-bottom: 4px; }
+    .next-apt-card .nac-doctor { font-size: 1.2rem; font-weight: 700; }
+    .next-apt-card .nac-time   { font-size: 0.9rem; opacity: 0.85; margin-top: 3px; }
+    .next-apt-card .nac-status { margin-top: 6px; }
+    .nac-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-join { background: #fff; color: #003d3d; border: none; padding: 10px 22px;
+               border-radius: 22px; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+               text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+               transition: all 0.2s; }
+    .btn-join:hover { background: #e0f7f7; color: #003d3d; }
+    .btn-pay { background: #f39c12; color: #fff; border: none; padding: 10px 22px;
+               border-radius: 22px; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+               text-decoration: none; display: inline-flex; align-items: center; gap: 7px; }
+    .btn-pay:hover { background: #e67e22; color: #fff; }
+    .btn-book-now {
+      background: rgba(255,255,255,0.18); color: #fff; border: 2px solid rgba(255,255,255,0.4);
+      padding: 10px 22px; border-radius: 22px; font-weight: 600; font-size: 0.9rem;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+      transition: background 0.2s;
+    }
+    .btn-book-now:hover { background: rgba(255,255,255,0.28); color: #fff; }
+
+    /* ── Quick Actions row ── */
+    .quick-actions-row {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px;
+    }
+    .qa-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; background: #fff; color: #003d3d;
+      border: 2px solid #003d3d; border-radius: 22px;
+      text-decoration: none; font-size: 0.9rem; font-weight: 600;
+      transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .qa-btn:hover { background: #003d3d; color: #fff; }
+    .qa-btn i { font-size: 1rem; }
+
+    /* ── Section content cards ── */
+    .section-card {
+      background: #fff; border-radius: 14px; padding: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08); margin-bottom: 30px;
+    }
+    .section-card-title {
+      font-size: 1.1rem; font-weight: 700; color: #003d3d;
+      margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 12px; border-bottom: 2px solid #c8eded; flex-wrap: wrap; gap: 8px;
+    }
+    .section-card-title .title-left { display: flex; align-items: center; gap: 8px; }
+    .section-card-title i { color: #00b3b3; font-size: 1.1rem; }
+    .overflow-x-auto { overflow-x: auto; }
+    .table { margin-bottom: 0; }
+    .table thead { background: #003d3d; color: #fff; }
+    .table thead th { font-weight: 600; border: none; white-space: nowrap; }
+    .table tbody tr:hover { background: #e8f6f6; }
+    .table th, .table td { vertical-align: middle; }
+
+    /* ── Badges ── */
+    .badge-pending         { background:#f39c12; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-booked          { background:#27ae60; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-approved        { background:#27ae60; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-completed       { background:#2980b9; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-cancelled       { background:#e74c3c; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-rejected        { background:#e74c3c; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-missed          { background:#795548; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+
+    /* ── Health alert stat icon tint ── */
+    .stat-card.alert-ok  > i { color: #27ae60; }
+    .stat-card.alert-warn > i { color: #e67e22; }
+    .stat-card.alert-ok  .stat-num { color: #27ae60; }
+    .stat-card.alert-warn .stat-num { color: #e67e22; }
+
+    /* ── Toast ── */
+    .toast-bar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #27ae60; color: #fff; padding: 12px 28px;
+      border-radius: 8px; font-size: 0.93rem; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 3000;
+      display: none; white-space: nowrap;
+    }
+    .toast-bar.error { background: #e74c3c; }
+    .toast-bar.show  { display: block; }
+
+    footer { background: #003d3d; color: #fff; text-align: center; padding: 16px; margin-top: 50px; }
+    .loading   { text-align: center; color: #006666; padding: 24px; }
+    .empty-msg { color: #aaa; font-style: italic; font-size: 0.92rem; padding: 16px 0; text-align: center; }
+
+    @media(max-width:768px) {
+      .page-header h1 { font-size: 1.7rem; }
+      .page-header { padding: 36px 16px; }
+      .section-title { font-size: 1.4rem; }
+      .stat-card .stat-num { font-size: 1.8rem; }
+      .welcome-strip { flex-direction: column; align-items: flex-start; }
+      .table th, .table td { font-size: 0.82rem; padding: 0.4rem 0.5rem; }
+      .next-apt-card { flex-direction: column; align-items: flex-start; }
+      .quick-actions-row { gap: 8px; }
+      .qa-btn { padding: 9px 16px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <!-- ── Page Header ── -->
+  <div class="page-header">
+    <h1>Patient Dashboard</h1>
+    <p>Your consultations, event registrations, and health activity — all in one place.</p>
+  </div>
+
+  <div class="container-main">
+
+    <!-- Welcome strip -->
+    <div class="welcome-strip">
+      <div>
+        <h2 id="welcomeName">Welcome back</h2>
+        <span id="welcomeDate">Loading your health overview…</span>
+      </div>
+      <a href="PatientProfile.html" class="btn-profile">
+        <i class="bi bi-person-circle"></i>My Profile
+      </a>
+    </div>
+
+    <!-- ── Summary Cards ── -->
+    <h2 class="section-title">My Overview</h2>
+    <div class="stat-grid">
+
+      <div class="stat-card">
+        <i class="bi bi-camera-video-fill"></i>
+        <div class="stat-num" id="statConsults">—</div>
+        <div class="stat-label">Upcoming Consultations</div>
+        <div class="stat-sub">Booked &amp; confirmed</div>
+      </div>
+
+      <div class="stat-card">
+        <i class="bi bi-calendar-check"></i>
+        <div class="stat-num" id="statEvents">—</div>
+        <div class="stat-label">Registered Events</div>
+        <div class="stat-sub">Total event sign-ups</div>
+      </div>
+
+      <div class="stat-card" id="alertCard">
+        <i class="bi bi-shield-fill-check"></i>
+        <div class="stat-num" id="statAlerts">—</div>
+        <div class="stat-label">Health Alerts</div>
+        <div class="stat-sub" id="alertSub">Checking profile…</div>
+      </div>
+
+    </div>
+
+    <!-- ── Next Appointment ── -->
+    <div id="nextAptSection">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- ── Quick Actions ── -->
+    <h2 class="section-title" style="font-size:1.6rem;">Quick Actions</h2>
+    <div class="quick-actions-row" style="margin-bottom:50px;">
+      <a href="PatientMeets.html" class="qa-btn">
+        <i class="bi bi-camera-video"></i> Book Consultation
+      </a>
+      <a href="PatientOfflineBooking.html" class="qa-btn">
+        <i class="bi bi-hospital"></i> Book Offline
+      </a>
+      <a href="PatientEvents.html" class="qa-btn">
+        <i class="bi bi-calendar-plus"></i> Browse Events
+      </a>
+      <a href="PatientMedicalHistory.html" class="qa-btn">
+        <i class="bi bi-file-medical"></i> Medical History
+      </a>
+      <a href="DoctorPrescriptions.html" class="qa-btn">
+        <i class="bi bi-capsule"></i> My Prescriptions
+      </a>
+      <a href="PatientTests.html" class="qa-btn">
+        <i class="bi bi-flask"></i> Medical Tests
+      </a>
+      <a href="PatientProfile.html" class="qa-btn">
+        <i class="bi bi-person-fill"></i> My Profile
+      </a>
+    </div>
+
+    <!-- ── Event Registrations ── -->
+    <div class="section-card">
+      <div class="section-card-title">
+        <div class="title-left">
+          <i class="bi bi-calendar-check"></i>
+          My Event Registrations
+        </div>
+        <a href="PatientEvents.html" style="font-size:0.82rem;color:#00b3b3;text-decoration:none;font-weight:600;">
+          Browse events <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="overflow-x-auto" id="registrationsSection">
+        <div class="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Loading registrations…
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Doctor Assistance Requests ── -->
+    <div class="section-card">
+      <div class="section-card-title">
+        <div class="title-left">
+          <i class="bi bi-person-lines-fill"></i>
+          My Doctor Assistance Requests
+        </div>
+        <span id="assistBadge" class="badge bg-secondary" style="font-size:0.78rem;">—</span>
+      </div>
+      <div class="overflow-x-auto" id="assistanceSection">
+        <div class="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Loading requests…
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container-main -->
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <div class="toast-bar" id="toastBar"></div>
+
+  <script src="api.js"></script>
+  <script src="customModal.js"></script>
+  <script>
+    const auth = requireAuth('PATIENT');
+
+    // ── Greeting ─────────────────────────────────────────────────────────
+    document.getElementById('welcomeName').textContent = 'Welcome back, ' + (auth.name || '');
+    document.getElementById('welcomeDate').textContent =
+      new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+    // ── Toast ────────────────────────────────────────────────────────────
+    function showToast(msg, isError) {
+      const t = document.getElementById('toastBar');
+      t.textContent = msg;
+      t.className = 'toast-bar show' + (isError ? ' error' : '');
+      setTimeout(() => { t.className = 'toast-bar'; }, 3500);
+    }
+
+    // ── Date helpers ─────────────────────────────────────────────────────
+    function parseAptTime(val) {
+      if (!val) return new Date(NaN);
+      if (Array.isArray(val))
+        return new Date(val[0], val[1] - 1, val[2], val[3] || 0, val[4] || 0, val[5] || 0);
+      return new Date(val);
+    }
+
+    function fmtDateTime(val) {
+      const d = parseAptTime(val);
+      if (isNaN(d)) return '—';
+      return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) +
+             ' · ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    // ── Badge helpers ─────────────────────────────────────────────────────
+    function aptBadge(s) {
+      const map = {
+        PENDING_PAYMENT: 'badge-pending',
+        BOOKED:          'badge-booked',
+        COMPLETED:       'badge-completed',
+        CANCELLED:       'badge-cancelled',
+        MISSED:          'badge-missed'
+      };
+      // Patient-facing label: MISSED shows a refund confirmation
+      const labels = { MISSED: 'Missed – Refund Processed' };
+      const label  = labels[s] || s || '—';
+      return `<span class="${map[s] || 'badge-pending'}">${label}</span>`;
+    }
+
+    function regBadge(s) {
+      const cls = (s === 'APPROVED' || s === 'ACCEPTED') ? 'badge-approved'
+                : s === 'REJECTED' ? 'badge-rejected'
+                : 'badge-pending';
+      return `<span class="${cls}">${s || 'PENDING'}</span>`;
+    }
+
+    function assistBadge(s) {
+      const cls = (s === 'APPROVED' || s === 'ACCEPTED') ? 'badge-approved'
+                : s === 'REJECTED' ? 'badge-rejected'
+                : 'badge-pending';
+      return `<span class="${cls}">${s || 'PENDING'}</span>`;
+    }
+
+    // ── Main dashboard load ───────────────────────────────────────────────
+    async function loadDashboard() {
+      const [aptResult, regsResult, assistResult] = await Promise.allSettled([
+        apiGet('/api/appointments/patient?patientId=' + auth.roleId),
+        // UX-02 fix: Use profileId with userRole filter to exclude doctor registrations
+        apiGet('/api/registration/search?profileId=' + auth.roleId + '&userRole=PATIENT'),
+        apiGet('/api/assistance/search?patientId='    + auth.roleId)
+      ]);
+
+      const appointments  = aptResult.status    === 'fulfilled' ? aptResult.value    : [];
+      const registrations = regsResult.status   === 'fulfilled' ? regsResult.value   : [];
+      const assistance    = assistResult.status  === 'fulfilled' ? assistResult.value  : [];
+
+      // ── Stats ──────────────────────────────────────────────────────────
+      const now      = new Date();
+      const upcoming = appointments
+        .filter(a => a.status === 'BOOKED' && parseAptTime(a.appointmentTime) > now)
+        .sort((a, b) => parseAptTime(a.appointmentTime) - parseAptTime(b.appointmentTime));
+
+      document.getElementById('statConsults').textContent = upcoming.length;
+      document.getElementById('statEvents').textContent   = registrations.length;
+
+      // ── Health Alerts (async, loads profile) ──────────────────────────
+      loadHealthAlerts();
+
+      // ── Next Appointment card ──────────────────────────────────────────
+      await renderNextAppointment(upcoming);
+
+      // ── Tables ────────────────────────────────────────────────────────
+      renderRegistrations(registrations);
+
+      document.getElementById('assistBadge').textContent = assistance.length;
+      await renderAssistance(assistance);
+    }
+
+    // ── Health Alerts ─────────────────────────────────────────────────────
+    async function loadHealthAlerts() {
+      try {
+        const p = await apiGet('/api/patient/profile?email=' + encodeURIComponent(auth.email));
+        let alerts = 0;
+        const missing = [];
+        if (!p.bloodGroup  || !p.bloodGroup.trim())  { alerts++; missing.push('Blood Group'); }
+        if (!p.allergies   || !p.allergies.trim())   { alerts++; missing.push('Allergies'); }
+        if (!p.emergencyContactName || !p.emergencyContactName.trim()) { alerts++; missing.push('Emergency Contact'); }
+
+        const numEl   = document.getElementById('statAlerts');
+        const subEl   = document.getElementById('alertSub');
+        const cardEl  = document.getElementById('alertCard');
+        numEl.textContent = alerts;
+
+        if (alerts === 0) {
+          cardEl.classList.add('alert-ok');
+          subEl.textContent = 'Profile complete ✓';
+        } else {
+          cardEl.classList.add('alert-warn');
+          subEl.textContent = missing.join(', ') + ' missing';
+        }
+      } catch {
+        document.getElementById('statAlerts').textContent = '—';
+        document.getElementById('alertSub').textContent   = 'Could not load';
+      }
+    }
+
+    // ── Next Appointment card renderer ────────────────────────────────────
+    async function renderNextAppointment(upcoming) {
+      const section = document.getElementById('nextAptSection');
+
+      if (!upcoming.length) {
+        section.innerHTML = `
+          <div class="next-apt-card" style="justify-content:center;">
+            <div style="text-align:center;">
+              <i class="bi bi-calendar2-x" style="font-size:2.2rem;opacity:0.5;display:block;margin-bottom:10px;"></i>
+              <div style="font-weight:700;font-size:1.05rem;margin-bottom:6px;">No Upcoming Consultations</div>
+              <div style="opacity:0.8;font-size:0.9rem;margin-bottom:16px;">Book a consultation with a doctor to get started.</div>
+              <a href="PatientMeets.html" class="btn-book-now">
+                <i class="bi bi-calendar-plus"></i> Book a Consultation
+              </a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const next = upcoming[0];
+
+      // Resolve doctor name
+      let doctorName = 'Doctor #' + next.doctorId;
+      try {
+        const d = await apiGet('/api/doctor/search?id=' + next.doctorId);
+        doctorName = 'Dr. ' + (d.name || next.doctorId);
+      } catch {}
+
+      const aptDate = parseAptTime(next.appointmentTime);
+      const diffMs  = aptDate - new Date();
+      const tenMin  = 10 * 60 * 1000;
+
+      // Action button
+      let actionBtn = '';
+      if (diffMs <= tenMin) {
+        actionBtn = `<a href="Room.html?appointmentId=${next.id}" class="btn-join">
+          <i class="bi bi-camera-video-fill"></i> Join Call Now
+        </a>`;
+      } else {
+        const h    = Math.floor(diffMs / 3600000);
+        const m    = Math.floor((diffMs % 3600000) / 60000);
+        const when = h > 0 ? `${h}h ${m}m` : `${m} min`;
+        actionBtn = `<button class="btn-join" disabled style="opacity:0.55;cursor:not-allowed;">
+          <i class="bi bi-clock"></i> Opens in ${when}
+        </button>`;
+      }
+
+      if (upcoming.length > 1) {
+        actionBtn += `<a href="PatientMeets.html" class="btn-book-now ms-2">
+          +${upcoming.length - 1} more <i class="bi bi-arrow-right"></i>
+        </a>`;
+      }
+
+      section.innerHTML = `
+        <div class="next-apt-card">
+          <div class="nac-icon"><i class="bi bi-calendar2-heart"></i></div>
+          <div class="nac-body">
+            <div class="nac-label">Next Appointment</div>
+            <div class="nac-doctor">${doctorName}</div>
+            <div class="nac-time"><i class="bi bi-clock me-1"></i>${fmtDateTime(next.appointmentTime)}</div>
+            <div class="nac-status mt-2">${aptBadge(next.status)}</div>
+          </div>
+          <div class="nac-actions">${actionBtn}</div>
+        </div>`;
+    }
+
+    // ── Event Registrations renderer ──────────────────────────────────────
+    function renderRegistrations(regs) {
+      const el = document.getElementById('registrationsSection');
+      if (!regs.length) {
+        el.innerHTML = '<p class="empty-msg"><i class="bi bi-calendar2-x me-2"></i>No event registrations yet. <a href="PatientEvents.html">Browse events →</a></p>';
+        return;
+      }
+      const rows = regs.map(r => `<tr>
+        <td class="text-center">${r.id}</td>
+        <td class="text-center">${r.eventId}</td>
+        <td class="text-center">${r.registrationDate || '—'}</td>
+        <td class="text-center">${regBadge(r.status)}</td>
+        <td class="text-center">
+          ${r.status === 'PENDING'
+            ? `<button class="btn btn-sm btn-outline-danger" onclick="cancelReg(${r.id})">
+                 <i class="bi bi-x-circle"></i> Cancel
+               </button>`
+            : '—'}
+        </td>
+      </tr>`).join('');
+      el.innerHTML = `
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="text-center">Reg ID</th>
+              <th class="text-center">Event ID</th>
+              <th class="text-center">Date</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    // ── Assistance Requests renderer ──────────────────────────────────────
+    async function renderAssistance(list) {
+      const el = document.getElementById('assistanceSection');
+      if (!list.length) {
+        el.innerHTML = '<p class="empty-msg">No assistance requests found.</p>';
+        return;
+      }
+
+      // Resolve doctor names
+      const names = {};
+      await Promise.all([...new Set(list.map(a => a.doctorId))].map(async id => {
+        try {
+          const d = await apiGet('/api/doctor/search?id=' + id);
+          names[id] = 'Dr. ' + (d.name || id);
+        } catch { names[id] = 'Doctor #' + id; }
+      }));
+
+      const rows = list.map(a => `<tr>
+        <td class="text-center">${a.id}</td>
+        <td><strong>${names[a.doctorId] || 'Doctor #' + a.doctorId}</strong></td>
+        <td class="text-center">${a.requestDate || '—'}</td>
+        <td class="text-center">${assistBadge(a.status)}</td>
+        <td style="max-width:200px;word-break:break-word;font-size:0.88rem;">${a.remarks || '<span style="color:#bbb">—</span>'}</td>
+      </tr>`).join('');
+
+      el.innerHTML = `
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th class="text-center">ID</th>
+              <th>Doctor</th>
+              <th class="text-center">Date</th>
+              <th class="text-center">Status</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    // ── Cancel registration ───────────────────────────────────────────────
+    function cancelReg(id) {
+      showConfirmation('Cancel Registration', 'Cancel this event registration?', async () => {
+        try {
+          await apiDelete('/api/registration/delete/' + id);
+          showToast('Registration cancelled.', false);
+          loadDashboard();
+        } catch (e) {
+          showToast('Error: ' + e.message, true);
+        }
+      });
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediConnectX – Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Poppins", "Segoe UI", sans-serif;
+      background: url("images/HomePageImage.png") center/cover no-repeat;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; flex-direction: column; position: relative;
+      padding: 80px 16px 24px;
+    }
+    body::after {
+      content: ""; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 0;
+    }
+    .navbar {
+      background-color: #003d3d; padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+      position: fixed; top: 0; width: 100%; z-index: 3;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .logo { color: #fff; font-size: 1.4rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+    .container {
+      position: relative; z-index: 1;
+      background-color: rgba(255,255,255,0.95);
+      padding: 36px 28px; border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      width: 100%; max-width: 400px; text-align: center;
+    }
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.15);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .container{padding:28px 20px;}
+      h2{font-size:1.6rem;}
+    }
+    h2 { color: #006666; margin-bottom: 20px; font-size: 2rem; }
+    input {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
+    }
+    .auth-btn {
+      width: 100%; background-color: #00b3b3; color: white;
+      border: none; padding: 12px; border-radius: 8px;
+      font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: 10px;
+    }
+    .auth-btn:hover { background-color: #009999; transform: scale(1.03); }
+    .auth-btn:disabled { background-color: #ccc; cursor: not-allowed; transform: none; }
+    p { margin-top: 15px; font-size: 0.95rem; }
+    a { color: #006666; text-decoration: none; font-weight: 600; }
+    .error-msg { color: #c0392b; font-size: 0.9rem; margin-top: 8px; display: none; }
+    .session-banner {
+      display: none; background: #fff8e1; border: 1.5px solid #f0a500;
+      border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; text-align: left;
+    }
+    .session-banner .sb-role { font-weight: 700; color: #006666; }
+    .session-banner .sb-email { font-size: 0.85rem; color: #555; margin-top: 2px; }
+    .session-banner .sb-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    .sb-btn-dash {
+      flex: 1; padding: 9px 14px; background: #006666; color: #fff;
+      border: none; border-radius: 7px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+    }
+    .sb-btn-dash:hover { background: #008080; }
+    .sb-btn-logout {
+      flex: 1; padding: 9px 14px; background: #fff; color: #c0392b;
+      border: 1.5px solid #c0392b; border-radius: 7px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
+    }
+    .sb-btn-logout:hover { background: #fdf0f0; }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">MediConnectX</div>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">&#9776;</button>
+    <nav>
+      <ul class="nav-links" id="mainNav">
+        <li><a href="Welcome.html">Home</a></li>
+        <li><a href="Register.html">Register</a></li>
+        <li><a href="AboutUs.html">About Us</a></li>
+        <li><a href="Contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Login</h2>
+
+    <!-- Shown when another session is already active in this browser -->
+    <div class="session-banner" id="sessionBanner">
+      <div>⚠️ Already logged in as <span class="sb-role" id="sbRole"></span></div>
+      <div class="sb-email" id="sbEmail"></div>
+      <div class="sb-actions">
+        <button class="sb-btn-dash" id="sbDashBtn">Go to Dashboard</button>
+        <button class="sb-btn-logout" onclick="switchAccount()">Logout &amp; Switch Account</button>
+      </div>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <input type="email" id="email" placeholder="Email Address" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <div class="error-msg" id="errorMsg"></div>
+      <button type="submit" class="auth-btn" id="loginBtn">Login</button>
+    </form>
+    <p>Don't have an account? <a href="Register.html">Register here</a></p>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    function toggleNav() { document.getElementById('mainNav').classList.toggle('open'); }
+    (function(){
+      var page=location.pathname.split('/').pop()||'index.html';
+      document.querySelectorAll('.nav-links a,.nav-menu a').forEach(function(a){
+        var h=(a.getAttribute('href')||'').split('/').pop();
+        if(h&&h!=='#'&&h===page)a.classList.add('nav-active');
+      });
+    })();
+
+    function dashboardFor(role) {
+      if (role === 'ADMIN')   return 'AdminHome.html';
+      if (role === 'DOCTOR')  return 'DoctorHome.html';
+      if (role === 'PATIENT') return 'PatientHome.html';
+      return 'Welcome.html';
+    }
+
+    function switchAccount() {
+      localStorage.removeItem('auth');
+      document.getElementById('sessionBanner').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }
+
+    // On page load: if a session already exists in this browser, show the banner
+    // and block the login form so two roles cannot be active at the same time.
+    (function checkExistingSession() {
+      const auth = getAuth();
+      if (!auth || !auth.token) return;
+
+      // Session found — show banner, hide form
+      document.getElementById('sbRole').textContent = auth.role + (auth.name ? ' (' + auth.name + ')' : '');
+      document.getElementById('sbEmail').textContent = auth.email || '';
+      document.getElementById('sbDashBtn').onclick = () => { window.location.href = dashboardFor(auth.role); };
+      document.getElementById('sessionBanner').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'none';
+    })();
+
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      // Guard: another session is active in this browser
+      const existing = getAuth();
+      if (existing && existing.token) {
+        const errEl = document.getElementById('errorMsg');
+        errEl.textContent = 'You are already logged in as ' + existing.role + '. Log out first to use a different account.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const btn      = document.getElementById('loginBtn');
+      const errEl    = document.getElementById('errorMsg');
+      errEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+      try {
+        const data = await apiPostJSON('/api/auth/login', { email, password });
+        localStorage.setItem('auth', JSON.stringify({
+          token:  data.token,
+          email:  email,
+          role:   data.role,
+          roleId: data.roleId,
+          name:   data.name
+        }));
+        window.location.href = dashboardFor(data.role);
+      } catch (err) {
+        errEl.textContent = err.message || 'Incorrect email or password. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }
+    }
+  </script>
+</body>
+</html>

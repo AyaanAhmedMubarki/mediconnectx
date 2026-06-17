@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consultation Room – MediConnectX</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Segoe UI", sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Top bar ── */
+    .top-bar {
+      background: #111; padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5); flex-shrink: 0;
+    }
+    .top-bar .brand { font-size: 1rem; font-weight: 700; color: #fff; }
+    .top-bar .apt-info { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .top-bar .back-btn {
+      background: #333; color: #fff; border: none;
+      padding: 7px 18px; border-radius: 6px; font-size: 0.85rem;
+      cursor: pointer; transition: background 0.2s; text-decoration: none;
+    }
+    .top-bar .back-btn:hover { background: #555; }
+
+    /* ── Centred panel ── */
+    .center-msg {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px 20px;
+    }
+    .icon { font-size: 4rem; margin-bottom: 20px; }
+    h2 { font-size: 1.6rem; margin-bottom: 10px; }
+    .sub { color: rgba(255,255,255,0.6); font-size: 0.97rem; line-height: 1.7; max-width: 520px; margin-bottom: 30px; }
+
+    /* ── Buttons ── */
+    .join-btn {
+      display: inline-block; padding: 14px 36px;
+      background: #27ae60; color: #fff; border-radius: 10px;
+      text-decoration: none; font-size: 1.1rem; font-weight: 700;
+      transition: background 0.2s; border: none; cursor: pointer; margin: 6px;
+    }
+    .join-btn:hover { background: #2ecc71; }
+    .back-link {
+      display: inline-block; padding: 12px 28px;
+      background: #c0392b; color: #fff; border-radius: 10px;
+      text-decoration: none; font-size: 1rem; font-weight: 700;
+      transition: background 0.2s; margin: 6px;
+    }
+    .back-link:hover { background: #e74c3c; }
+
+    /* ── Room info ── */
+    .room-info {
+      margin-top: 24px; background: #1a1a1a; border-radius: 10px;
+      padding: 16px 24px; font-size: 0.88rem; color: rgba(255,255,255,0.55);
+      max-width: 440px; line-height: 1.9; text-align: left;
+    }
+    .room-info span { color: #00d4aa; font-weight: 700; }
+
+    /* ── Countdown card ── */
+    .countdown-card {
+      background: #1a1a1a; border-radius: 14px; padding: 28px 32px;
+      max-width: 460px; width: 92%; margin-bottom: 20px;
+    }
+    .apt-time-lbl { font-size: 0.78rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .apt-time-val { font-size: 1.1rem; color: #00d4aa; font-weight: 700; margin-bottom: 22px; }
+    .cd-digits { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cd-block { background: #111; border-radius: 8px; padding: 12px 16px; min-width: 70px; }
+    .cd-block .num { font-size: 2.2rem; font-weight: 800; color: #fff; line-height: 1; }
+    .cd-block .unit { font-size: 0.68rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 5px; }
+    .cd-bar { width: 100%; height: 4px; background: #2a2a2a; border-radius: 2px; margin-top: 18px; overflow: hidden; }
+    .cd-fill { height: 100%; background: linear-gradient(to right, #006666, #00d4aa); border-radius: 2px; transition: width 1s linear; width: 0%; }
+    .cd-open-note { font-size: 0.8rem; color: rgba(255,255,255,0.38); margin-top: 10px; }
+
+    /* ── Spinner ── */
+    .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.12); border-top-color: #00b3b3; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* view toggle */
+    #loadingView { display: flex; }
+    #earlyView   { display: none; }
+    #errorView   { display: none; }
+    #readyView   { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div>
+      <div class="brand">🏥 MediConnectX – Live Consultation</div>
+      <div class="apt-info" id="aptInfo">Loading appointment details…</div>
+    </div>
+    <a class="back-btn" href="javascript:history.back()">← Go Back</a>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="center-msg" id="loadingView">
+    <div class="spinner"></div>
+    <h2>Verifying your booking…</h2>
+    <p class="sub">Please wait while we confirm your appointment and prepare the consultation room.</p>
+  </div>
+
+  <!-- ── Too Early — countdown ── -->
+  <div class="center-msg" id="earlyView">
+    <div class="icon">⏰</div>
+    <h2>Room Opens Soon</h2>
+    <p class="sub">
+      The consultation room opens <strong>10 minutes before</strong> your scheduled appointment.<br>
+      This page will automatically refresh and let you join when it's time.
+    </p>
+
+    <div class="countdown-card">
+      <div class="apt-time-lbl">Your appointment is scheduled for</div>
+      <div class="apt-time-val" id="aptTimeDisplay">—</div>
+      <div class="cd-digits">
+        <div class="cd-block"><div class="num" id="cdH">00</div><div class="unit">hrs</div></div>
+        <div class="cd-block"><div class="num" id="cdM">00</div><div class="unit">min</div></div>
+        <div class="cd-block"><div class="num" id="cdS">00</div><div class="unit">sec</div></div>
+      </div>
+      <div class="cd-bar"><div class="cd-fill" id="cdFill"></div></div>
+      <div class="cd-open-note">Room opens at <span id="openAtDisplay" style="color:#00d4aa;">—</span></div>
+    </div>
+  </div>
+
+  <!-- ── Access Denied / Error ── -->
+  <div class="center-msg" id="errorView">
+    <div class="icon">🚫</div>
+    <h2 id="errorTitle">Access Denied</h2>
+    <p class="sub" id="errorMsg">Payment not verified or appointment was cancelled.</p>
+    <a class="back-link" href="javascript:history.back()">← Go Back</a>
+  </div>
+
+  <!-- ── Ready — join call ── -->
+  <div class="center-msg" id="readyView">
+    <div class="icon">🎥</div>
+    <h2>Your Consultation Room is Ready</h2>
+    <p class="sub" id="readySub">Click the button below to open the video call in a new tab.</p>
+
+    <a id="joinLink" href="#" target="_blank" rel="noopener" class="join-btn">
+      📹 Join Video Call
+    </a>
+
+    <div class="room-info" id="roomInfo"></div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    const urlParams     = new URLSearchParams(window.location.search);
+    const appointmentId = urlParams.get('appointmentId');
+
+    const auth = getAuth();
+    if (!auth) { window.location.href = 'Login.html'; }
+
+    const isDoctor = auth.role === 'DOCTOR';
+    const userName = auth.name || auth.email;
+
+    let cdTimer    = null;   // setInterval for the live countdown
+    let retryTimer = null;   // setTimeout for fallback retry
+
+    // ── Show one view, hide the others ───────────────────────────────
+    function show(id) {
+      ['loadingView', 'earlyView', 'errorView', 'readyView'].forEach(v => {
+        document.getElementById(v).style.display = (v === id) ? 'flex' : 'none';
+      });
+    }
+
+    // ── Main entry-point ─────────────────────────────────────────────
+    async function startCall() {
+      // Clear any pending timers from a previous "too early" attempt
+      if (cdTimer)    { clearInterval(cdTimer);  cdTimer    = null; }
+      if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+
+      show('loadingView');
+
+      if (!appointmentId) {
+        showError('Invalid Room', 'No appointment ID was provided in the URL.');
+        return;
+      }
+
+      try {
+        const url = API_BASE + '/api/video/get-room'
+          + '?appointmentId='   + appointmentId
+          + '&currentUserName=' + encodeURIComponent(userName)
+          + '&isDoctor='        + isDoctor;
+
+        const res  = await fetch(url, { headers: authHeaders() });
+        const data = await res.json();
+
+        // ── 403: distinguish "too early" from "truly denied" ──
+        if (res.status === 403) {
+          if (data.error === 'TOO_EARLY') {
+            handleTooEarly(data);
+          } else {
+            showError(
+              'Access Denied',
+              data.message || data.error || 'Payment not confirmed or appointment cancelled.'
+            );
+          }
+          return;
+        }
+
+        if (res.status === 404) {
+          showError('Not Found', data.error || 'Appointment not found.');
+          return;
+        }
+
+        if (!res.ok) {
+          showError('Server Error ' + res.status, data.error || 'Could not prepare the room.');
+          return;
+        }
+
+        // ── SUCCESS: open Jitsi in a new tab ──────────────────────────
+        // Note: meet.jit.si's free public server has no time limit when
+        // accessed via direct URL. The 5-minute cap only applies to the
+        // paid JaaS / External API (iframe) plan. Keep using window.open.
+        const roomUrl = 'https://' + data.domain + '/' + data.roomName;
+
+        document.getElementById('aptInfo').textContent =
+          'Appointment #' + appointmentId
+          + '  |  ' + (isDoctor ? '👨‍⚕️ Doctor' : '🏃 Patient') + ': ' + userName;
+
+        document.getElementById('joinLink').href = roomUrl;
+
+        document.getElementById('roomInfo').innerHTML =
+          '🔗 Room: <span>' + data.roomName + '</span><br>'
+          + '🌐 Server: <span>' + data.domain + '</span><br>'
+          + '👤 Joining as: <span>' + userName + (isDoctor ? ' (Host / Moderator)' : '') + '</span>';
+
+        document.getElementById('readySub').textContent = isDoctor
+          ? 'Click below to open the consultation room. Your patient will join the same room.'
+          : 'Click below to join your doctor\'s consultation room. Both of you will meet in the same room.';
+
+        show('readyView');
+
+        // Auto-open in new tab after a short delay so the UI renders first
+        setTimeout(() => window.open(roomUrl, '_blank', 'noopener'), 800);
+
+      } catch (err) {
+        showError('Connection Error', 'Failed to reach the server: ' + err.message);
+      }
+    }
+
+    // ── Too-early state with live countdown ──────────────────────────
+    function handleTooEarly(data) {
+      const openAt  = data.openAt          ? new Date(data.openAt)          : null;
+      const aptTime = data.appointmentTime ? new Date(data.appointmentTime) : null;
+
+      if (aptTime && !isNaN(aptTime)) {
+        document.getElementById('aptTimeDisplay').textContent =
+          aptTime.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+
+      if (openAt && !isNaN(openAt)) {
+        document.getElementById('openAtDisplay').textContent =
+          openAt.toLocaleString('en-IN', { timeStyle: 'short' });
+      }
+
+      document.getElementById('aptInfo').textContent =
+        'Appointment #' + appointmentId + '  |  Room opens 10 min before your slot';
+
+      show('earlyView');
+
+      if (openAt && !isNaN(openAt)) {
+        const totalWaitMs = openAt.getTime() - Date.now();
+
+        renderCountdown(openAt, totalWaitMs);
+
+        cdTimer = setInterval(function () {
+          const left = openAt.getTime() - Date.now();
+          if (left <= 0) {
+            clearInterval(cdTimer);
+            cdTimer = null;
+            startCall();
+            return;
+          }
+          renderCountdown(openAt, totalWaitMs);
+        }, 1000);
+      } else {
+        retryTimer = setTimeout(startCall, 60000);
+      }
+    }
+
+    function renderCountdown(openAt, totalWaitMs) {
+      const left = Math.max(0, openAt.getTime() - Date.now());
+      const h  = Math.floor(left / 3600000);
+      const m  = Math.floor((left % 3600000) / 60000);
+      const s  = Math.floor((left % 60000)   / 1000);
+      document.getElementById('cdH').textContent = String(h).padStart(2, '0');
+      document.getElementById('cdM').textContent = String(m).padStart(2, '0');
+      document.getElementById('cdS').textContent = String(s).padStart(2, '0');
+      const pct = totalWaitMs > 0
+        ? Math.min(100, ((totalWaitMs - left) / totalWaitMs) * 100)
+        : 100;
+      document.getElementById('cdFill').style.width = pct.toFixed(2) + '%';
+    }
+
+    function showError(title, msg) {
+      show('errorView');
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMsg').textContent   = msg;
+    }
+
+    startCall();
+  </script>
+</body>
+</html>

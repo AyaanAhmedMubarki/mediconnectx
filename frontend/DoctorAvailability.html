@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Availability – MediConnectX Doctor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Poppins', sans-serif; background: #f0f8ff; color: #222; min-height: 100vh; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(0,85,128,0.85), rgba(0,40,80,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: #fff; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p  { font-size: 1.05rem; font-weight: 300; }
+
+    /* ── Layout ── */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 30px 16px 60px; }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.09);
+      padding: 24px; margin-bottom: 24px; border: none;
+    }
+    .card-title {
+      font-size: 1.1rem; font-weight: 700; color: #012b40;
+      margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 2px solid #d8eef8; padding-bottom: 12px;
+    }
+    .card-title i { color: #0077b3; }
+
+    /* ── Add Shift form ── */
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 14px; align-items: end;
+    }
+    @media(max-width: 640px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .form-group input[type="date"],
+    .form-group input[type="time"] {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid #cde3f0; border-radius: 8px;
+      font-size: 0.95rem; background: #f7fbff; color: #222;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: #0077b3; box-shadow: 0 0 0 3px rgba(0,119,179,0.1); }
+    .slot-preview {
+      font-size: 0.8rem; color: #0077b3; font-weight: 600;
+      min-height: 18px; margin-top: 6px;
+    }
+    .btn-add {
+      padding: 10px 22px; background: #0077b3; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700;
+      font-size: 0.95rem; cursor: pointer; transition: background 0.2s;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-add:hover    { background: #005c8a; }
+    .btn-add:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ── Shifts list ── */
+    .shift-item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 12px 14px;
+      border-bottom: 1px solid #edf5fc; flex-wrap: wrap;
+    }
+    .shift-item:last-child { border-bottom: none; }
+    .shift-date-pill {
+      background: #e8f4fb; color: #012b40;
+      border-radius: 8px; padding: 7px 14px; flex-shrink: 0;
+    }
+    .shift-date-pill .sd-label { font-size: 0.72rem; font-weight: 700; color: #0077b3; text-transform: uppercase; letter-spacing: 0.4px; }
+    .shift-date-pill .sd-val   { font-size: 1rem; font-weight: 700; }
+    .shift-meta { flex: 1; min-width: 120px; }
+    .shift-meta .sm-time  { font-size: 0.95rem; font-weight: 600; color: #1a1a1a; }
+    .shift-meta .sm-slots { font-size: 0.8rem; color: #888; margin-top: 2px; }
+    .btn-delete {
+      background: none; border: 1px solid #e74c3c; color: #e74c3c;
+      border-radius: 6px; padding: 5px 13px; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-delete:hover    { background: #e74c3c; color: #fff; }
+    .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Toast bar ── */
+    .toast-bar {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #27ae60; color: #fff; padding: 12px 28px;
+      border-radius: 8px; font-size: 0.93rem; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 3000;
+      display: none; white-space: nowrap;
+    }
+    .toast-bar.error { background: #e74c3c; }
+    .toast-bar.show  { display: block; }
+
+    .empty-msg { text-align: center; color: #999; padding: 24px; font-style: italic; }
+    .loading   { text-align: center; color: #0077b3; padding: 24px; }
+
+    footer { background: #012b40; color: #fff; text-align: center; padding: 16px; margin-top: 50px; }
+
+    @media(max-width: 768px) {
+      .page-header h1 { font-size: 1.7rem; }
+      .page-header { padding: 36px 16px; }
+      .page-header { padding: 28px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <!-- ── Page Header ── -->
+  <div class="page-header">
+    <h1>My Availability</h1>
+    <p>Schedule your working shifts — bookable 15-minute slots are created automatically.</p>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- ── Add a Shift ── -->
+    <div class="card">
+      <div class="card-title">
+        <i class="bi bi-plus-circle-fill"></i> Add a New Shift
+      </div>
+      <p style="font-size:0.88rem;color:#666;margin-bottom:16px;">
+        Pick a date and your available hours. Bookable slots are automatically generated from these entries.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="shiftDate"><i class="bi bi-calendar3 me-1"></i>Date</label>
+          <input type="date" id="shiftDate" />
+        </div>
+        <div class="form-group">
+          <label for="shiftStart"><i class="bi bi-clock me-1"></i>Start Time</label>
+          <input type="time" id="shiftStart" value="09:00" />
+        </div>
+        <div class="form-group">
+          <label for="shiftEnd"><i class="bi bi-clock-fill me-1"></i>End Time</label>
+          <input type="time" id="shiftEnd" value="13:00" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn-add" id="addBtn" onclick="addShift()">
+            <i class="bi bi-plus-lg"></i> Add Shift
+          </button>
+        </div>
+      </div>
+      <div class="slot-preview" id="slotPreview"></div>
+    </div>
+
+    <!-- ── My Availability Schedule ── -->
+    <div class="card">
+      <div class="card-title">
+        <i class="bi bi-list-ul"></i> My Availability Schedule
+      </div>
+      <div id="shiftsContainer">
+        <div class="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Loading shifts…
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Add Offline Availability ── -->
+    <div class="card">
+      <div class="card-title">
+        <i class="bi bi-hospital"></i> Add Offline Availability
+      </div>
+      <p style="font-size:0.88rem;color:#666;margin-bottom:16px;">
+        Set available offline slots at your clinic locations for in-person consultations.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="clinicLocation"><i class="bi bi-geo-alt me-1"></i>Clinic Location</label>
+          <select id="clinicLocation" style="width: 100%; padding: 10px 13px; border: 1.5px solid #cde3f0; border-radius: 8px; font-size: 0.95rem; background: #f7fbff; color: #222; outline: none;">
+            <option value="">-- Select Clinic --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="offlineDate"><i class="bi bi-calendar3 me-1"></i>Date</label>
+          <input type="date" id="offlineDate" />
+        </div>
+        <div class="form-group">
+          <label for="offlineStart"><i class="bi bi-clock me-1"></i>Start Time</label>
+          <input type="time" id="offlineStart" value="09:00" />
+        </div>
+        <div class="form-group">
+          <label for="offlineEnd"><i class="bi bi-clock-fill me-1"></i>End Time</label>
+          <input type="time" id="offlineEnd" value="13:00" />
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn-add" id="addOfflineBtn" onclick="addOfflineAvailability()">
+            <i class="bi bi-plus-lg"></i> Add Slot
+          </button>
+        </div>
+      </div>
+      <div class="slot-preview" id="offlineSlotPreview"></div>
+    </div>
+
+    <!-- ── Offline Availability Schedule ── -->
+    <div class="card">
+      <div class="card-title">
+        <i class="bi bi-calendar-check"></i> Offline Availability Schedule
+      </div>
+      <div id="offlineAvailabilityContainer">
+        <div class="loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Loading offline availability…
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-wrap -->
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <div class="toast-bar" id="toastBar"></div>
+
+  <script src="api.js"></script>
+  <script src="customModal.js"></script>
+  <script>
+    const auth      = requireAuth('DOCTOR');
+    const doctorId  = auth.roleId;
+
+    // Keeps a copy of loaded shifts so addShift() can run overlap checks locally
+    let cachedShifts = [];
+
+    // ── Toast ──────────────────────────────────────────────────────────────
+    function showToast(msg, isError) {
+      const t = document.getElementById('toastBar');
+      t.textContent = msg;
+      t.className = 'toast-bar show' + (isError ? ' error' : '');
+      setTimeout(() => { t.className = 'toast-bar'; }, 3500);
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function slotCount(start, end) {
+      const [sh, sm] = start.split(':').map(Number);
+      const [eh, em] = end.split(':').map(Number);
+      const diff = (eh * 60 + em) - (sh * 60 + sm);
+      return diff > 0 ? Math.floor(diff / 15) : 0;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+
+    // ── Time helpers ───────────────────────────────────────────────────────
+    function todayISO() {
+      const d = new Date();
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    }
+    function addDaysISO(isoDate, days) {
+      const d = new Date(isoDate + 'T00:00:00');
+      d.setDate(d.getDate() + days);
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    }
+    function currentTimeHHMM() {
+      const n = new Date();
+      return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+    }
+    function addMinutes(timeStr, mins) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const t = h * 60 + m + mins;
+      return Math.floor(t / 60).toString().padStart(2,'0') + ':' + (t % 60).toString().padStart(2,'0');
+    }
+    function timeDiffMins(s, e) {
+      const [sh, sm] = s.split(':').map(Number);
+      const [eh, em] = e.split(':').map(Number);
+      return (eh * 60 + em) - (sh * 60 + sm);
+    }
+
+    // Returns true if two HH:MM time ranges overlap.
+    // Two ranges [A,B] and [C,D] overlap when A < D AND C < B.
+    function shiftsOverlap(newStart, newEnd, existStart, existEnd) {
+      return newStart < existEnd && existStart < newEnd;
+    }
+
+    // Live slot preview — warns on short gap AND time conflicts
+    function updatePreview() {
+      const s      = document.getElementById('shiftStart').value;
+      const e      = document.getElementById('shiftEnd').value;
+      const el     = document.getElementById('slotPreview');
+      if (!s || !e) { el.textContent = ''; el.style.color = '#0077b3'; return; }
+
+      const diff = timeDiffMins(s, e);
+      if (diff < 15) {
+        el.textContent = '⚠ Shift must be at least 15 minutes long (minimum 1 slot).';
+        el.style.color = '#e74c3c';
+        return;
+      }
+
+      // Live overlap check against existing shifts on the same date
+      const dateVal     = document.getElementById('shiftDate').value;
+      const conflicting = cachedShifts.filter(sh =>
+        sh.shiftDate === dateVal && shiftsOverlap(s, e, sh.startTime, sh.endTime)
+      );
+      if (conflicting.length > 0) {
+        const c = conflicting[0];
+        el.textContent = `⚠ Conflict — overlaps with existing shift ${c.startTime}–${c.endTime} on this date.`;
+        el.style.color = '#e74c3c';
+        return;
+      }
+
+      const n = Math.floor(diff / 15);
+      el.textContent = `→ This shift will produce ${n} slot${n !== 1 ? 's' : ''} of 15 min`;
+      el.style.color = '#0077b3';
+    }
+
+    // Keep shiftEnd.min always = shiftStart + 15 min; auto-correct if end is too early
+    function updateEndMin() {
+      const s        = document.getElementById('shiftStart').value;
+      const endInput = document.getElementById('shiftEnd');
+      if (s) {
+        const minEnd = addMinutes(s, 15);
+        endInput.min = minEnd;
+        if (endInput.value && endInput.value < minEnd) {
+          endInput.value = minEnd;
+        }
+      } else {
+        endInput.removeAttribute('min');
+      }
+    }
+
+    document.getElementById('shiftStart').addEventListener('input', function () {
+      // If today is selected, clamp start time to "not before now"
+      if (document.getElementById('shiftDate').value === todayISO()) {
+        const now = currentTimeHHMM();
+        if (this.value < now) {
+          this.value = now;
+          showToast('Start time cannot be in the past for today.', true);
+        }
+      }
+      updateEndMin();
+      updatePreview();
+    });
+
+    document.getElementById('shiftEnd').addEventListener('input', updatePreview);
+
+    // ── Date input: enforce today-minimum; auto-set start time when today picked ──
+    (function () {
+      const dateInput  = document.getElementById('shiftDate');
+      const startInput = document.getElementById('shiftStart');
+
+      // Prevent picking past dates
+      dateInput.min = todayISO();
+
+      // change → update start-time constraints as soon as a valid date is formed
+      dateInput.addEventListener('change', function () {
+        if (!this.value) return;
+        if (this.value === todayISO()) {
+          const now = currentTimeHHMM();
+          startInput.min   = now;
+          startInput.value = now;
+          // Auto-suggest end = start + 15 min so at least 1 slot is ready
+          document.getElementById('shiftEnd').value = addMinutes(now, 15);
+        } else if (this.value > todayISO()) {
+          startInput.removeAttribute('min');
+        }
+        updateEndMin();
+        updatePreview();
+      });
+
+      // blur → reject past dates only AFTER the user finishes typing and leaves the field
+      dateInput.addEventListener('blur', function () {
+        if (this.value && this.value < todayISO()) {
+          showToast('Date cannot be in the past. Please choose today or a future date.', true);
+          this.value = '';
+          startInput.removeAttribute('min');
+          updateEndMin();
+          updatePreview();
+        }
+      });
+    })();
+
+    // ── Load shifts ────────────────────────────────────────────────────────
+    async function loadShifts() {
+      const container = document.getElementById('shiftsContainer');
+      try {
+        const shifts = await apiGet('/api/v1/shifts?doctorId=' + doctorId);
+        cachedShifts = shifts || [];   // keep local copy for overlap checks
+
+        if (!shifts.length) {
+          container.innerHTML = '<p class="empty-msg">No shifts defined yet. Add one above.</p>';
+          updatePreview();             // refresh preview in case form is already filled
+          return;
+        }
+
+        // Sort by date ascending, then by start time
+        shifts.sort((a, b) => {
+          const d = (a.shiftDate || '').localeCompare(b.shiftDate || '');
+          return d !== 0 ? d : (a.startTime || '').localeCompare(b.startTime || '');
+        });
+
+        container.innerHTML = shifts.map(s => {
+          const n = slotCount(s.startTime || '', s.endTime || '');
+          return `<div class="shift-item">
+            <div class="shift-date-pill">
+              <div class="sd-label">Date</div>
+              <div class="sd-val">${formatDate(s.shiftDate)}</div>
+            </div>
+            <div class="shift-meta">
+              <div class="sm-time">
+                <i class="bi bi-clock me-1" style="color:#0077b3;"></i>
+                ${s.startTime} – ${s.endTime}
+              </div>
+              <div class="sm-slots">${n} slot${n !== 1 ? 's' : ''} × 15 min</div>
+            </div>
+            <button class="btn-delete" onclick="deleteShift(${s.id}, this)">
+              <i class="bi bi-trash3"></i> Remove
+            </button>
+          </div>`;
+        }).join('');
+        updatePreview();   // re-evaluate preview now that cachedShifts is refreshed
+
+      } catch (err) {
+        container.innerHTML =
+          `<p class="empty-msg" style="color:#c0392b;">
+            <i class="bi bi-exclamation-circle me-1"></i>${err.message}
+          </p>`;
+      }
+    }
+
+    // ── Add shift ──────────────────────────────────────────────────────────
+    async function addShift() {
+      const btn   = document.getElementById('addBtn');
+      const date  = document.getElementById('shiftDate').value;
+      const start = document.getElementById('shiftStart').value;
+      const end   = document.getElementById('shiftEnd').value;
+
+      if (!date)               { showToast('Please select a date.', true);               return; }
+      if (date < todayISO())   { showToast('Date cannot be in the past. Please choose today or a future date.', true); return; }
+      if (!start || !end)      { showToast('Please set both start and end times.', true); return; }
+      if (start >= end)   { showToast('End time must be after start time.', true);  return; }
+      if (timeDiffMins(start, end) < 15) {
+        showToast('Shift must be at least 15 minutes long (minimum 1 slot).', true); return;
+      }
+      if (date === todayISO() && start < currentTimeHHMM()) {
+        showToast('Start time cannot be in the past for today.', true); return;
+      }
+
+      // Overlap check — block submission if this range collides with an existing shift
+      const conflicting = cachedShifts.filter(s =>
+        s.shiftDate === date && shiftsOverlap(start, end, s.startTime, s.endTime)
+      );
+      if (conflicting.length > 0) {
+        const c = conflicting[0];
+        showToast(
+          `Scheduling conflict: the selected time range (${start}–${end}) overlaps with ` +
+          `an existing shift (${c.startTime}–${c.endTime}) on this date. ` +
+          `Please choose a non-overlapping time window.`,
+          true
+        );
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving…';
+
+      try {
+        await apiPostJSON('/api/v1/shifts?doctorId=' + doctorId, {
+          shiftDate: date,
+          startTime: start,
+          endTime:   end
+        });
+        document.getElementById('shiftDate').value  = '';
+        document.getElementById('slotPreview').textContent = '';
+        showToast('✓ Shift added — slots are ready for booking!', false);
+        await loadShifts();
+      } catch (err) {
+        let msg = err.message || 'Unexpected error.';
+        try { const p = JSON.parse(msg); if (p.message) msg = p.message; } catch (_) {}
+        showToast(msg, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-plus-lg"></i> Add Shift';
+      }
+    }
+
+    // ── Delete shift ───────────────────────────────────────────────────────
+    function deleteShift(shiftId, btnEl) {
+      showConfirmation('Remove Shift', 'Remove this shift?\n\nBooked slots will be preserved.\nUnbooked slots will be deleted.', async () => {
+        btnEl.disabled = true;
+        try {
+          const result = await apiDelete('/api/v1/shifts/' + shiftId);
+          const deleted = result?.unbookedSlotsDeleted || 0;
+          const msg = deleted > 0
+            ? `Shift removed. ${deleted} unbooked slot${deleted !== 1 ? 's' : ''} deleted.`
+            : `Shift removed. (No unbooked slots to delete.)`;
+          showToast(msg, false);
+          await loadShifts();
+        } catch (err) {
+          showToast('Error: ' + err.message, true);
+          btnEl.disabled = false;
+        }
+      });
+    }
+
+    // Boot
+    loadShifts();
+
+    // ── OFFLINE AVAILABILITY ──────────────────────────────────────────────────
+    let cachedLocations = [];
+    let cachedOfflineSlots = [];
+
+    async function loadClinics() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/doctor-locations/doctor/${doctorId}`, {
+          headers: authHeaders()
+        });
+        if (!response.ok) throw new Error(`Failed to load clinics: ${response.status}`);
+        cachedLocations = await response.json();
+
+        const select = document.getElementById('clinicLocation');
+        select.innerHTML = '<option value="">-- Select Clinic --</option>';
+        cachedLocations.forEach(loc => {
+          const opt = document.createElement('option');
+          opt.value = loc.id;
+          opt.textContent = `${loc.clinicName} (${loc.city})`;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Error loading clinics:', err);
+      }
+    }
+
+    async function loadOfflineAvailability() {
+      const container = document.getElementById('offlineAvailabilityContainer');
+      try {
+        const response = await fetch(`http://localhost:8080/api/offline-slots/doctor/${doctorId}`, {
+          headers: authHeaders()
+        });
+        if (!response.ok) throw new Error(`Failed to load: ${response.status}`);
+        cachedOfflineSlots = await response.json();
+
+        if (!cachedOfflineSlots.length) {
+          container.innerHTML = '<p class="empty-msg">No offline availability set yet. Add one above.</p>';
+          return;
+        }
+
+        cachedOfflineSlots.sort((a, b) =>
+          (a.slotDate || '').localeCompare(b.slotDate || '') ||
+          (a.startTime || '').localeCompare(b.startTime || '')
+        );
+
+        container.innerHTML = cachedOfflineSlots.map(slot => {
+          const slotEndDateTime = new Date(slot.slotDate + 'T' + slot.endTime);
+          const now = new Date();
+          const isPast = slotEndDateTime <= now;
+          const btnDisabled = isPast ? 'disabled' : '';
+          const btnTitle = isPast ? 'Cannot delete past slots' : 'Remove this slot';
+
+          return `
+            <div class="shift-item">
+              <div class="shift-date-pill">
+                <div class="sd-label">Date</div>
+                <div class="sd-val">${formatDate(slot.slotDate)}</div>
+              </div>
+              <div class="shift-meta">
+                <div class="sm-time">
+                  <i class="bi bi-building me-1" style="color:#0077b3;"></i>
+                  ${slot.location?.clinicName || 'Clinic'} (${slot.location?.city || 'N/A'})
+                </div>
+                <div class="sm-time" style="margin-top: 4px;">
+                  <i class="bi bi-clock me-1" style="color:#0077b3;"></i>
+                  ${slot.startTime} – ${slot.endTime}
+                </div>
+                <div class="sm-slots">${isPast ? '✓ Completed' : slot.status || 'OPEN'}</div>
+              </div>
+              <button class="btn-delete" ${btnDisabled} title="${btnTitle}" onclick="deleteOfflineSlot(${slot.id}, this)">
+                <i class="bi bi-trash3"></i> Remove
+              </button>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="empty-msg" style="color:#c0392b;"><i class="bi bi-exclamation-circle me-1"></i>${err.message}</p>`;
+      }
+    }
+
+    function updateOfflinePreview() {
+      const s = document.getElementById('offlineStart').value;
+      const e = document.getElementById('offlineEnd').value;
+      const loc = document.getElementById('clinicLocation').value;
+      const el = document.getElementById('offlineSlotPreview');
+
+      if (!loc) { el.textContent = 'Please select a clinic location.'; el.style.color = '#e74c3c'; return; }
+      if (!s || !e) { el.textContent = ''; return; }
+
+      const diff = timeDiffMins(s, e);
+      if (diff < 15) {
+        el.textContent = '⚠ Slot must be at least 15 minutes long.';
+        el.style.color = '#e74c3c';
+        return;
+      }
+
+      el.textContent = `✓ Ready to add: ${s} – ${e}`;
+      el.style.color = '#27ae60';
+    }
+
+    document.getElementById('offlineStart').addEventListener('input', () => {
+      const s = document.getElementById('offlineStart').value;
+      if (s) {
+        const minEnd = addMinutes(s, 15);
+        document.getElementById('offlineEnd').min = minEnd;
+      }
+      updateOfflinePreview();
+    });
+
+    document.getElementById('offlineEnd').addEventListener('input', updateOfflinePreview);
+    document.getElementById('clinicLocation').addEventListener('change', updateOfflinePreview);
+
+    // ── Initialize date input and handle today's date auto-population ──
+    function initOfflineDateInput() {
+      const dateInput = document.getElementById('offlineDate');
+      const today = todayISO();
+      dateInput.min = today;
+      dateInput.max = addDaysISO(today, 30);
+    }
+
+    function handleOfflineDateChange() {
+      const dateInput = document.getElementById('offlineDate');
+      const startTimeInput = document.getElementById('offlineStart');
+      const selectedDate = dateInput.value;
+
+      if (selectedDate === todayISO()) {
+        // If today is selected, auto-populate start time to current time (rounded to next 15 min)
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = Math.ceil(now.getMinutes() / 15) * 15;
+        if (minutes === 60) { hours++; minutes = 0; }
+        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        startTimeInput.value = timeStr;
+      }
+
+      updateOfflinePreview();
+    }
+
+    document.getElementById('offlineDate').addEventListener('change', handleOfflineDateChange);
+    initOfflineDateInput();
+
+    async function addOfflineAvailability() {
+      const btn = document.getElementById('addOfflineBtn');
+      const locId = document.getElementById('clinicLocation').value;
+      const date = document.getElementById('offlineDate').value;
+      const start = document.getElementById('offlineStart').value;
+      const end = document.getElementById('offlineEnd').value;
+
+      if (!locId) { showToast('Please select a clinic location.', true); return; }
+      if (!date) { showToast('Please select a date.', true); return; }
+      if (date < todayISO()) { showToast('Date cannot be in the past.', true); return; }
+      if (!start || !end) { showToast('Please set both start and end times.', true); return; }
+      if (start >= end) { showToast('End time must be after start time.', true); return; }
+      if (timeDiffMins(start, end) < 15) { showToast('Slot must be at least 15 minutes.', true); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving…';
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/offline-slots/create?doctorId=${doctorId}&locationId=${locId}&slotDate=${date}&startTime=${start}&endTime=${end}`, {
+          method: 'POST',
+          headers: authHeaders()
+        });
+
+        if (!response.ok) {
+          const err = await response.text();
+          throw new Error(`API Error: ${response.status} - ${err}`);
+        }
+
+        document.getElementById('offlineDate').value = '';
+        document.getElementById('clinicLocation').value = '';
+        showToast('✓ Offline availability added!', false);
+        await loadOfflineAvailability();
+      } catch (err) {
+        showToast(`Error: ${err.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-plus-lg"></i> Add Slot';
+      }
+    }
+
+    function deleteOfflineSlot(slotId, btnEl) {
+      // Check if button is disabled (past slot)
+      if (btnEl.hasAttribute('disabled')) {
+        showToast('Cannot delete past slots', true);
+        return;
+      }
+
+      showConfirmation('Remove Offline Slot', 'Remove this offline availability slot?', async () => {
+        btnEl.disabled = true;
+        try {
+          const response = await fetch(`http://localhost:8080/api/offline-slots/${slotId}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+          });
+          if (!response.ok) throw new Error(`Failed to delete: ${response.status}`);
+          showToast('✓ Offline slot removed!', false);
+          await loadOfflineAvailability();
+        } catch (err) {
+          showToast(`Error: ${err.message}`, true);
+          btnEl.disabled = false;
+        }
+      });
+    }
+
+    // Load clinics and offline availability on page load
+    (async () => {
+      await loadClinics();
+      await loadOfflineAvailability();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – MediConnectX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Poppins', sans-serif; }
+    body { background: #f0f0f0; color: #333; min-height: 100vh; }
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+      background-color: #111; padding: 14px 20px; color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10;
+    }
+    .navbar .logo { font-size: 1.4rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .navbar ul { list-style: none; display: flex; gap: 0.25rem; flex-wrap: wrap; align-items: center; }
+    .navbar ul li a { text-decoration: none; color: rgba(255,255,255,0.88); font-weight: 400; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; font-size: 0.95rem; letter-spacing: 0.02em; }
+    .navbar ul li a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .navbar ul li a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 16px; }
+    @media(max-width:768px){
+      .navbar .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar ul{display:none;flex-direction:column;width:100%;padding:0.5rem 0;gap:0;background:#111;}
+      .navbar ul.open{display:flex;}
+      .navbar ul li{border-bottom:1px solid rgba(255,255,255,0.1);}
+      .navbar ul li:last-child{border-bottom:none;}
+      .navbar ul li a{display:block;padding:0.65rem 1rem;border-radius:0;}
+      .container{margin:16px auto;}
+      .section-title{font-size:1.4rem;}
+      .stat-card .stat-num{font-size:1.8rem;}
+    }
+    .section-title { text-align: center; font-size: 2rem; color: #333; margin-bottom: 35px; font-weight: bold; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; margin-bottom: 50px; }
+    .stat-card {
+      background: #fff; border-radius: 14px; padding: 28px 20px; text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1); transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-6px); }
+    .stat-card.clickable { cursor: pointer; }
+    .stat-card.clickable:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+    .stat-card.clickable .stat-hint { font-size: 0.78rem; color: #aaa; margin-top: 6px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 14px; width: 92%; max-width: 860px;
+      max-height: 88vh; display: flex; flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3); overflow: hidden;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px; background: #111; color: #fff;
+    }
+    .modal-header h3 { font-size: 1.15rem; font-weight: 600; margin: 0; }
+    .modal-close {
+      background: none; border: none; color: #fff; font-size: 1.6rem;
+      line-height: 1; cursor: pointer; padding: 0;
+    }
+    .modal-close:hover { color: #f66; }
+    .modal-search {
+      padding: 12px 18px; border-bottom: 1px solid #eee;
+    }
+    .modal-search input {
+      width: 100%; padding: 8px 14px; border: 1px solid #ccc;
+      border-radius: 8px; font-size: 0.95rem; outline: none;
+    }
+    .modal-search input:focus { border-color: #555; }
+    .modal-body { overflow-y: auto; flex: 1; padding: 0; }
+    .modal-body table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+    .modal-body thead th {
+      position: sticky; top: 0; background: #f5f5f5;
+      padding: 11px 14px; text-align: left;
+      font-weight: 600; color: #444; border-bottom: 2px solid #ddd;
+    }
+    .modal-body tbody tr { border-bottom: 1px solid #f0f0f0; }
+    .modal-body tbody tr:hover { background: #fafafa; }
+    .modal-body tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+    .modal-body .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #ddd; object-fit: cover; display: inline-block; vertical-align: middle;
+    }
+    .modal-body .avatar-fallback {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #444; color: #fff; display: inline-flex;
+      align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; vertical-align: middle;
+    }
+    .modal-footer-bar {
+      padding: 10px 18px; border-top: 1px solid #eee;
+      font-size: 0.85rem; color: #888; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .loading-row td { text-align: center; padding: 32px; color: #888; }
+    .empty-row td { text-align: center; padding: 32px; color: #aaa; font-style: italic; }
+    @media(max-width:600px){
+      .modal-box { max-height: 95vh; }
+      .modal-body table { font-size: 0.82rem; }
+      .modal-body thead th, .modal-body tbody td { padding: 8px 8px; }
+    }
+    .stat-card i { font-size: 2.8rem; color: #555; margin-bottom: 12px; }
+    .stat-card .stat-num { font-size: 2.4rem; font-weight: 700; color: #333; }
+    .stat-card .stat-label { font-size: 1rem; color: #777; margin-top: 4px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; }
+    .action-card {
+      background: #fff; border-radius: 14px; padding: 24px 18px; text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1); cursor: pointer; transition: 0.25s;
+    }
+    .action-card:hover { transform: translateY(-7px); box-shadow: 0 8px 22px rgba(0,0,0,0.15); }
+    .action-card i { font-size: 2.6rem; color: #555; margin-bottom: 12px; }
+    .action-card h3 { font-size: 1.2rem; color: #333; margin-bottom: 10px; font-weight: 600; }
+    .action-card a {
+      display: inline-block; margin-top: 8px; padding: 7px 18px;
+      background-color: #444; color: #fff; border-radius: 22px;
+      text-decoration: none; font-size: 0.9rem; transition: 0.2s;
+    }
+    .action-card a:hover { background-color: #222; }
+    footer { background-color: #111; color: #fff; text-align: center; padding: 16px; margin-top: 50px; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(30,30,30,0.85), rgba(10,10,10,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: white; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p  { font-size: 1.05rem; font-weight: 300; }
+    @media(max-width:768px){ .page-header h1 { font-size: 1.7rem; } .page-header { padding: 36px 16px; } }
+
+    /* ── Welcome Bar ── */
+    .welcome-bar {
+      background: #fff; border-radius: 12px; padding: 20px 28px; margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 20px;
+    }
+    .welcome-content h2 {
+      font-size: 1.5rem; font-weight: 700; color: #111; margin: 0;
+    }
+    .welcome-content .welcome-date {
+      font-size: 0.95rem; color: #888; margin: 4px 0 0 0;
+    }
+    .profile-btn {
+      padding: 10px 22px; background-color: #003d3d; color: #fff;
+      border: none; border-radius: 22px; cursor: pointer; font-size: 0.95rem;
+      font-weight: 600; transition: 0.3s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .profile-btn:hover { background-color: #002020; }
+    .profile-btn i { font-size: 1.1rem; }
+    @media(max-width:768px){
+      .welcome-bar {
+        flex-direction: column; align-items: flex-start;
+      }
+      .welcome-content h2 { font-size: 1.2rem; }
+      .profile-btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <div class="page-header">
+    <h1>Dashboard Administration</h1>
+    <p>Platform-wide overview — monitor doctors, patients, events and registrations.</p>
+  </div>
+
+  <div class="container">
+    <!-- Welcome Bar -->
+    <div class="welcome-bar">
+      <div class="welcome-content">
+        <h2 id="welcomeMessage">Welcome back</h2>
+        <p class="welcome-date" id="currentDate">—</p>
+      </div>
+      <a href="AdminProfile.html" class="profile-btn">
+        <i class="bi bi-person-circle"></i>
+        <span>My Profile</span>
+      </a>
+    </div>
+
+    <h2 class="section-title">System Overview</h2>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-card clickable" onclick="openList('doctors')" title="Click to view all doctors">
+        <i class="bi bi-person-badge"></i>
+        <div class="stat-num" id="statDoctors">—</div>
+        <div class="stat-label">Doctors</div>
+        <div class="stat-hint">Click to view list</div>
+      </div>
+      <div class="stat-card clickable" onclick="openList('patients')" title="Click to view all patients">
+        <i class="bi bi-people"></i>
+        <div class="stat-num" id="statPatients">—</div>
+        <div class="stat-label">Patients</div>
+        <div class="stat-hint">Click to view list</div>
+      </div>
+      <div class="stat-card clickable" onclick="openList('events')" title="Click to view all events">
+        <i class="bi bi-calendar-event"></i>
+        <div class="stat-num" id="statEvents">—</div>
+        <div class="stat-label">Events</div>
+        <div class="stat-hint">Click to view list</div>
+      </div>
+      <div class="stat-card clickable" onclick="openList('registrations')" title="Click to view all registrations">
+        <i class="bi bi-clipboard-check"></i>
+        <div class="stat-num" id="statRegistrations">—</div>
+        <div class="stat-label">Registrations</div>
+        <div class="stat-hint">Click to view list</div>
+      </div>
+    </div>
+
+    <!-- ── Quick Actions ── -->
+    <h2 class="section-title" style="font-size:1.6rem;">Quick Actions</h2>
+    <div class="card-grid">
+      <div class="action-card" onclick="window.location.href='AdminEvents.html'">
+        <i class="bi bi-calendar-plus"></i>
+        <h3>All Events</h3>
+        <p>Create and manage medical events</p>
+        <a href="AdminEvents.html">Open</a>
+      </div>
+      <div class="action-card" onclick="window.location.href='AdminMeets.html'">
+        <i class="bi bi-camera-video"></i>
+        <h3>All Online Appointments</h3>
+        <p>Manage all online platform appointments</p>
+        <a href="AdminMeets.html">Open</a>
+      </div>
+      <div class="action-card" onclick="window.location.href='AdminOfflineConsults.html'">
+        <i class="bi bi-hospital"></i>
+        <h3>All Offline Appointments</h3>
+        <p>Manage all offline clinic appointments</p>
+        <a href="AdminOfflineConsults.html">Open</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Doctors / Patients List Modal ─────────────────────────────── -->
+  <div class="modal-overlay" id="listModal" onclick="closeListOnOverlay(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">List</h3>
+        <button class="modal-close" onclick="closeList()" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-search">
+        <input type="text" id="modalSearch" placeholder="Search by name…" oninput="filterTable()" />
+      </div>
+      <div class="modal-body">
+        <table id="modalTable">
+          <thead id="modalThead"></thead>
+          <tbody id="modalTbody">
+            <tr class="loading-row"><td colspan="10">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer-bar">
+        <span id="modalCount"></span>
+        <span id="modalFiltered"></span>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© 2026 MediConnectX Admin Portal. All rights reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script>
+    const auth = requireAuth('ADMIN');
+
+    // ── cached data ───────────────────────────────────────────────────
+    let _cachedDoctors       = null;
+    let _cachedPatients      = null;
+    let _cachedEvents        = null;
+    let _cachedRegistrations = null;
+    let _currentRows         = [];   // rows currently shown (for filter count)
+
+    // ── welcome section ───────────────────────────────────────────────
+    async function initializeWelcome() {
+      let adminName = 'Admin';
+
+      try {
+        // Fetch admin profile using email (same as AdminProfile.html)
+        const profile = await apiGet('/api/admins/profile?email=' + encodeURIComponent(auth.email));
+        adminName = profile.name || auth.name || 'Admin';
+      } catch (e) {
+        // Fallback if API fails
+        adminName = auth.name || 'Admin';
+      }
+
+      document.getElementById('welcomeMessage').textContent = `Welcome back, ${adminName}`;
+
+      // Set current date
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = now.toLocaleDateString('en-US', options);
+      document.getElementById('currentDate').textContent = formattedDate;
+    }
+
+    // ── stats ─────────────────────────────────────────────────────────
+    async function loadStats() {
+      const [doctors, patients, events, registrations] = await Promise.allSettled([
+        apiGet('/api/doctor'),
+        apiGet('/api/patient'),
+        apiGet('/api/events'),
+        apiGet('/api/registration/all')
+      ]);
+      if (doctors.status === 'fulfilled') {
+        _cachedDoctors = doctors.value;
+        document.getElementById('statDoctors').textContent = doctors.value.length;
+      } else {
+        document.getElementById('statDoctors').textContent = '—';
+      }
+      if (patients.status === 'fulfilled') {
+        _cachedPatients = patients.value;
+        document.getElementById('statPatients').textContent = patients.value.length;
+      } else {
+        document.getElementById('statPatients').textContent = '—';
+      }
+      if (events.status === 'fulfilled') {
+        _cachedEvents = events.value;
+        document.getElementById('statEvents').textContent = events.value.length;
+      } else {
+        document.getElementById('statEvents').textContent = '—';
+      }
+      if (registrations.status === 'fulfilled') {
+        _cachedRegistrations = registrations.value;
+        document.getElementById('statRegistrations').textContent = registrations.value.length;
+      } else {
+        document.getElementById('statRegistrations').textContent = '—';
+      }
+    }
+
+    // ── modal helpers ─────────────────────────────────────────────────
+    function openList(type) {
+      document.getElementById('modalSearch').value = '';
+      document.getElementById('listModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      if (type === 'doctors') {
+        document.getElementById('modalTitle').textContent = '👨‍⚕️ All Doctors';
+        if (_cachedDoctors) {
+          renderDoctors(_cachedDoctors);
+        } else {
+          setLoading('6');
+          apiGet('/api/doctor')
+            .then(data => { _cachedDoctors = data; renderDoctors(data); })
+            .catch(() => setError('Failed to load doctors.', '6'));
+        }
+      } else if (type === 'patients') {
+        document.getElementById('modalTitle').textContent = '🧑‍🤝‍🧑 All Patients';
+        if (_cachedPatients) {
+          renderPatients(_cachedPatients);
+        } else {
+          setLoading('8');
+          apiGet('/api/patient')
+            .then(data => { _cachedPatients = data; renderPatients(data); })
+            .catch(() => setError('Failed to load patients.', '8'));
+        }
+      } else if (type === 'registrations') {
+        document.getElementById('modalTitle').textContent = '📋 All Registrations';
+        if (_cachedRegistrations) {
+          renderRegistrations(_cachedRegistrations);
+        } else {
+          setLoading('7');
+          apiGet('/api/registration/all')
+            .then(data => { _cachedRegistrations = data; renderRegistrations(data); })
+            .catch(() => setError('Failed to load registrations.', '7'));
+        }
+      } else {
+        document.getElementById('modalTitle').textContent = '📅 All Events';
+        if (_cachedEvents) {
+          renderEvents(_cachedEvents);
+        } else {
+          setLoading('5');
+          apiGet('/api/events')
+            .then(data => { _cachedEvents = data; renderEvents(data); })
+            .catch(() => setError('Failed to load events.', '5'));
+        }
+      }
+    }
+
+    function closeList() {
+      document.getElementById('listModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeListOnOverlay(e) {
+      if (e.target === document.getElementById('listModal')) closeList();
+    }
+
+    // close on Escape key
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeList(); });
+
+    function setLoading(cols) {
+      document.getElementById('modalThead').innerHTML = '';
+      document.getElementById('modalTbody').innerHTML =
+        `<tr class="loading-row"><td colspan="${cols}">Loading…</td></tr>`;
+      document.getElementById('modalCount').textContent = '';
+      document.getElementById('modalFiltered').textContent = '';
+    }
+
+    function setError(msg, cols) {
+      document.getElementById('modalTbody').innerHTML =
+        `<tr class="empty-row"><td colspan="${cols}">${msg}</td></tr>`;
+    }
+
+    // ── render doctors ────────────────────────────────────────────────
+    function renderDoctors(list) {
+      document.getElementById('modalThead').innerHTML = `
+        <tr>
+          <th>No</th>
+          <th>Photo</th>
+          <th>Name</th>
+          <th>Category / Specialisation</th>
+          <th>Gender</th>
+          <th>Date of Birth</th>
+        </tr>`;
+
+      _currentRows = list;
+      buildDoctorRows(list);
+      document.getElementById('modalCount').textContent = list.length + ' doctor(s) total';
+    }
+
+    function buildDoctorRows(list) {
+      const tbody = document.getElementById('modalTbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No doctors found.</td></tr>';
+        document.getElementById('modalFiltered').textContent = '';
+        return;
+      }
+      tbody.innerHTML = list.map((d, i) => {
+        const avatar = d.imageLink
+          ? `<img class="avatar" src="data:image/jpeg;base64,${d.imageLink}" alt="${d.name || ''}"/>`
+          : `<span class="avatar-fallback">${initials(d.name)}</span>`;
+        return `<tr>
+          <td>${i + 1}</td>
+          <td>${avatar}</td>
+          <td>${d.name ? 'Dr. ' + d.name : '<span style="color:#bbb">—</span>'}</td>
+          <td>${d.category || '—'}</td>
+          <td>${d.gender || '—'}</td>
+          <td>${d.birthDate || '—'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('modalFiltered').textContent =
+        list.length < (_currentRows.length)
+          ? `Showing ${list.length} of ${_currentRows.length}`
+          : '';
+    }
+
+    // ── render patients ───────────────────────────────────────────────
+    function renderPatients(list) {
+      document.getElementById('modalThead').innerHTML = `
+        <tr>
+          <th>No</th>
+          <th>Photo</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Gender</th>
+          <th>Date of Birth</th>
+          <th>Height (cm)</th>
+          <th>Weight (kg)</th>
+        </tr>`;
+
+      _currentRows = list;
+      buildPatientRows(list);
+      document.getElementById('modalCount').textContent = list.length + ' patient(s) total';
+    }
+
+    function buildPatientRows(list) {
+      const tbody = document.getElementById('modalTbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No patients found.</td></tr>';
+        document.getElementById('modalFiltered').textContent = '';
+        return;
+      }
+      tbody.innerHTML = list.map((p, i) => {
+        const avatar = p.imageLink
+          ? `<img class="avatar" src="data:image/jpeg;base64,${p.imageLink}" alt="${p.name || ''}"/>`
+          : `<span class="avatar-fallback">${initials(p.name)}</span>`;
+        return `<tr>
+          <td>${i + 1}</td>
+          <td>${avatar}</td>
+          <td>${p.name || '<span style="color:#bbb">—</span>'}</td>
+          <td style="font-size:0.85rem;color:#555;">${p.email || '—'}</td>
+          <td>${p.gender || '—'}</td>
+          <td>${p.birthDate || '—'}</td>
+          <td>${p.height || '—'}</td>
+          <td>${p.weight || '—'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('modalFiltered').textContent =
+        list.length < (_currentRows.length)
+          ? `Showing ${list.length} of ${_currentRows.length}`
+          : '';
+    }
+
+    // ── render events ─────────────────────────────────────────────────
+    function renderEvents(list) {
+      document.getElementById('modalThead').innerHTML = `
+        <tr>
+          <th>No</th>
+          <th>Event Name</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Category</th>
+        </tr>`;
+
+      _currentRows = list;
+      buildEventRows(list);
+      document.getElementById('modalCount').textContent = list.length + ' event(s) total';
+    }
+
+    function buildEventRows(list) {
+      const tbody = document.getElementById('modalTbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No events found.</td></tr>';
+        document.getElementById('modalFiltered').textContent = '';
+        return;
+      }
+      tbody.innerHTML = list.map((ev, i) => `<tr>
+        <td>${i + 1}</td>
+        <td><strong>${ev.eventName || '<span style="color:#bbb">—</span>'}</strong></td>
+        <td>${ev.eventDate || '—'}</td>
+        <td>${ev.location || '—'}</td>
+        <td>${ev.category || '—'}</td>
+      </tr>`).join('');
+      document.getElementById('modalFiltered').textContent =
+        list.length < _currentRows.length
+          ? `Showing ${list.length} of ${_currentRows.length}`
+          : '';
+    }
+
+    // ── render registrations ──────────────────────────────────────────
+    async function renderRegistrations(list) {
+      document.getElementById('modalThead').innerHTML = `
+        <tr>
+          <th>No</th>
+          <th>Event</th>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Registration Date</th>
+        </tr>`;
+
+      // Load doctors, patients, and events if not already cached
+      if (!_cachedDoctors) {
+        try {
+          _cachedDoctors = await apiGet('/api/doctor');
+        } catch (e) {
+          _cachedDoctors = [];
+        }
+      }
+      if (!_cachedPatients) {
+        try {
+          _cachedPatients = await apiGet('/api/patient');
+        } catch (e) {
+          _cachedPatients = [];
+        }
+      }
+      if (!_cachedEvents) {
+        try {
+          _cachedEvents = await apiGet('/api/events');
+        } catch (e) {
+          _cachedEvents = [];
+        }
+      }
+
+      // Enrich registrations with names and event names for searching
+      const enrichedRows = list.map(reg => {
+        const doctorMap = (_cachedDoctors || []).reduce((map, d) => {
+          map[d.id] = d.name || 'Unknown';
+          return map;
+        }, {});
+        const patientMap = (_cachedPatients || []).reduce((map, p) => {
+          map[p.id] = p.name || 'Unknown';
+          return map;
+        }, {});
+        const eventMap = (_cachedEvents || []).reduce((map, e) => {
+          map[e.id] = e.eventName || 'Unknown';
+          return map;
+        }, {});
+
+        const personName = reg.userRole === 'DOCTOR'
+          ? (doctorMap[reg.patientId] || 'Unknown')
+          : (patientMap[reg.patientId] || 'Unknown');
+        const eventName = eventMap[reg.eventId] || 'Unknown';
+
+        return {
+          ...reg,
+          personName: personName,
+          eventName: eventName
+        };
+      });
+
+      _currentRows = enrichedRows;
+      buildRegistrationRows(enrichedRows);
+      document.getElementById('modalCount').textContent = list.length + ' registration(s) total';
+    }
+
+    function buildRegistrationRows(list) {
+      const tbody = document.getElementById('modalTbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No registrations found.</td></tr>';
+        document.getElementById('modalFiltered').textContent = '';
+        return;
+      }
+
+      tbody.innerHTML = list.map((reg, i) => {
+        const statusClass = reg.status === 'APPROVED' ? 'style="color:#28a745;font-weight:600;"' :
+                           reg.status === 'REJECTED' ? 'style="color:#dc3545;font-weight:600;"' :
+                           'style="color:#ffc107;font-weight:600;"';
+
+        return `<tr>
+          <td>${i + 1}</td>
+          <td>${reg.eventName || '—'}</td>
+          <td>${reg.patientId || '—'}</td>
+          <td>${reg.personName || '—'}</td>
+          <td>${reg.userRole || '—'}</td>
+          <td ${statusClass}>${reg.status || '—'}</td>
+          <td>${reg.registrationDate || '—'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('modalFiltered').textContent =
+        list.length < (_currentRows.length || list.length)
+          ? `Showing ${list.length} of ${_currentRows.length || list.length}`
+          : '';
+    }
+
+    // ── live search filter ────────────────────────────────────────────
+    function filterTable() {
+      const q = document.getElementById('modalSearch').value.trim().toLowerCase();
+      if (!_currentRows.length) return;
+
+      const title = document.getElementById('modalTitle').textContent;
+      const isDoctor        = title.includes('Doctor');
+      const isEvent         = title.includes('Event');
+      const isRegistration  = title.includes('Registration');
+
+      const filtered = q
+        ? _currentRows.filter(r => {
+            // Search based on type
+            if (isRegistration) {
+              return (r.personName  || '').toLowerCase().includes(q) ||
+                     (r.eventName   || '').toLowerCase().includes(q) ||
+                     (r.status      || '').toLowerCase().includes(q) ||
+                     (r.patientId?.toString() || '').includes(q) ||
+                     (r.userRole    || '').toLowerCase().includes(q);
+            } else {
+              return (r.name      || '').toLowerCase().includes(q) ||
+                     (r.email     || '').toLowerCase().includes(q) ||
+                     (r.category  || '').toLowerCase().includes(q) ||
+                     (r.eventName || '').toLowerCase().includes(q) ||
+                     (r.location  || '').toLowerCase().includes(q) ||
+                     (r.status    || '').toLowerCase().includes(q);
+            }
+          })
+        : _currentRows;
+
+      if (isDoctor)        buildDoctorRows(filtered);
+      else if (isEvent)    buildEventRows(filtered);
+      else if (isRegistration) buildRegistrationRows(filtered);
+      else                 buildPatientRows(filtered);
+    }
+
+    // ── utils ─────────────────────────────────────────────────────────
+    function initials(name) {
+      if (!name) return '?';
+      return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    initializeWelcome();
+    loadStats();
+  </script>
+</body>
+</html>

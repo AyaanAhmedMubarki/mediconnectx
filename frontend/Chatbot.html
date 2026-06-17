@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Health Chatbot – MediConnectX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { font-family: "Segoe UI", sans-serif; margin: 0; background-color: #f4f9f9; color: #333; }
+
+    /* ── Navbar ── */
+    .navbar {
+      background-color: #003d3d;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;} .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.3);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.1);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+    }
+    .navbar {
+      background-color: #003d3d; padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; position: sticky; top: 0; z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .logo { color: #fff; font-size: 1.4rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(0,102,102,0.85), rgba(0,51,51,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: white; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p { font-size: 1.05rem; font-weight: 300; }
+
+    /* ── Chat Container ── */
+    .chat-container {
+      max-width: 900px; margin: 30px auto; padding: 0 16px 60px;
+      background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column; height: 600px;
+    }
+
+    /* ── Chat Header ── */
+    .chat-header {
+      background: linear-gradient(to right, #003d3d, #006666);
+      color: white; padding: 20px; border-radius: 16px 16px 0 0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .chat-header h2 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+    .chat-header p { margin: 0; font-size: 0.9rem; opacity: 0.9; }
+    .chat-status { width: 10px; height: 10px; background: #27ae60; border-radius: 50%; }
+
+    /* ── Chat Messages ── */
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .message {
+      display: flex; gap: 10px; margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-content {
+      max-width: 75%; padding: 12px 16px; border-radius: 12px;
+      font-size: 0.95rem; line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .message.bot .message-content {
+      background: #e8f4ff; color: #003d3d; border-left: 4px solid #00b3b3;
+    }
+
+    .message.user .message-content {
+      background: #006666; color: #fff; border-radius: 12px 12px 0 12px;
+    }
+
+    .message-time {
+      font-size: 0.75rem; color: #999; margin-top: 4px;
+    }
+
+    .typing-indicator {
+      display: flex; gap: 4px; align-items: center;
+    }
+
+    .typing-indicator span {
+      width: 8px; height: 8px; background: #00b3b3; border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
+      40% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ── Chat Input ── */
+    .chat-input-area {
+      padding: 16px 20px; border-top: 1px solid #e0e0e0;
+      display: flex; gap: 10px; align-items: flex-end;
+    }
+
+    .input-wrapper {
+      flex: 1; display: flex; gap: 8px;
+    }
+
+    #chatInput {
+      flex: 1; padding: 12px 16px; border: 1.5px solid #c8e8e8;
+      border-radius: 8px; font-size: 0.95rem; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+      resize: none; max-height: 100px;
+    }
+
+    #chatInput:focus {
+      border-color: #00b3b3; box-shadow: 0 0 0 3px rgba(0,179,179,0.1);
+    }
+
+    .send-btn {
+      padding: 12px 20px; background: #006666; color: white;
+      border: none; border-radius: 8px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+    }
+
+    .send-btn:hover { background: #008080; }
+    .send-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .clear-btn {
+      padding: 12px 16px; background: #e74c3c; color: white;
+      border: none; border-radius: 8px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
+    }
+
+    .clear-btn:hover { background: #c0392b; }
+
+    /* ── Welcome Message ── */
+    .welcome-msg {
+      text-align: center; color: #666; padding: 40px 20px;
+    }
+
+    .welcome-msg h3 { color: #003d3d; margin-bottom: 12px; }
+    .welcome-msg p { margin: 8px 0; font-size: 0.95rem; }
+
+    .suggest-pills {
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+      margin-top: 16px;
+    }
+
+    .suggest-pill {
+      padding: 8px 14px; background: #e8f4ff; color: #003d3d;
+      border: 1px solid #00b3b3; border-radius: 20px;
+      cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+    }
+
+    .suggest-pill:hover {
+      background: #00b3b3; color: white;
+    }
+
+    footer { background-color: #003d3d; color: #fff; text-align: center; padding: 18px; margin-top: 40px; }
+
+    @media(max-width:768px) {
+      .chat-container { height: 500px; }
+      .message-content { max-width: 90%; }
+      .page-header h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="logo">MediConnectX</div>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+    <nav>
+      <ul class="nav-links" id="mainNav">
+        <li><a href="Welcome.html">Home</a></li>
+        <li><a href="Chatbot.html" class="nav-active">AI Chatbot</a></li>
+        <li><a href="News.html">News</a></li>
+        <li><a href="AboutUs.html">About Us</a></li>
+        <li><a href="Contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="page-header">
+    <h1><i class="bi bi-chat-dots-fill me-2"></i>AI Health Chatbot</h1>
+    <p>Ask health questions and get instant guidance from our AI assistant</p>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-status"></div>
+      <div>
+        <h2>MediConnectX Health Assistant</h2>
+        <p>Powered by AI • Available 24/7</p>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="welcome-msg">
+        <h3>👋 Welcome to MediConnectX Health Chatbot</h3>
+        <p>Ask me about:</p>
+        <p>✓ Symptoms and health conditions</p>
+        <p>✓ General medical information</p>
+        <p>✓ Wellness tips and preventive care</p>
+        <p>✓ Appointment booking help</p>
+        <div class="suggest-pills">
+          <button class="suggest-pill" onclick="suggestQuestion('What are common symptoms of fever?')">Fever symptoms</button>
+          <button class="suggest-pill" onclick="suggestQuestion('How to maintain good health?')">Health tips</button>
+          <button class="suggest-pill" onclick="suggestQuestion('When should I see a doctor?')">When to see doctor</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <textarea id="chatInput" placeholder="Ask your health question here..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <i class="bi bi-send-fill"></i> Send
+        </button>
+      </div>
+      <button class="clear-btn" id="clearBtn" onclick="clearChat()" title="Clear chat">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script>
+    // ── OpenAI API Configuration (Free $5 trial) ──
+    const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY_HERE'; // Replace with your OpenAI key from https://platform.openai.com/account/api-keys
+    const OPENAI_MODEL = 'gpt-4o-mini'; // Fast & cheap ($0.15 per 1M input tokens)
+    const CHAT_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+    let chatHistory = [];
+
+    // ── System Prompt for Healthcare Context ──
+    const SYSTEM_PROMPT = `You are a helpful healthcare assistant for MediConnectX, a digital healthcare platform.
+Your role is to:
+1. Answer general health and wellness questions
+2. Provide information about symptoms and common conditions
+3. Give preventive health advice
+4. Help users understand when they should consult a doctor
+5. Assist with information about appointment booking
+
+IMPORTANT GUIDELINES:
+- Always remind users that you are an AI and not a replacement for professional medical advice
+- Encourage users to consult with a doctor for serious concerns or if symptoms persist
+- Be empathetic and supportive in your responses
+- Provide accurate, evidence-based information
+- If asked about serious emergency symptoms (severe chest pain, difficulty breathing, etc.), immediately advise seeking emergency medical attention
+- Keep responses concise and easy to understand
+- Suggest booking an appointment with a doctor when appropriate`;
+
+    // ── Initialize Textarea Auto-resize ──
+    const chatInput = document.getElementById('chatInput');
+    chatInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+
+    // ── Send message on Enter key ──
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // ── Send Message ──
+    async function sendMessage() {
+      const userMessage = chatInput.value.trim();
+
+      if (!userMessage) return;
+
+      if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+        showError('API Key Not Configured', 'Please set up your Google Gemini API key in Chatbot.html');
+        return;
+      }
+
+      // Disable send button and clear input
+      document.getElementById('sendBtn').disabled = true;
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+
+      // Add user message to chat
+      addMessageToChat(userMessage, 'user');
+
+      // Show typing indicator
+      const typingId = addTypingIndicator();
+
+      try {
+        // Get AI response
+        const response = await callGeminiAPI(userMessage);
+        removeMessage(typingId);
+        addMessageToChat(response, 'bot');
+      } catch (error) {
+        removeMessage(typingId);
+        addMessageToChat(`Sorry, I encountered an error: ${error.message}. Please try again.`, 'bot');
+      }
+
+      document.getElementById('sendBtn').disabled = false;
+      chatInput.focus();
+    }
+
+    // ── Call OpenAI API ──
+    async function callGeminiAPI(userMessage) {
+      if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+        throw new Error('OpenAI API Key not configured. Please add your key to Chatbot.html');
+      }
+
+      // Build messages for OpenAI
+      const messages = [
+        {
+          role: 'system',
+          content: SYSTEM_PROMPT
+        }
+      ];
+
+      // Add chat history
+      chatHistory.forEach(msg => {
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
+      });
+
+      // Add current message
+      messages.push({
+        role: 'user',
+        content: userMessage
+      });
+
+      try {
+        const response = await fetch(CHAT_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: OPENAI_MODEL,
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 500,
+            top_p: 0.95
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || `API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
+
+        // Store in chat history
+        chatHistory.push({ role: 'user', content: userMessage });
+        chatHistory.push({ role: 'bot', content: aiResponse });
+
+        // Keep only last 10 exchanges in history for context
+        if (chatHistory.length > 20) {
+          chatHistory = chatHistory.slice(-20);
+        }
+
+        return aiResponse;
+      } catch (error) {
+        throw new Error(error.message || 'Failed to get response from AI');
+      }
+    }
+
+    // ── Add Message to Chat ──
+    function addMessageToChat(message, role) {
+      const messagesDiv = document.getElementById('chatMessages');
+
+      // Remove welcome message on first message
+      const welcome = messagesDiv.querySelector('.welcome-msg');
+      if (welcome && role === 'user') {
+        welcome.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+      messageDiv.id = 'msg-' + Date.now();
+
+      const time = new Date().toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      messageDiv.innerHTML = `
+        <div>
+          <div class="message-content">${escapeHtml(message)}</div>
+          <div class="message-time">${time}</div>
+        </div>
+      `;
+
+      messagesDiv.appendChild(messageDiv);
+      // Only auto-scroll when user sends message or when typing indicator appears
+      if (role === 'user' || role === 'bot') {
+        setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; }, 50);
+      }
+
+      return messageDiv.id;
+    }
+
+    // ── Add Typing Indicator ──
+    function addTypingIndicator() {
+      const messagesDiv = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message bot';
+      messageDiv.id = 'typing-' + Date.now();
+
+      messageDiv.innerHTML = `
+        <div>
+          <div class="message-content">
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      return messageDiv.id;
+    }
+
+    // ── Remove Message ──
+    function removeMessage(id) {
+      const msg = document.getElementById(id);
+      if (msg) msg.remove();
+    }
+
+    // ── Clear Chat ──
+    function clearChat() {
+      if (confirm('Clear all chat messages?')) {
+        document.getElementById('chatMessages').innerHTML = `
+          <div class="welcome-msg">
+            <h3>👋 Welcome to MediConnectX Health Chatbot</h3>
+            <p>Ask me about:</p>
+            <p>✓ Symptoms and health conditions</p>
+            <p>✓ General medical information</p>
+            <p>✓ Wellness tips and preventive care</p>
+            <p>✓ Appointment booking help</p>
+            <div class="suggest-pills">
+              <button class="suggest-pill" onclick="suggestQuestion('What are common symptoms of fever?')">Fever symptoms</button>
+              <button class="suggest-pill" onclick="suggestQuestion('How to maintain good health?')">Health tips</button>
+              <button class="suggest-pill" onclick="suggestQuestion('When should I see a doctor?')">When to see doctor</button>
+            </div>
+          </div>
+        `;
+        chatHistory = [];
+        document.getElementById('chatInput').focus();
+      }
+    }
+
+    // ── Suggest Question ──
+    function suggestQuestion(question) {
+      document.getElementById('chatInput').value = question;
+      document.getElementById('chatInput').focus();
+      sendMessage();
+    }
+
+    // ── Show Error ──
+    function showError(title, message) {
+      const messagesDiv = document.getElementById('chatMessages');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'message bot';
+      errorDiv.innerHTML = `
+        <div>
+          <div class="message-content" style="background: #ffe8e8; border-left-color: #e74c3c; color: #c0392b;">
+            <strong>${title}</strong><br>${message}
+          </div>
+        </div>
+      `;
+      messagesDiv.appendChild(errorDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // ── Escape HTML ──
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    // ── Toggle Navigation Menu ──
+    function toggleNav() {
+      const nav = document.getElementById('mainNav');
+      nav.classList.toggle('open');
+    }
+
+    // ── Initialize ──
+    document.getElementById('chatInput').focus();
+  </script>
+</body>
+</html>

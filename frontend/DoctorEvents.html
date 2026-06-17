@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events – MediConnectX Doctor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 0; padding: 0; background-color: #f0f8ff; color: #333; }
+    .navbar {
+      background-color: #012b40; padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .logo { color: #fff; font-size: 1.4rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+    .events-header {
+      background: linear-gradient(to right, rgba(0,85,128,0.85), rgba(0,40,80,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: white; text-align: center; padding: 50px 20px;
+    }
+    .events-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .events-header p { font-size: 1.05rem; font-weight: 300; }
+    .events-container {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px; max-width: 1400px; margin: 32px auto; padding: 0 16px;
+    }
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;background:#012b40;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.15);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .events-header h1{font-size:1.7rem;}
+      .events-header{padding:36px 16px;}
+      .events-container{grid-template-columns:1fr;padding:0 12px;margin:20px auto;}
+    }
+    .event-card {
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;
+      display: flex; flex-direction: column; transition: transform 0.3s;
+    }
+    .event-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
+    .event-image { width: 100%; height: 200px; object-fit: cover; }
+    .event-details { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+    .event-details h3 { color: #005580; margin-bottom: 8px; }
+    .event-details p { color: #555; font-size: 0.92rem; margin-bottom: 4px; }
+    #eventsContainer [id^="action-"] {
+      margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f0f0;
+    }
+    .events-footer { background-color: #012b40; color: #fff; text-align: center; padding: 20px; margin-top: 40px; }
+    .loading { text-align: center; padding: 40px; color: #005580; font-size: 1.1rem; }
+    .no-events { text-align: center; padding: 40px; color: #888; }
+    .badge-tag {
+      display: inline-block; background: #e0f2ff; color: #005580;
+      padding: 3px 10px; border-radius: 12px; font-size: 0.82rem; margin-top: 6px;
+    }
+    .register-btn {
+      margin-top: 14px; padding: 10px 0; background-color: #005580;
+      color: #fff; border: none; border-radius: 5px; cursor: pointer;
+      width: 100%; font-size: 1rem; transition: 0.3s;
+    }
+    .register-btn:hover { background-color: #003d5c; }
+    .register-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+    .unregister-btn {
+      margin-top: 8px; padding: 8px 0; background-color: #fff;
+      color: #c0392b; border: 1.5px solid #c0392b; border-radius: 5px;
+      cursor: pointer; width: 100%; font-size: 0.92rem; transition: 0.3s;
+    }
+    .unregister-btn:hover { background-color: #fdf0f0; }
+    .status-badge {
+      margin-top: 14px; padding: 7px 10px; border-radius: 6px;
+      text-align: center; font-weight: 600; font-size: 0.82rem;
+      width: 100%; box-sizing: border-box; word-break: break-word; line-height: 1.4;
+    }
+    .status-pending  { background: #fff8e1; color: #b8860b; border: 1.5px solid #f0c040; }
+    .status-approved { background: #d4edda; color: #155724; border: 1.5px solid #c3e6cb; }
+    .status-rejected { background: #f8d7da; color: #721c24; border: 1.5px solid #f5c6cb; }
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 2000;
+      justify-content: center; align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    /* renamed from .modal to avoid Bootstrap's .modal { display:none } conflict */
+    .confirm-box { background: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; }
+    .confirm-box h3 { color: #005580; margin-bottom: 12px; }
+    .modal-btn { padding: 10px 22px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; margin: 6px; }
+    .modal-btn.primary { background-color: #005580; color: #fff; }
+    .modal-btn.secondary { background-color: #ccc; }
+  </style>
+</head>
+<body>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <div class="events-header">
+    <h1>Health &amp; Wellness Events</h1>
+    <p>Browse upcoming events. Patients registered in these events may request your assistance.</p>
+  </div>
+
+  <div class="events-container" id="eventsContainer">
+    <div class="loading">Loading events...</div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="confirm-box">
+      <h3 id="modalTitle">Confirm Registration</h3>
+      <p id="modalBody"></p>
+      <div>
+        <button class="modal-btn primary" id="modalConfirm">Confirm</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="events-footer"><p>© 2026 MediConnectX. All Rights Reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script src="customModal.js"></script>
+  <script>
+    const auth = requireAuth('DOCTOR');
+    // eventId → { id: regId, status: 'PENDING'|'APPROVED'|'REJECTED' }
+    let regMap = {};
+    // eventId → eventName (so we can rebuild buttons after register/unregister)
+    let nameMap = {};
+
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+    async function loadEvents() {
+      try {
+        const [events, myRegs] = await Promise.all([
+          apiGet('/api/events'),
+          // UX-02 fix: Use profileId instead of patientId for semantic clarity (doctor registrations)
+          apiGet('/api/registration/search?profileId=' + auth.roleId + '&userRole=DOCTOR').catch(() => [])
+        ]);
+        regMap = {};
+        nameMap = {};
+        (myRegs || []).forEach(r => { regMap[r.eventId] = { id: r.id, status: r.status }; });
+        if (!events || events.length === 0) {
+          document.getElementById('eventsContainer').innerHTML = '<div class="no-events">No events available at the moment.</div>';
+          return;
+        }
+        document.getElementById('eventsContainer').innerHTML = events.map(ev => {
+          nameMap[ev.id] = ev.eventName || '';   // cache name for button rebuilds
+          const imgTag = ev.imageLink
+            ? `<img src="${imgSrc(ev.imageLink)}" alt="${ev.eventName}" class="event-image">`
+            : `<div class="event-image" style="background:#d0eaff;display:flex;align-items:center;justify-content:center;color:#005580;font-size:2.5rem;">🏥</div>`;
+          return `
+            <div class="event-card" id="ecard-${ev.id}">
+              ${imgTag}
+              <div class="event-details">
+                <h3>${ev.eventName || 'Unnamed Event'}</h3>
+                <p>📅 ${ev.eventDate || '—'}</p>
+                <p>📍 ${ev.location || '—'}</p>
+                <span class="badge-tag">🏷️ ${ev.category || 'General'}</span>
+                <div id="action-${ev.id}">${actionHtml(ev)}</div>
+              </div>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('eventsContainer').innerHTML =
+          '<div class="no-events">Could not load events. Please try again later.</div>';
+      }
+    }
+
+    function actionHtml(ev) {
+      const reg = regMap[ev.id];
+      const name = (ev.eventName || '').replace(/'/g, "\\'");
+      if (!reg) {
+        return `<button class="register-btn" onclick="confirmRegister(${ev.id},'${name}')">Register Now</button>`;
+      }
+      if (reg.status === 'PENDING') {
+        return `<div class="status-badge status-pending">⏳ Pending Registration</div>
+                <button class="unregister-btn" onclick="confirmUnregister(${reg.id},${ev.id})">Unregister</button>`;
+      }
+      if (reg.status === 'APPROVED') {
+        return `<div class="status-badge status-approved">✅ Registration Accepted</div>`;
+      }
+      if (reg.status === 'REJECTED') {
+        return `<div class="status-badge status-rejected">❌ Registration Rejected</div>`;
+      }
+      return '';
+    }
+
+    function confirmRegister(eventId, eventName) {
+      document.getElementById('modalTitle').textContent = 'Confirm Registration';
+      document.getElementById('modalBody').textContent = `Register for "${eventName}"?`;
+      document.getElementById('modalConfirm').onclick = () => doRegister(eventId);
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function confirmUnregister(regId, eventId) {
+      document.getElementById('modalTitle').textContent = 'Cancel Registration';
+      document.getElementById('modalBody').textContent = 'Are you sure you want to unregister from this event?';
+      document.getElementById('modalConfirm').onclick = () => doUnregister(regId, eventId);
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    async function doRegister(eventId) {
+      closeModal();
+      const slot = document.getElementById('action-' + eventId);
+      if (slot) slot.innerHTML = '<button class="register-btn" disabled>Registering…</button>';
+      // UX-02 fix: Note - 'patientId' field name is kept for database compatibility,
+      // but when userRole='DOCTOR', it actually contains the doctor's profile ID
+      const dto = { patientId: auth.roleId, eventId: eventId, registrationDate: today(), status: 'PENDING', userRole: 'DOCTOR' };
+      const fd = new FormData();
+      fd.append('registrationDTO', JSON.stringify(dto));
+      try {
+        const saved = await apiFormPost('/api/registration/create', fd);
+        if (!saved || typeof saved !== 'object') throw new Error('Unexpected response from server.');
+        regMap[eventId] = { id: saved.id, status: saved.status || 'PENDING' };
+        if (slot) slot.innerHTML = actionHtml({ id: eventId, eventName: nameMap[eventId] });
+      } catch (e) {
+        showAlert('Registration Failed', 'Registration failed: ' + e.message, () => {
+          if (slot) slot.innerHTML = actionHtml({ id: eventId, eventName: nameMap[eventId] });
+        });
+      }
+    }
+
+    async function doUnregister(regId, eventId) {
+      closeModal();
+      const slot = document.getElementById('action-' + eventId);
+      if (slot) slot.innerHTML = '<button class="unregister-btn" disabled>Cancelling…</button>';
+      try {
+        await apiDelete('/api/registration/delete/' + regId);
+        delete regMap[eventId];
+        if (slot) slot.innerHTML = actionHtml({ id: eventId, eventName: nameMap[eventId] });
+      } catch (e) {
+        showAlert('Unregister Failed', 'Unregister failed: ' + e.message, () => {
+          if (slot) slot.innerHTML = actionHtml({ id: eventId, eventName: nameMap[eventId] });
+        });
+      }
+    }
+
+    loadEvents();
+  </script>
+</body>
+</html>

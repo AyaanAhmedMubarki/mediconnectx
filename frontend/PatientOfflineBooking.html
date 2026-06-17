@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline Consultation – MediConnectX Patient</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 0; background-color: #f4f9f9; color: #333; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(0,102,102,0.85), rgba(0,51,51,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: white; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p { font-size: 1.05rem; font-weight: 300; }
+
+    .main-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    /* ── Section titles ── */
+    .sec-title { font-size: 1.25rem; font-weight: 700; color: #003d3d; margin-bottom: 18px; border-left: 4px solid #00b3b3; padding-left: 12px; }
+
+    /* ── Filter bar ── */
+    .slot-filter {
+      background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      padding: 18px 20px; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 24px;
+    }
+    @media(max-width:540px){ .slot-filter { grid-template-columns: 1fr; } }
+    .slot-filter label { display: block; font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .slot-filter select,
+    .slot-filter input[type="date"] {
+      width: 100%; padding: 10px 13px; border: 1.5px solid #c8e8e8;
+      border-radius: 8px; font-size: 0.95rem; background: #f9fefe; color: #222;
+      outline: none; transition: border-color 0.2s;
+    }
+    .slot-filter select:focus,
+    .slot-filter input[type="date"]:focus { border-color: #00b3b3; box-shadow: 0 0 0 3px rgba(0,179,179,0.12); }
+
+    /* ── Doctor cards ── */
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .doc-card {
+      background: #fff; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .doc-card:hover { transform: translateY(-3px); }
+    .doc-card.active-doc { box-shadow: 0 0 0 3px #00b3b3, 0 4px 14px rgba(0,0,0,0.12); transform: translateY(-3px); }
+    .doc-card .doc-img-wrap { width: 100%; height: 200px; background: #d0f0f0; display: flex; align-items: center; justify-content: center; font-size: 3rem; overflow: hidden; }
+    .doc-card .doc-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .doc-card .doc-body { padding: 16px; }
+    .doc-card h5 { color: #003d3d; margin-bottom: 4px; font-size: 1rem; font-weight: 700; }
+    .doc-card .spec { font-size: 0.82rem; color: #666; margin-bottom: 4px; }
+    .doc-card .fee-tag { font-size: 0.8rem; color: #00b3b3; font-weight: 700; margin-bottom: 12px; }
+    .book-btn {
+      width: 100%; padding: 10px; background: #006666; color: #fff;
+      border: none; border-radius: 7px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .book-btn:hover { background: #008080; }
+    .no-docs-msg {
+      text-align: center; color: #888; padding: 32px 16px;
+      font-style: italic; background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); font-size: 0.95rem;
+    }
+
+    /* ── Slot section ── */
+    .slot-section-header {
+      background: #e4f4f4; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .slot-section-header h6 { margin: 0; color: #003d3d; font-weight: 700; font-size: 1rem; }
+    .slot-close-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 1.3rem; line-height: 1; padding: 0; }
+    .slot-close-btn:hover { color: #e74c3c; }
+    .slot-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); padding: 20px; min-height: 80px; }
+    .slot-lbl { font-size: 0.95rem; font-weight: 700; color: #003d3d; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .s-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .s-btn { padding: 8px 15px; border: 2px solid #006666; border-radius: 8px; background: #006666; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 700; min-width: 88px; text-align: center; transition: background 0.18s, transform 0.1s; }
+    .s-btn:hover:not(.s-disabled):not(.s-past) { background: #008080; transform: translateY(-2px); }
+    .s-btn:active:not(.s-disabled):not(.s-past) { transform: none; }
+    .s-disabled { background: #d5d5d5 !important; border-color: #c0c0c0 !important; color: #888 !important; cursor: not-allowed; opacity: 0.65; }
+    .s-past     { background: #f0f0f0 !important; border-color: #ddd !important; color: #bbb !important; cursor: not-allowed; text-decoration: line-through; opacity: 0.7; }
+    .s-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; font-size: 0.82rem; }
+    .s-leg-item { display: flex; align-items: center; gap: 6px; }
+    .s-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .s-dot-open  { background: #006666; }
+    .s-dot-taken { background: #c0c0c0; }
+    .s-ph { text-align: center; padding: 24px; color: #999; font-size: 0.92rem; }
+    .s-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #c8e8e8; border-top-color: #00b3b3; border-radius: 50%; animation: s-spin 0.7s linear infinite; }
+    @keyframes s-spin { to { transform: rotate(360deg); } }
+
+    /* ── Appointments table ── */
+    .table-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); overflow: hidden; }
+    .table-card-head {
+      background: #006666; color: #fff; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-card-head h5 { margin: 0; font-weight: 700; font-size: 1rem; }
+    .badge-booked { background:#27ae60; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; }
+    .table-card table { width: 100%; border-collapse: collapse; }
+    .table-card table thead { background: #f5fafa; }
+    .table-card table thead th { padding: 12px 16px; font-weight: 700; color: #003d3d; font-size: 0.9rem; border-bottom: 1.5px solid #d0e8e8; }
+    .table-card table tbody td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+    .table-card table tbody tr:hover { background: #f9fefe; }
+
+    footer { background-color: #003d3d; color: #fff; text-align: center; padding: 18px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <div class="page-header">
+    <h1>Offline Consultation</h1>
+    <p>Filter by specialisation and date, then pick a doctor to book your in-person appointment.</p>
+  </div>
+
+  <div class="main-wrap">
+
+    <!-- ── Book by Appointment Slot ── -->
+    <p class="sec-title"><i class="bi bi-hospital me-2"></i>Book Offline Consultation</p>
+
+    <!-- Filters -->
+    <div class="slot-filter">
+      <div>
+        <label for="offlineSpecFilter"><i class="bi bi-stethoscope me-1"></i>Select Specialisation</label>
+        <select id="offlineSpecFilter">
+          <option value="">— All Specialisations —</option>
+        </select>
+      </div>
+      <div>
+        <label for="offlineSlotDatePick"><i class="bi bi-calendar3 me-1"></i>Select Date</label>
+        <input type="date" id="offlineSlotDatePick" />
+      </div>
+    </div>
+
+    <!-- ── Doctor list ── -->
+    <p class="sec-title" id="offlineDocSectionTitle">All Doctors with Offline Availability</p>
+    <div class="doc-grid" id="offlineDocGrid">
+      <div class="text-muted p-3">Loading doctors…</div>
+    </div>
+
+    <!-- ── Slot Selection (shown when doctor + date are chosen) ── -->
+    <div id="offlineSlotSection" style="display:none; margin-top: 8px; margin-bottom: 28px;">
+      <div class="slot-section-header">
+        <h6><i class="bi bi-hospital me-2"></i><span id="offlineSlotSectionTitle">Available Offline Slots</span></h6>
+        <button class="slot-close-btn" onclick="clearOfflineSlotSection()" title="Close slot view">✕</button>
+      </div>
+      <div class="slot-wrap" id="offlineSlotWrap">
+        <div class="s-ph">
+          <i class="bi bi-calendar2-check" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+          Select a doctor above to see available offline slots.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── My Offline Consultations ── -->
+    <p class="sec-title mt-4">My Offline Consultations</p>
+    <div class="table-card">
+      <div class="table-card-head">
+        <h5><i class="bi bi-hospital me-2"></i>Booking History</h5>
+        <span id="offlineAptCount" class="badge bg-secondary">—</span>
+      </div>
+      <div id="offlineAptWrap">
+        <div class="text-muted p-4 text-center">Loading your offline consultations…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script src="customModal.js"></script>
+  <script>
+    const auth = requireAuth('PATIENT');
+
+    // ── Page state ────────────────────────────────────────────────────────
+    let allDoctors = [];
+    let activeOfflineDoctorId = null;
+
+    // ── Utility ───────────────────────────────────────────────────────────
+    function toISODate(d) {
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    }
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return '';
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+
+    // ── Date input setup ──────────────────────────────────────────────────
+    (function initOfflineSlotDate() {
+      const input = document.getElementById('offlineSlotDatePick');
+      const today = new Date();
+      const max   = new Date();
+      max.setDate(today.getDate() + 30);
+      input.min   = toISODate(today);
+      input.max   = toISODate(max);
+
+      input.addEventListener('blur', function () {
+        const todayStr = toISODate(new Date());
+        if (this.value && this.value < todayStr) {
+          this.value = '';
+          applyOfflineFilters();
+        }
+      });
+    })();
+
+    // ── Load all doctors on boot ──────────────────────────────────────────
+    async function loadDoctors() {
+      try {
+        allDoctors = await apiGet('/api/doctor');
+        populateOfflineSpecFilter();
+        renderOfflineDocCards(allDoctors);
+      } catch (e) {
+        document.getElementById('offlineDocGrid').innerHTML =
+          '<p class="text-danger p-3">Failed to load doctors.</p>';
+      }
+    }
+
+    // ── Populate specialisation dropdown ──────────────────────────────────
+    function populateOfflineSpecFilter() {
+      const sel = document.getElementById('offlineSpecFilter');
+      const specs = [...new Set(
+        allDoctors.map(d => d.category || 'General Practitioner')
+      )].sort();
+      sel.innerHTML = '<option value="">— All Specialisations —</option>';
+      specs.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Filter change handlers ───────────────────────────────────────────
+    document.getElementById('offlineSpecFilter').addEventListener('change', applyOfflineFilters);
+    document.getElementById('offlineSlotDatePick').addEventListener('change', applyOfflineFilters);
+
+    async function applyOfflineFilters() {
+      const spec = document.getElementById('offlineSpecFilter').value;
+      const date = document.getElementById('offlineSlotDatePick').value;
+
+      clearOfflineSlotSection();
+
+      if (date && date < toISODate(new Date())) {
+        document.getElementById('offlineDocGrid').innerHTML =
+          '<div class="no-docs-msg"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>Please select today or a future date.</div>';
+        return;
+      }
+
+      if (date) {
+        try {
+          document.getElementById('offlineDocGrid').innerHTML =
+            '<div class="text-muted p-3"><span class="s-spinner" style="display:inline-block;"></span> Finding doctors…</div>';
+
+          // Fetch offline slots for the date
+          const response = await fetch(`http://localhost:8080/api/offline-slots/available?slotDate=${date}`, {
+            headers: authHeaders()
+          });
+
+          if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+          const offlineSlots = await response.json();
+
+          // Get unique doctors with offline availability
+          let docsWithOffline = [];
+          const docSet = new Set();
+
+          offlineSlots.forEach(slot => {
+            const docId = slot.doctor?.id;
+            if (docId && !docSet.has(docId)) {
+              const doc = allDoctors.find(d => d.id === docId);
+              if (doc) {
+                if (!spec || (doc.category || 'General Practitioner') === spec) {
+                  docSet.add(docId);
+                  docsWithOffline.push(doc);
+                }
+              }
+            }
+          });
+
+          renderOfflineDocCards(docsWithOffline, date);
+        } catch (e) {
+          document.getElementById('offlineDocGrid').innerHTML =
+            '<div class="no-docs-msg"><i class="bi bi-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>Failed to load availability.</div>';
+        }
+      } else {
+        // No date selected — filter by spec only
+        const filtered = spec
+          ? allDoctors.filter(d => (d.category || 'General Practitioner') === spec)
+          : allDoctors;
+        renderOfflineDocCards(filtered);
+      }
+    }
+
+    // ── Render doctor cards ───────────────────────────────────────────────
+    function renderOfflineDocCards(doctors, date) {
+      const grid = document.getElementById('offlineDocGrid');
+      if (!doctors || !doctors.length) {
+        grid.innerHTML =
+          '<div class="no-docs-msg">' +
+          '<i class="bi bi-person-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>' +
+          (date
+            ? 'No doctors have offline availability on this date for the selected specialisation.'
+            : 'No doctors match the selected specialisation.') +
+          '</div>';
+        return;
+      }
+
+      grid.innerHTML = doctors.map(d => {
+        const spec = d.category || 'General Practitioner';
+        const imgBlock = d.imageLink
+          ? `<div class="doc-img-wrap"><img src="${imgSrc(d.imageLink)}" alt="Dr. ${d.name || ''}"/></div>`
+          : `<div class="doc-img-wrap">👨‍⚕️</div>`;
+
+        const btnLabel = date
+          ? `<i class="bi bi-hospital me-1"></i>View Offline Slots`
+          : `<i class="bi bi-calendar-plus me-1"></i>Select Date`;
+
+        return `<div class="doc-card" id="offlineDocCard_${d.id}">
+          ${imgBlock}
+          <div class="doc-body">
+            <h5>Dr. ${d.name || '—'}</h5>
+            <p class="spec">🩺 ${spec}</p>
+            <p class="fee-tag"><i class="bi bi-hospital"></i> Offline Consultation</p>
+            <button class="book-btn"
+              onclick="selectOfflineDoctor(${d.id}, '${(d.name || '').replace(/'/g,"\\'")}', '${date || ''}')">
+              ${btnLabel}
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Select a doctor → load slots ──────────────────────────────────────
+    function selectOfflineDoctor(docId, docName, date) {
+      if (!date) {
+        document.getElementById('offlineSlotDatePick').focus();
+        document.getElementById('offlineSlotDatePick').style.borderColor = '#e74c3c';
+        document.getElementById('offlineSlotDatePick').style.boxShadow = '0 0 0 3px rgba(231,76,60,0.18)';
+        setTimeout(() => {
+          document.getElementById('offlineSlotDatePick').style.borderColor = '';
+          document.getElementById('offlineSlotDatePick').style.boxShadow = '';
+        }, 2000);
+        showAlert('Date Required', 'Please select a date first to see available slots.');
+        return;
+      }
+
+      activeOfflineDoctorId = docId;
+
+      // Highlight selected card
+      document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('active-doc'));
+      const card = document.getElementById('offlineDocCard_' + docId);
+      if (card) card.classList.add('active-doc');
+
+      // Show slot section
+      document.getElementById('offlineSlotSectionTitle').textContent =
+        'Dr. ' + docName + '  ·  ' + formatDisplayDate(date);
+      document.getElementById('offlineSlotSection').style.display = 'block';
+      loadOfflineSlots(docId, date);
+
+      document.getElementById('offlineSlotSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function clearOfflineSlotSection() {
+      document.getElementById('offlineSlotSection').style.display = 'none';
+      document.getElementById('offlineSlotWrap').innerHTML = '';
+      document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('active-doc'));
+      activeOfflineDoctorId = null;
+    }
+
+    async function loadOfflineSlots(doctorId, date) {
+      const c = document.getElementById('offlineSlotWrap');
+      c.innerHTML = '<div class="s-ph"><span class="s-spinner"></span></div>';
+      try {
+        const response = await fetch(`http://localhost:8080/api/offline-slots/doctor/${doctorId}/available?slotDate=${date}`, {
+          headers: authHeaders()
+        });
+
+        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+        const slots = await response.json();
+        renderOfflineSlots(slots, doctorId, date);
+      } catch (err) {
+        c.innerHTML = `<div class="s-ph" style="color:#c0392b;"><i class="bi bi-exclamation-circle"></i> Could not load slots: ${err.message}</div>`;
+      }
+    }
+
+    function renderOfflineSlots(slots, doctorId, date) {
+      const c = document.getElementById('offlineSlotWrap');
+
+      const isToday = date === toISODate(new Date());
+      const nowHHMM = isToday ? new Date().toTimeString().slice(0, 5) : null;
+      const activeSlots = isToday
+        ? slots.filter(slot => (slot.startTime || '').substring(0, 5) >= nowHHMM)
+        : slots;
+
+      if (!activeSlots.length) {
+        c.innerHTML = isToday
+          ? '<div class="s-ph"><i class="bi bi-clock-history" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>All offline slots for today have passed.</div>'
+          : '<div class="s-ph"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No offline slots available for this doctor on the selected date.</div>';
+        return;
+      }
+
+      // Group slots by location
+      const slotsByLocation = {};
+      activeSlots.forEach(slot => {
+        const locId = slot.location?.id || 'unknown';
+        if (!slotsByLocation[locId]) {
+          slotsByLocation[locId] = [];
+        }
+        slotsByLocation[locId].push(slot);
+      });
+
+      // Build HTML for each location group
+      const locationsHTML = Object.keys(slotsByLocation).map(locId => {
+        const slotsAtLoc = slotsByLocation[locId];
+        const loc = slotsAtLoc[0]?.location || {};
+        const clinicName = loc.clinicName || 'Clinic';
+        const address = loc.address || '';
+        const city = loc.city || '';
+        const state = loc.state || '';
+        const pincode = loc.pincode || '';
+        const phone = loc.phoneNumber || '';
+
+        // Format address
+        const fullAddress = [address, city, state, pincode].filter(Boolean).join(', ');
+
+        // Build time slots for this location
+        const timeSlots = slotsAtLoc.map(slot => {
+          const startTime = (slot.startTime || '').substring(0, 5);
+          const endTime = (slot.endTime || '').substring(0, 5);
+          const label = `${startTime} – ${endTime}`;
+          return `<button class="s-btn" title="Click to book"
+                    data-label="${label}"
+                    data-clinic="${clinicName}"
+                    data-doctor="${doctorId}"
+                    data-date="${date}"
+                    data-slotid="${slot.id}"
+                    data-start="${slot.startTime}"
+                    onclick="bookOfflineSlot(${slot.id}, '${label}', '${clinicName}', this)">${label}</button>`;
+        }).join('');
+
+        return `
+          <div style="margin-bottom: 24px; padding: 16px; background: #f5fafa; border-radius: 10px; border-left: 4px solid #00b3b3;">
+            <div style="margin-bottom: 12px;">
+              <h6 style="color: #003d3d; margin-bottom: 6px; font-weight: 700; font-size: 1rem;">
+                <i class="bi bi-hospital me-2"></i>${clinicName}
+              </h6>
+              ${fullAddress ? `<p style="color: #666; font-size: 0.9rem; margin-bottom: 4px;"><i class="bi bi-geo-alt me-1"></i>${fullAddress}</p>` : ''}
+              ${phone ? `<p style="color: #666; font-size: 0.9rem; margin-bottom: 0;"><i class="bi bi-telephone me-1"></i>${phone}</p>` : ''}
+            </div>
+            <div style="padding-top: 12px; border-top: 1px solid #d0e8e8;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #003d3d; margin-bottom: 10px;">Available Times:</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">${timeSlots}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      c.innerHTML = `
+        <div class="slot-lbl">
+          <i class="bi bi-clock"></i>
+          ${activeSlots.length} slot${activeSlots.length !== 1 ? 's' : ''} available at ${Object.keys(slotsByLocation).length} location${Object.keys(slotsByLocation).length !== 1 ? 's' : ''}
+        </div>
+        <div class="s-legend" style="margin-top: 14px; margin-bottom: 16px;">
+          <div class="s-leg-item"><div class="s-dot s-dot-open"></div> Available</div>
+        </div>
+        ${locationsHTML}`;
+    }
+
+    function bookOfflineSlot(slotId, label, clinicName, btnEl) {
+      const date = document.getElementById('offlineSlotDatePick').value;
+
+      showConfirmation(
+        'Offline Consultation',
+        `Book offline consultation at ${clinicName}?\n\nTime: ${label}\n\nThis is an in-person consultation at the clinic.`,
+        async () => {
+          btnEl.disabled = true;
+          btnEl.textContent = 'Processing…';
+
+          try {
+            const response = await fetch(`http://localhost:8080/api/offline-slots/${slotId}/book?patientId=${auth.roleId}`, {
+              method: 'POST',
+              headers: authHeaders()
+            });
+
+            if (!response.ok) {
+              const err = await response.text();
+              throw new Error(`API Error: ${response.status} - ${err}`);
+            }
+
+            showAlert('Success', `Offline consultation booked!\n\nClinic: ${clinicName}\nDate: ${formatDisplayDate(date)}\nTime: ${label}\n\nYou will receive further details at your registered email.`);
+            clearOfflineSlotSection();
+          } catch (err) {
+            showAlert('Error', `Failed to book: ${err.message}`);
+            btnEl.disabled = false;
+            btnEl.textContent = label;
+          }
+        }
+      );
+    }
+
+    // ── Load offline consultation booking history ──────────────────────
+    async function loadOfflineConsultationHistory() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/offline-slots/patient/${auth.roleId}`, {
+          headers: authHeaders()
+        });
+
+        if (!response.ok) throw new Error('Failed to load history');
+
+        const allSlots = await response.json();
+        const bookedSlots = allSlots.filter(slot => slot.status === 'BOOKED');
+
+        renderOfflineConsultationHistory(bookedSlots);
+      } catch (err) {
+        document.getElementById('offlineAptWrap').innerHTML =
+          `<div class="text-muted p-4 text-center">Could not load booking history</div>`;
+      }
+    }
+
+    function renderOfflineConsultationHistory(bookings) {
+      const wrap = document.getElementById('offlineAptWrap');
+      const countEl = document.getElementById('offlineAptCount');
+
+      if (!bookings || bookings.length === 0) {
+        wrap.innerHTML = '<div class="text-muted p-4 text-center">No offline consultations booked yet.</div>';
+        countEl.textContent = '0';
+        return;
+      }
+
+      countEl.textContent = bookings.length;
+
+      const tableRows = bookings.map(slot => {
+        const docName = slot.doctor?.name || '—';
+        const docSpec = slot.doctor?.category || 'General Practitioner';
+        const clinicName = slot.location?.clinicName || 'Clinic';
+        const slotDate = formatDisplayDate(slot.slotDate);
+        const startTime = (slot.startTime || '').substring(0, 5);
+        const endTime = (slot.endTime || '').substring(0, 5);
+
+        const slotEndDateTime = new Date(slot.slotDate + 'T' + slot.endTime);
+        const now = new Date();
+        const statusBadge = slotEndDateTime <= now
+          ? '<span style="background:#2980b9;color:#fff;padding:3px 10px;border-radius:10px;font-size:.78rem;">Completed</span>'
+          : '<span class="badge-booked">Booked</span>';
+
+        return `<tr>
+          <td><strong>Dr. ${docName}</strong><br/><span style="font-size:0.85rem;color:#666;">🩺 ${docSpec}</span></td>
+          <td>${slotDate}</td>
+          <td>${startTime} – ${endTime}</td>
+          <td><strong>${clinicName}</strong></td>
+          <td>${statusBadge}</td>
+        </tr>`;
+      }).join('');
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Doctor</th>
+              <th style="width: 20%;">Date</th>
+              <th style="width: 15%;">Time</th>
+              <th style="width: 25%;">Location</th>
+              <th style="width: 15%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>`;
+    }
+
+    // ── Boot ──────────────────────────────────────────────────────────────
+    loadDoctors();
+    loadOfflineConsultationHistory();
+  </script>
+</body>
+</html>

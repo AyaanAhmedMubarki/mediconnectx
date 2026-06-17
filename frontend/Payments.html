@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Payment – MediConnectX</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #003d3d 0%, #01486b 100%);
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+
+    /* ── Top brand bar ── */
+    .brand-bar {
+      position: fixed; top: 0; left: 0; width: 100%;
+      background: rgba(0,0,0,0.25); padding: 12px 24px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(6px); z-index: 10;
+    }
+    .brand-bar .lock { font-size: 1.2rem; }
+    .brand-bar span { color: #fff; font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; }
+    .brand-bar small { color: rgba(255,255,255,0.65); font-size: 0.78rem; margin-left: 6px; }
+
+    /* ── Payment card ── */
+    .payment-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      width: 100%; max-width: 420px; overflow: hidden;
+      margin-top: 20px;
+    }
+    .card-head {
+      background: linear-gradient(135deg, #003d3d, #009999);
+      padding: 24px 28px; color: #fff;
+    }
+    .card-head h2 { font-size: 1.2rem; margin-bottom: 4px; }
+    .card-head p  { font-size: 0.85rem; opacity: 0.82; }
+
+    /* ── Timer ── */
+    .timer-bar {
+      display: flex; align-items: center; gap: 10px; margin-top: 14px;
+      background: rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 12px;
+    }
+    .timer-icon { font-size: 1.1rem; }
+    .timer-text { font-size: 0.85rem; font-weight: 600; color: #e0ffff; flex: 1; }
+    .timer-digits {
+      font-size: 1.15rem; font-weight: 800; letter-spacing: 0.05em;
+      color: #fff; min-width: 48px; text-align: right;
+    }
+    .timer-progress { height: 3px; background: rgba(255,255,255,0.2); margin-top: 8px; border-radius: 2px; }
+    .timer-fill { height: 100%; width: 100%; background: #00d4aa; border-radius: 2px; transition: width 1s linear, background 1s; }
+    .timer-warn   .timer-digits, .timer-warn   .timer-text { color: #ffe066; }
+    .timer-warn   .timer-fill { background: #ffe066; }
+    .timer-danger .timer-digits, .timer-danger .timer-text { color: #ff6b6b; }
+    .timer-danger .timer-fill { background: #ff6b6b; }
+
+    .card-body { padding: 28px; }
+
+    /* ── Order summary ── */
+    .order-box {
+      background: #f0fafa; border-radius: 10px;
+      padding: 14px 18px; margin-bottom: 22px;
+      border-left: 4px solid #00b3b3;
+    }
+    .order-box .label { font-size: 0.78rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .order-box .value { font-size: 1rem; color: #003d3d; font-weight: 700; margin-top: 2px; }
+    .order-box .amount { font-size: 1.5rem; color: #009999; font-weight: 800; }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: #555; text-transform: uppercase; letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #d0e8e8;
+      border-radius: 8px; font-size: 0.97rem; font-family: inherit;
+      background: #f9fefe; color: #222; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: #00b3b3; box-shadow: 0 0 0 3px rgba(0,179,179,0.15);
+      background: #fff;
+    }
+    .field input:disabled { background: #f0f0f0; color: #aaa; cursor: not-allowed; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Card icons ── */
+    .card-icons { display: flex; gap: 8px; margin-bottom: 18px; }
+    .card-icons span {
+      background: #f0f0f0; border-radius: 6px;
+      padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: #555;
+      transition: all 0.3s ease;
+    }
+    .card-icons span.active { background: #009999; color: #fff; transform: scale(1.05); }
+
+    /* ── Pay button ── */
+    .pay-btn {
+      width: 100%; padding: 14px;
+      background: #003d3d; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 6px;
+    }
+    .pay-btn:hover:not(:disabled) { background: #008080; transform: translateY(-1px); }
+    .pay-btn:active:not(:disabled) { transform: translateY(0); }
+    .pay-btn:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+
+    .secure-note { text-align: center; margin-top: 14px; font-size: 0.78rem; color: #888; }
+    #errMsg { color: #dc3545; font-size: 0.88rem; margin-top: 10px; display: none; text-align: center; }
+
+    /* ── Per-field inline validation ── */
+    .field-err {
+      display: block; color: #dc3545; font-size: 0.78rem;
+      margin-top: 4px; min-height: 16px; line-height: 1.3;
+    }
+    .field input.f-invalid {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 3px rgba(220,53,69,0.13) !important;
+    }
+    .field input.f-valid {
+      border-color: #28a745 !important;
+      box-shadow: 0 0 0 3px rgba(40,167,69,0.10) !important;
+    }
+
+    /* ── Overlays (success & expired) ── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .overlay.show { display: flex; }
+    .overlay-box {
+      background: #fff; border-radius: 16px; padding: 36px 32px;
+      text-align: center; max-width: 390px; width: 92%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .overlay-box .ov-icon { font-size: 3.5rem; margin-bottom: 14px; }
+    .overlay-box h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .overlay-box p  { color: #555; font-size: 0.9rem; line-height: 1.7; }
+    .overlay-box .txn { font-size: 0.8rem; color: #009999; margin-top: 10px; font-weight: 700; }
+    .overlay-box .back-link {
+      display: inline-block; margin-top: 22px; padding: 11px 28px;
+      background: #003d3d; color: #fff; border-radius: 8px;
+      text-decoration: none; font-size: 0.9rem; font-weight: 700;
+      transition: background 0.2s;
+    }
+    .overlay-box .back-link:hover { background: #008080; }
+  </style>
+</head>
+<body>
+
+  <div class="brand-bar">
+    <span class="lock">🔒</span>
+    <span>MediConnectX Secure Checkout</span>
+    <small>256-bit SSL Encrypted</small>
+  </div>
+
+  <div class="payment-card">
+    <div class="card-head">
+      <h2>💳 Complete Your Booking</h2>
+      <p>Enter your card details below to confirm the consultation.</p>
+      <!-- Persistent countdown timer -->
+      <div class="timer-bar" id="timerBar">
+        <span class="timer-icon">⏱</span>
+        <span class="timer-text" id="timerText">Complete payment within</span>
+        <span class="timer-digits" id="timerDigits">05:00</span>
+      </div>
+      <div class="timer-progress"><div class="timer-fill" id="timerFill"></div></div>
+    </div>
+
+    <div class="card-body">
+
+      <div class="order-box">
+        <div class="label">Appointment ID</div>
+        <div class="value" id="aptIdDisplay">—</div>
+        <div class="label" style="margin-top:10px;">Doctor</div>
+        <div class="value" id="doctorNameDisplay">—</div>
+        <div class="label" style="margin-top:10px;">Consultation Fee</div>
+        <div class="amount" id="feeDisplay">
+          <span style="font-size:0.9rem;opacity:0.5;font-weight:400;">Loading…</span>
+        </div>
+      </div>
+
+      <div class="card-icons">
+        <span id="icon-visa">VISA</span>
+        <span id="icon-mc">MC</span>
+        <span id="icon-amex">AMEX</span>
+        <span id="icon-rupay">RuPay</span>
+      </div>
+
+      <form id="payForm" onsubmit="submitPayment(event)" novalidate>
+        <div class="field">
+          <label>Card Number</label>
+          <input type="text" id="cardNum" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" autocomplete="cc-number" inputmode="numeric" />
+          <span class="field-err" id="err-cardNum"></span>
+        </div>
+        <div class="field">
+          <label>Cardholder Name</label>
+          <input type="text" id="cardName" placeholder="First and Last Name" autocomplete="cc-name" />
+          <span class="field-err" id="err-cardName"></span>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Expiry (MM/YY)</label>
+            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric" />
+            <span class="field-err" id="err-expiry"></span>
+          </div>
+          <div class="field">
+            <label>CVV</label>
+            <input type="password" id="cvv" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric" />
+            <span class="field-err" id="err-cvv"></span>
+          </div>
+        </div>
+        <div id="errMsg"></div>
+        <button type="submit" class="pay-btn" id="payBtn" disabled>Loading…</button>
+      </form>
+
+      <p class="secure-note">🔐 MediConnectX Secure Payments System</p>
+    </div>
+  </div>
+
+  <!-- ── Success overlay ── -->
+  <div class="overlay" id="successOverlay">
+    <div class="overlay-box">
+      <div class="ov-icon">✅</div>
+      <h3 style="color:#003d3d;">Payment Successful!</h3>
+      <p>Your consultation has been confirmed.<br>Redirecting to your consultations page…</p>
+      <div class="txn" id="txnDisplay"></div>
+    </div>
+  </div>
+
+  <!-- ── Expired overlay ── -->
+  <div class="overlay" id="expiredOverlay">
+    <div class="overlay-box">
+      <div class="ov-icon">⏱</div>
+      <h3 style="color:#c0392b;">Payment Window Expired</h3>
+      <p>
+        You did not complete payment within the <strong>5-minute window</strong>.<br><br>
+        Your slot reservation has been released. The booking will be automatically
+        <strong>cancelled within 10 minutes</strong> of the original booking time.
+        You are free to book a new slot.
+      </p>
+      <a href="PatientMeets.html" class="back-link">← Back to Consultations</a>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    /* ════════════════════════════════════════════════════════════════
+       PERSISTENT COUNTDOWN TIMER
+       ────────────────────────────────────────────────────────────────
+       The expiry epoch (ms) is stored in localStorage under the key
+       "paymentExpiry_<appointmentId>".  PatientMeets / PatientSlots
+       write this key from the "expiresAt" field returned by the
+       /api/payments/initiate response before redirecting here.
+
+       This means the 5-minute window is preserved across:
+         • Page refreshes
+         • Browser back + forward navigation
+         • Accidental tab closes and reopens
+
+       The backend independently enforces the same 5-minute limit and
+       will return HTTP 410 if a payment is attempted after expiry.
+       ════════════════════════════════════════════════════════════════ */
+
+    const params        = new URLSearchParams(window.location.search);
+    const appointmentId = params.get('appointmentId');
+    const STORAGE_KEY   = appointmentId ? ('paymentExpiry_' + appointmentId) : null;
+    const WINDOW_MS     = 5 * 60 * 1000;   // 5 minutes in milliseconds
+
+    let cdInterval      = null;
+    let consultationFee = '500';   // updated once doctor profile is fetched
+
+    // ── Get (or create) the expiry timestamp ─────────────────────────
+    function getExpiryMs() {
+      if (!STORAGE_KEY) return Date.now() + WINDOW_MS;
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = parseInt(raw, 10);
+        if (!isNaN(parsed)) return parsed;
+      }
+      // Key absent (e.g. direct URL access without going through booking flow):
+      // start a fresh 5-min window now; the backend will still reject if server-
+      // side the appointment is already older than 5 min.
+      const expiry = Date.now() + WINDOW_MS;
+      localStorage.setItem(STORAGE_KEY, String(expiry));
+      return expiry;
+    }
+
+    // ── Render one timer tick ─────────────────────────────────────────
+    function renderTick(expiryMs) {
+      const left = Math.max(0, expiryMs - Date.now());
+      const m    = Math.floor(left / 60000).toString().padStart(2, '0');
+      const s    = Math.floor((left % 60000) / 1000).toString().padStart(2, '0');
+      const pct  = (left / WINDOW_MS) * 100;
+
+      document.getElementById('timerDigits').textContent = m + ':' + s;
+      document.getElementById('timerFill').style.width   = Math.min(100, pct).toFixed(2) + '%';
+
+      const bar = document.getElementById('timerBar');
+      bar.classList.remove('timer-warn', 'timer-danger');
+      if      (left < 60_000)  bar.classList.add('timer-danger');   // < 1 min  → red
+      else if (left < 120_000) bar.classList.add('timer-warn');     // < 2 min  → yellow
+    }
+
+    // ── Lock the form and show the expired overlay ────────────────────
+    function showExpired() {
+      clearInterval(cdInterval);
+
+      document.getElementById('payBtn').disabled = true;
+      document.getElementById('payForm').querySelectorAll('input').forEach(i => i.disabled = true);
+
+      const bar = document.getElementById('timerBar');
+      bar.classList.remove('timer-warn');
+      bar.classList.add('timer-danger');
+      document.getElementById('timerDigits').textContent   = '00:00';
+      document.getElementById('timerFill').style.width     = '0%';
+      document.getElementById('timerText').textContent     = 'Payment window expired';
+
+      document.getElementById('expiredOverlay').classList.add('show');
+    }
+
+    // ── Start the live countdown ──────────────────────────────────────
+    function startCountdown(expiryMs) {
+      renderTick(expiryMs);
+      cdInterval = setInterval(function () {
+        if (expiryMs - Date.now() <= 0) showExpired();
+        else                            renderTick(expiryMs);
+      }, 1000);
+    }
+
+    // ── Initialise page ───────────────────────────────────────────────
+    (function init() {
+      if (appointmentId) {
+        document.getElementById('aptIdDisplay').textContent = '#' + appointmentId;
+        loadConsultationFee(appointmentId);   // fetch real fee + doctor name
+      } else {
+        document.getElementById('payBtn').disabled = true;
+        return;
+      }
+
+      const expiryMs = getExpiryMs();
+
+      if (expiryMs - Date.now() <= 0) {
+        // Already past the deadline when the page loaded
+        showExpired();
+      } else {
+        startCountdown(expiryMs);
+      }
+    })();
+
+    /* ════════════════════════════════════════════════════════════════
+       FETCH REAL CONSULTATION FEE FROM DOCTOR PROFILE
+       ════════════════════════════════════════════════════════════════
+       Chain: GET /api/appointments/{id}  →  doctorId
+              GET /api/doctor/search?id=X →  consultationFee + name
+       Note: consultationFee is now an Integer (VAL-03 fix), not String
+       Falls back to ₹500 if either call fails.
+       ════════════════════════════════════════════════════════════════ */
+    async function loadConsultationFee(aptId) {
+      try {
+        // Step 1 — appointment → doctorId
+        const apt      = await apiGet('/api/appointments/' + aptId);
+        const doctorId = apt.doctorId;
+        if (!doctorId) throw new Error('doctorId missing');
+
+        // Step 2 — doctor profile → fee + name
+        const doc  = await apiGet('/api/doctor/search?id=' + doctorId);
+        // consultationFee is now an Integer (VAL-03 fix), handle both Integer and String for safety
+        let fee = 500;  // Default
+        if (doc.consultationFee) {
+          fee = typeof doc.consultationFee === 'string'
+            ? parseInt(doc.consultationFee, 10)  // Parse if string
+            : doc.consultationFee;                // Use if already number
+          if (isNaN(fee) || fee <= 0) fee = 500;
+        }
+        const name = doc.name ? 'Dr. ' + doc.name : '—';
+
+        // Update state
+        consultationFee = String(fee);
+
+        // Format fee as ₹X.XX
+        const feeDisplay = '₹' + fee.toFixed(2);
+
+        // Update order summary
+        document.getElementById('feeDisplay').textContent        = feeDisplay;
+        document.getElementById('doctorNameDisplay').textContent = name;
+
+        // Unlock and label the pay button
+        const btn = document.getElementById('payBtn');
+        btn.textContent = 'Pay ₹' + fee + ' & Confirm Booking';
+        btn.disabled    = false;
+
+      } catch (e) {
+        // Fallback — show ₹500 and still allow payment
+        consultationFee = '500';
+        document.getElementById('feeDisplay').textContent = '₹500.00';
+        const btn = document.getElementById('payBtn');
+        btn.textContent = 'Pay ₹500 & Confirm Booking';
+        btn.disabled    = false;
+      }
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       CARD NUMBER — FORMAT, NETWORK DETECT, LUHN
+       ════════════════════════════════════════════════════════════════ */
+    const cardInput = document.getElementById('cardNum');
+
+    // Returns detected network or null
+    function detectNetwork(digits) {
+      if (/^4/.test(digits))             return 'visa';
+      if (/^5[1-5]|^2[2-7]/.test(digits)) return 'mc';
+      if (/^3[47]/.test(digits))         return 'amex';
+      if (/^(60|65|81|82)/.test(digits)) return 'rupay';
+      return null;
+    }
+
+    // Expected card length: AMEX = 15, others = 16
+    function expectedLength(digits) {
+      return /^3[47]/.test(digits) ? 15 : 16;
+    }
+
+    cardInput.addEventListener('input', function (e) {
+      const digits   = e.target.value.replace(/\D/g, '').substring(0, 16);
+      e.target.value = digits.replace(/(.{4})/g, '$1 ').trim();
+
+      // Highlight active network icon
+      document.querySelectorAll('.card-icons span').forEach(el => el.classList.remove('active'));
+      const net = detectNetwork(digits);
+      if (net) document.getElementById('icon-' + net).classList.add('active');
+
+      // Clear error while typing
+      if (digits.length < expectedLength(digits)) fieldErr('cardNum', '');
+    });
+
+    cardInput.addEventListener('blur', function () { validateCardNum(); });
+
+    function validateCardNum() {
+      const digits = cardInput.value.replace(/\D/g, '');
+      const expLen = expectedLength(digits);
+      if (!digits) {
+        return fieldErr('cardNum', 'Card number is required.', true);
+      }
+      if (digits.length < expLen) {
+        return fieldErr('cardNum',
+          `Card number must be ${expLen} digits — you've entered ${digits.length}.`, true);
+      }
+      return fieldErr('cardNum', '', false);   // valid
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       CARDHOLDER NAME
+       ════════════════════════════════════════════════════════════════ */
+    document.getElementById('cardName').addEventListener('blur', function () { validateName(); });
+    document.getElementById('cardName').addEventListener('input', function () {
+      fieldErr('cardName', '');
+    });
+
+    function validateName() {
+      const val = document.getElementById('cardName').value.trim();
+      if (!val) {
+        return fieldErr('cardName', 'Cardholder name is required.', true);
+      }
+      if (!/^[A-Za-z\s'\-]+$/.test(val)) {
+        return fieldErr('cardName', 'Name must contain letters only — no numbers or special characters.', true);
+      }
+      const parts = val.split(/\s+/).filter(Boolean);
+      if (parts.length < 2) {
+        return fieldErr('cardName', 'Please enter both first and last name as shown on the card.', true);
+      }
+      return fieldErr('cardName', '', false);
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       EXPIRY DATE — AUTO-FORMAT MM/YY + PAST DATE GUARD
+       ════════════════════════════════════════════════════════════════ */
+    document.getElementById('expiry').addEventListener('input', function (e) {
+      let raw = e.target.value.replace(/\D/g, '');
+
+      // Clamp month digit: if first char > 1 auto-prepend 0 (e.g. "3" → "03")
+      if (raw.length === 1 && parseInt(raw, 10) > 1) raw = '0' + raw;
+
+      // Prevent month > 12
+      if (raw.length >= 2) {
+        const mm = parseInt(raw.substring(0, 2), 10);
+        if (mm < 1)  raw = '01' + raw.substring(2);
+        if (mm > 12) raw = '12' + raw.substring(2);
+      }
+
+      e.target.value = raw.length > 2
+        ? raw.substring(0, 2) + '/' + raw.substring(2, 4)
+        : raw;
+
+      fieldErr('expiry', '');   // clear error while typing
+    });
+
+    document.getElementById('expiry').addEventListener('blur', function () { validateExpiry(); });
+
+    function validateExpiry() {
+      const val = document.getElementById('expiry').value;
+      if (!val) {
+        return fieldErr('expiry', 'Expiry date is required.', true);
+      }
+      if (!/^\d{2}\/\d{2}$/.test(val)) {
+        return fieldErr('expiry', 'Enter expiry in MM/YY format (e.g. 08/27).', true);
+      }
+
+      const mm     = parseInt(val.substring(0, 2), 10);
+      const yy     = parseInt(val.substring(3, 5), 10);
+      const now    = new Date();
+      const curYY  = now.getFullYear() % 100;   // last 2 digits of year
+      const curMM  = now.getMonth() + 1;         // 1-based
+
+      if (mm < 1 || mm > 12) {
+        return fieldErr('expiry', `Month "${String(mm).padStart(2,'0')}" is not valid — must be 01 to 12.`, true);
+      }
+      if (yy < curYY || (yy === curYY && mm < curMM)) {
+        return fieldErr('expiry',
+          `This card expired in ${String(mm).padStart(2,'0')}/${String(yy).padStart(2,'0')}. Please use a valid card.`, true);
+      }
+      return fieldErr('expiry', '', false);
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       CVV — DIGITS ONLY, LENGTH PER NETWORK
+       ════════════════════════════════════════════════════════════════ */
+    const cvvInput = document.getElementById('cvv');
+
+    // Block non-digit characters on every keystroke
+    cvvInput.addEventListener('input', function (e) {
+      const digits = e.target.value.replace(/\D/g, '');
+      if (e.target.value !== digits) {
+        e.target.value = digits;           // strip letters / symbols immediately
+        fieldErr('cvv', 'CVV must contain digits only.', true);
+        return;
+      }
+      fieldErr('cvv', '');                 // clear error while typing valid digits
+    });
+
+    cvvInput.addEventListener('blur', function () { validateCVV(); });
+
+    function validateCVV() {
+      const val    = cvvInput.value;
+      const digits = cardInput.value.replace(/\D/g, '');
+      const isAmex = /^3[47]/.test(digits);
+      const need   = isAmex ? 4 : 3;
+
+      if (!val) {
+        return fieldErr('cvv', 'CVV is required.', true);
+      }
+      if (/\D/.test(val)) {
+        return fieldErr('cvv', 'CVV must contain digits only — no letters or special characters.', true);
+      }
+      if (val.length < need) {
+        return fieldErr('cvv',
+          `CVV must be ${need} digit${need > 1 ? 's' : ''} for ${isAmex ? 'American Express' : 'this card type'} — you've entered ${val.length}.`, true);
+      }
+      return fieldErr('cvv', '', false);
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       INLINE ERROR HELPER
+       ════════════════════════════════════════════════════════════════ */
+    // fieldId  — 'cardNum' | 'cardName' | 'expiry' | 'cvv'
+    // msg      — error string (empty = clear)
+    // invalid  — true = red border, false = green border, undefined = no change
+    function fieldErr(fieldId, msg, invalid) {
+      const inputMap = { cardNum: 'cardNum', cardName: 'cardName', expiry: 'expiry', cvv: 'cvv' };
+      const inp = document.getElementById(inputMap[fieldId]);
+      const sp  = document.getElementById('err-' + fieldId);
+      if (sp) sp.textContent = msg;
+      if (inp) {
+        inp.classList.remove('f-invalid', 'f-valid');
+        if (invalid === true)  inp.classList.add('f-invalid');
+        if (invalid === false) inp.classList.add('f-valid');
+      }
+      return !msg;   // returns true if field is valid
+    }
+
+    /* ════════════════════════════════════════════════════════════════
+       PAYMENT SUBMISSION
+       ════════════════════════════════════════════════════════════════ */
+    async function submitPayment(e) {
+      e.preventDefault();
+      document.getElementById('errMsg').style.display = 'none';
+
+      if (!appointmentId) { showErr('Invalid session — no appointment ID.'); return; }
+
+      // Client-side timer check (belt-and-suspenders)
+      if (getExpiryMs() - Date.now() <= 0) { showExpired(); return; }
+
+      // Run all field validators and collect failures
+      const ok = [
+        validateCardNum(),
+        validateName(),
+        validateExpiry(),
+        validateCVV()
+      ];
+
+      if (ok.some(v => v === false)) {
+        showErr('Please check your card details and try again.');
+        return;
+      }
+
+      const btn = document.getElementById('payBtn');
+      btn.disabled    = true;
+      btn.textContent = 'Processing…';
+
+      try {
+        const res = await fetch(API_BASE + '/api/payments/mock-success', {
+          method:  'POST',
+          headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ appointmentId: parseInt(appointmentId) })
+        });
+
+        const data = await res.json();
+
+        // 410 Gone = backend confirmed payment window expired
+        if (res.status === 410 || data.error === 'PAYMENT_EXPIRED') {
+          if (STORAGE_KEY) localStorage.removeItem(STORAGE_KEY);
+          showExpired();
+          return;
+        }
+
+        if (!res.ok) {
+          showErr(data.message || data.error || 'Payment failed. Please try again.');
+          btn.disabled    = false;
+          btn.textContent = 'Pay ₹' + consultationFee + ' & Confirm Booking';
+          return;
+        }
+
+        // ── SUCCESS ───────────────────────────────────────────────────
+        clearInterval(cdInterval);
+        if (STORAGE_KEY) localStorage.removeItem(STORAGE_KEY);   // clean up expiry key
+
+        document.getElementById('txnDisplay').textContent =
+          'Transaction ID: ' + (data.transactionId || 'CONFIRMED');
+        document.getElementById('successOverlay').classList.add('show');
+
+        setTimeout(function () { window.location.href = 'PatientMeets.html'; }, 2500);
+
+      } catch (err) {
+        showErr('Network error: ' + err.message);
+        btn.disabled    = false;
+        btn.textContent = 'Pay ₹' + consultationFee + ' & Confirm Booking';
+      }
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('errMsg');
+      el.textContent   = msg;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

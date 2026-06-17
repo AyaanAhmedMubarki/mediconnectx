@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>MediConnectX – About Us</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:"Segoe UI",sans-serif;background:#f5fbfb;color:#222;}
+
+    /* ── Navbar ── */
+    .navbar{background:#003d3d;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 4px 8px rgba(0,0,0,.15);}
+    .logo{color:#fff;font-size:1.4rem;font-weight:700;white-space:nowrap;letter-spacing:0.01em;}
+    .hamburger{display:none;background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;padding:0;line-height:1;}
+    .nav-links{list-style:none;display:flex;gap:0.25rem;align-items:center;}
+    .nav-links a{color:rgba(255,255,255,0.88);text-decoration:none;font-size:0.95rem;padding:6px 15px;border-radius:20px;transition:background 0.2s,color 0.2s;white-space:nowrap;letter-spacing:0.02em;}
+    .nav-links a:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-links a.nav-active{background:rgba(255,255,255,0.28);color:#fff;font-weight:600;}
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;flex-wrap:nowrap;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.15);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .hero h1{font-size:1.9rem;}
+      .section{padding:40px 16px;}
+      .mv-wrap{grid-template-columns:1fr;}
+      .features{grid-template-columns:1fr;}
+      .roles{grid-template-columns:1fr;}
+    }
+
+    /* ── Hero ── */
+    .hero{
+      background: linear-gradient(rgba(26, 202, 202, 0.589),rgba(0,40,40,.78)),
+                  url("images/NewsContactAndAboutUsImage.jpg") no-repeat center center/cover;
+      color:#fff;text-align:center;padding:70px 20px 50px;
+    }
+    .hero h1{font-size:2.6rem;font-weight:700;letter-spacing:1px;text-shadow:1px 2px 8px rgba(0,0,0,.4);}
+    .hero p{font-size:1.1rem;margin-top:14px;color:#ccf0f0;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7;}
+
+    /* ── Section wrapper ── */
+    .section{max-width:1060px;margin:0 auto;padding:60px 24px;}
+    .section-title{font-size:1.6rem;font-weight:700;color:#003d3d;margin-bottom:10px;}
+    .section-sub{color:#555;font-size:1rem;line-height:1.75;margin-bottom:36px;max-width:720px;}
+
+    /* ── What we do — feature cards ── */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px;}
+    .feat-card{background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:28px 24px;border-top:4px solid #00b3b3;transition:transform .2s;}
+    .feat-card:hover{transform:translateY(-4px);}
+    .feat-icon{font-size:2.4rem;margin-bottom:12px;}
+    .feat-card h3{color:#003d3d;font-size:1.05rem;margin-bottom:8px;}
+    .feat-card p{color:#555;font-size:.9rem;line-height:1.65;}
+
+    /* ── Mission / Vision ── */
+    .mv-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+    @media(max-width:640px){.mv-wrap{grid-template-columns:1fr;}}
+    .mv-card{border-radius:14px;padding:32px 28px;color:#fff;}
+    .mv-card.mission{background:linear-gradient(135deg,#003d3d,#009999);}
+    .mv-card.vision {background:linear-gradient(135deg,#01486b,#0077aa);}
+    .mv-card h2{font-size:1.3rem;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .mv-card p{font-size:.95rem;line-height:1.75;opacity:.93;}
+
+    /* ── Roles ── */
+    .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+    .role-card{background:#fff;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.07);padding:24px;text-align:center;}
+    .role-icon{font-size:2.8rem;margin-bottom:10px;}
+    .role-card h3{color:#003d3d;margin-bottom:8px;font-size:1.05rem;}
+    .role-card ul{list-style:none;color:#555;font-size:.88rem;line-height:1.8;text-align:left;padding:0 8px;}
+    .role-card ul li::before{content:"✓ ";color:#00b3b3;font-weight:700;}
+
+    /* ── Divider ── */
+    .divider{border:none;border-top:1px solid #d8eeee;margin:0;}
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #003d3d;
+      color: #fff;
+    }
+    footer p { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">MediConnectX</div>
+    <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">&#9776;</button>
+    <nav><ul class="nav-links" id="mainNav">
+      <li><a href="Welcome.html">Home</a></li>
+      <li><a href="Chatbot.html">AI Chatbot</a></li>
+      <li><a href="News.html">News</a></li>
+      <li><a href="AboutUs.html">About Us</a></li>
+      <li><a href="Contact.html">Contact</a></li>
+    </ul></nav>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>About MediConnectX</h1>
+    <p>A smart, role-based medical management platform built to connect patients, doctors, and administrators — making healthcare operations structured, transparent, and efficient.</p>
+  </div>
+
+  <!-- What is MediConnectX -->
+  <section class="section">
+    <p class="section-title">What is MediConnectX?</p>
+    <p class="section-sub">
+      MediConnectX is an innovation project designed to bring order and clarity to everyday healthcare operations.
+      Rather than juggling disconnected tools, MediConnectX unifies patient care, doctor responsiveness, and administrative control into one secure platform —
+      accessible to everyone with the right role and the right purpose.
+    </p>
+
+    <div class="features">
+      <div class="feat-card">
+        <div class="feat-icon">🏥</div>
+        <h3>Health Event Management</h3>
+        <p>Administrators create and manage health &amp; wellness events. Patients discover and register for them. Admins approve or reject registrations — keeping every event organised and accountable.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🩺</div>
+        <h3>Medical Assistance Requests</h3>
+        <p>Patients can request direct medical assistance from a verified doctor of their choice. Doctors review each request and respond with a decision and personalised remarks.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">👤</div>
+        <h3>Profile Management</h3>
+        <p>Every user — patient, doctor, or admin — maintains a rich profile with photo upload support. Doctors can showcase their specialisation; patients keep their health details current.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔐</div>
+        <h3>Secure Role-Based Access</h3>
+        <p>Powered by JWT authentication and Spring Security, MediConnectX ensures every user only sees and does exactly what their role permits — no more, no less.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📋</div>
+        <h3>Registration Approvals</h3>
+        <p>No event registration goes unreviewed. Admins approve or reject patient sign-ups, giving the platform the oversight needed to run safe, well-managed health programmes.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- Mission & Vision -->
+  <section class="section">
+    <p class="section-title">Our Mission &amp; Vision</p>
+    <div class="mv-wrap">
+      <div class="mv-card mission">
+        <h2>🎯 Our Mission</h2>
+        <p>To reduce friction in healthcare management by connecting patients, doctors, and administrators through a single, structured platform — where every request is trackable, every event is manageable, and every result is transparent.</p>
+      </div>
+      <div class="mv-card vision">
+        <h2>🔭 Our Vision</h2>
+        <p>A future where healthcare feels as simple as using an app — where patients are empowered, doctors are reachable, and administrators have full visibility over the operations they manage, all secured and accessible from anywhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- Who uses MediConnectX -->
+  <section class="section">
+    <p class="section-title">Who Uses MediConnectX?</p>
+    <p class="section-sub">The platform is built around three distinct roles, each with a tailored experience and purpose-built tools.</p>
+    <div class="roles">
+      <div class="role-card">
+        <div class="role-icon">🛡️</div>
+        <h3>Administrators</h3>
+        <ul>
+          <li>Create and manage health events</li>
+          <li>Approve or reject patient registrations</li>
+          <li>Oversee the entire platform</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">👨‍⚕️</div>
+        <h3>Doctors</h3>
+        <ul>
+          <li>Maintain a professional profile</li>
+          <li>View upcoming health events</li>
+          <li>Review patient assistance requests</li>
+          <li>Respond with decisions and remarks</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🏃</div>
+        <h3>Patients</h3>
+        <ul>
+          <li>Browse and register for events</li>
+          <li>Track registration status</li>
+          <li>Request medical assistance from doctors</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script>function toggleNav(){document.getElementById('mainNav').classList.toggle('open');}</script>
+  <script>
+(function(){
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.nav-links a,.nav-menu a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').split('/').pop();
+    if(h&&h!=='#'&&h===page)a.classList.add('nav-active');
+  });
+})();
+</script>
+</body>
+</html>

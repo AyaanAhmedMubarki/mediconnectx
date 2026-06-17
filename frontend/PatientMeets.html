@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Consultations – MediConnectX Patient</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 0; background-color: #f4f9f9; color: #333; }
+
+    /* ── Navbar ── */
+    .navbar {
+      background-color: #003d3d; padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; position: sticky; top: 0; z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .logo { color: #fff; font-size: 1.4rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;} .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.3);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.1);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .page-header h1{font-size:1.7rem;}
+      .page-header{padding:36px 16px;}
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      background: linear-gradient(to right, rgba(0,102,102,0.85), rgba(0,51,51,0.85)),
+        url("images/MainPageImage.jpg") center/cover;
+      color: white; text-align: center; padding: 50px 20px;
+    }
+    .page-header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+    .page-header p { font-size: 1.05rem; font-weight: 300; }
+
+    .main-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+
+    /* ── Section titles ── */
+    .sec-title { font-size: 1.25rem; font-weight: 700; color: #003d3d; margin-bottom: 18px; border-left: 4px solid #00b3b3; padding-left: 12px; }
+
+    /* ── Filter bar ── */
+    .slot-filter {
+      background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+      padding: 18px 20px; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 24px;
+    }
+    @media(max-width:540px){ .slot-filter { grid-template-columns: 1fr; } }
+    .slot-filter label { display: block; font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .slot-filter select,
+    .slot-filter input[type="date"] {
+      width: 100%; padding: 10px 13px; border: 1.5px solid #c8e8e8;
+      border-radius: 8px; font-size: 0.95rem; background: #f9fefe; color: #222;
+      outline: none; transition: border-color 0.2s;
+    }
+    .slot-filter select:focus,
+    .slot-filter input[type="date"]:focus { border-color: #00b3b3; box-shadow: 0 0 0 3px rgba(0,179,179,0.12); }
+
+    /* ── Doctor cards ── */
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .doc-card {
+      background: #fff; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .doc-card:hover { transform: translateY(-3px); }
+    .doc-card.active-doc { box-shadow: 0 0 0 3px #00b3b3, 0 4px 14px rgba(0,0,0,0.12); transform: translateY(-3px); }
+    .doc-card .doc-img-wrap { width: 100%; height: 200px; background: #d0f0f0; display: flex; align-items: center; justify-content: center; font-size: 3rem; overflow: hidden; }
+    .doc-card .doc-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .doc-card .doc-body { padding: 16px; }
+    .doc-card h5 { color: #003d3d; margin-bottom: 4px; font-size: 1rem; font-weight: 700; }
+    .doc-card .spec { font-size: 0.82rem; color: #666; margin-bottom: 4px; }
+    .doc-card .fee-tag { font-size: 0.8rem; color: #00b3b3; font-weight: 700; margin-bottom: 12px; }
+    .book-btn {
+      width: 100%; padding: 10px; background: #006666; color: #fff;
+      border: none; border-radius: 7px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .book-btn:hover { background: #008080; }
+    .no-docs-msg {
+      text-align: center; color: #888; padding: 32px 16px;
+      font-style: italic; background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); font-size: 0.95rem;
+    }
+
+    /* ── Slot section ── */
+    .slot-section-header {
+      background: #e4f4f4; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .slot-section-header h6 { margin: 0; color: #003d3d; font-weight: 700; font-size: 1rem; }
+    .slot-close-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 1.3rem; line-height: 1; padding: 0; }
+    .slot-close-btn:hover { color: #e74c3c; }
+    .slot-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); padding: 20px; min-height: 80px; }
+    .slot-lbl { font-size: 0.95rem; font-weight: 700; color: #003d3d; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .s-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .s-btn { padding: 8px 15px; border: 2px solid #006666; border-radius: 8px; background: #006666; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 700; min-width: 88px; text-align: center; transition: background 0.18s, transform 0.1s; }
+    .s-btn:hover:not(.s-disabled):not(.s-past) { background: #008080; transform: translateY(-2px); }
+    .s-btn:active:not(.s-disabled):not(.s-past) { transform: none; }
+    .s-disabled { background: #d5d5d5 !important; border-color: #c0c0c0 !important; color: #888 !important; cursor: not-allowed; opacity: 0.65; }
+    .s-past     { background: #f0f0f0 !important; border-color: #ddd !important; color: #bbb !important; cursor: not-allowed; text-decoration: line-through; opacity: 0.7; }
+    .s-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; font-size: 0.82rem; }
+    .s-leg-item { display: flex; align-items: center; gap: 6px; }
+    .s-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .s-dot-open  { background: #006666; }
+    .s-dot-taken { background: #c0c0c0; }
+    .s-dot-past  { background: #e0e0e0; border: 1px solid #ccc; }
+    .s-ph { text-align: center; padding: 24px; color: #999; font-size: 0.92rem; }
+    .s-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #c8e8e8; border-top-color: #00b3b3; border-radius: 50%; animation: s-spin 0.7s linear infinite; }
+    @keyframes s-spin { to { transform: rotate(360deg); } }
+
+    /* ── Appointments table ── */
+    .table-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); overflow: hidden; }
+    .table-card-head {
+      background: #006666; color: #fff; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-card-head h5 { margin: 0; font-weight: 700; font-size: 1rem; }
+
+    .badge-pending   { background:#f39c12; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; }
+    .badge-booked    { background:#27ae60; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; }
+    .badge-completed { background:#2980b9; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; }
+    .badge-cancelled { background:#e74c3c; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; }
+    .badge-cancelled-refund { background:#d35400; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+    .badge-missed    { background:#795548; color:#fff; padding:3px 10px; border-radius:10px; font-size:.78rem; white-space:nowrap; }
+
+    /* ── Action column buttons inline ── */
+    .table-card table tbody td:last-child {
+      white-space: nowrap;
+      min-width: max-content;
+      padding: 0.75rem 0.5rem !important;
+    }
+    .table-card .btn {
+      margin-left: 0.3rem;
+      margin-right: 0.3rem;
+    }
+
+    @media(max-width:768px) {
+      .table-card table tbody td:last-child {
+        padding: 0.5rem 0.25rem !important;
+      }
+      .table-card .btn {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.75rem !important;
+        margin-left: 0.2rem !important;
+        margin-right: 0.2rem !important;
+      }
+    }
+
+
+    footer { background-color: #003d3d; color: #fff; text-align: center; padding: 18px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <div class="page-header">
+    <h1>Online Consultation</h1>
+    <p>Filter by specialisation and date, then pick a slot to book your appointment.</p>
+  </div>
+
+  <div class="main-wrap">
+
+    <!-- ── Book by Appointment Slot ── -->
+    <p class="sec-title"><i class="bi bi-calendar-check me-2"></i>Book by Appointment Slot</p>
+
+    <!-- Filters -->
+    <div class="slot-filter">
+      <div>
+        <label for="specFilter"><i class="bi bi-stethoscope me-1"></i>Select Specialisation</label>
+        <select id="specFilter">
+          <option value="">— All Specialisations —</option>
+        </select>
+      </div>
+      <div>
+        <label for="slotDatePick"><i class="bi bi-calendar3 me-1"></i>Select Date</label>
+        <input type="date" id="slotDatePick" />
+      </div>
+    </div>
+
+    <!-- ── Doctor list (title changes: "All Doctors" → "Available Doctors" once date is picked) ── -->
+    <p class="sec-title" id="docSectionTitle">All Doctors</p>
+    <div class="doc-grid" id="docGrid">
+      <div class="text-muted p-3">Loading doctors…</div>
+    </div>
+
+    <!-- ── Slot Selection (shown when doctor + date are chosen) ── -->
+    <div id="slotSection" style="display:none; margin-top: 8px; margin-bottom: 28px;">
+      <div class="slot-section-header">
+        <h6><i class="bi bi-clock me-2"></i><span id="slotSectionTitle">Available Slots</span></h6>
+        <button class="slot-close-btn" onclick="clearSlotSection()" title="Close slot view">✕</button>
+      </div>
+      <div class="slot-wrap" id="slotWrap">
+        <div class="s-ph">
+          <i class="bi bi-calendar2-check" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+          Select a doctor above to see available slots.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── My Online Consultations ── -->
+    <p class="sec-title mt-4">My Online Consultations</p>
+    <div class="table-card">
+      <div class="table-card-head">
+        <h5><i class="bi bi-calendar2-check"></i> Booking History</h5>
+        <span id="aptCount" class="badge bg-secondary">—</span>
+      </div>
+      <div id="aptWrap">
+        <div class="text-muted p-4 text-center">Loading appointments…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script src="customModal.js"></script>
+  <script>
+    const auth = requireAuth('PATIENT');
+
+    // Global variables for confirmation dialogs
+    let globalAppointments = [];
+    let globalDocNames = {};
+    let globalDocFees = {};
+
+    // ── Page state ────────────────────────────────────────────────────────
+    let allDoctors      = [];   // full doctor list fetched once on load
+    let activeDoctorId  = null;
+    let activeDoctorFee = '500';
+
+    // ── Utility ───────────────────────────────────────────────────────────
+    function toISODate(d) {
+      return d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0');
+    }
+
+    // FRONT-05 fix: Removed local imgSrc() function that shadowed the global one from api.js
+    // imgSrc() is now provided by api.js and works correctly for all image types
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return '';
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+
+    // ── Date input setup ──────────────────────────────────────────────────
+    (function initSlotDate() {
+      const input = document.getElementById('slotDatePick');
+      const today = new Date();
+      const max   = new Date();
+      max.setDate(today.getDate() + 30);
+      input.min   = toISODate(today);
+      input.max   = toISODate(max);
+
+      // Reject manually-typed past dates only after user leaves the field
+      input.addEventListener('blur', function () {
+        const todayStr = toISODate(new Date());
+        if (this.value && this.value < todayStr) {
+          this.value = '';
+          applyFilters();
+        }
+      });
+    })();
+
+    // ── Load all doctors on boot ──────────────────────────────────────────
+    async function loadDoctors() {
+      try {
+        allDoctors = await apiGet('/api/doctor');
+        populateSpecFilter();
+        renderDocCards(allDoctors);
+      } catch (e) {
+        document.getElementById('docGrid').innerHTML =
+          '<p class="text-danger p-3">Failed to load doctors.</p>';
+      }
+    }
+
+    // ── Populate specialisation dropdown ──────────────────────────────────
+    function populateSpecFilter() {
+      const sel = document.getElementById('specFilter');
+      const specs = [...new Set(
+        allDoctors.map(d => d.category || 'General Practitioner')
+      )].sort();
+      sel.innerHTML = '<option value="">— All Specialisations —</option>';
+      specs.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ── Filter change handler ─────────────────────────────────────────────
+    document.getElementById('specFilter').addEventListener('change', applyFilters);
+    document.getElementById('slotDatePick').addEventListener('change', applyFilters);
+
+    async function applyFilters() {
+      const spec = document.getElementById('specFilter').value;
+      const date = document.getElementById('slotDatePick').value;
+
+      // Toggle section heading based on whether a date has been chosen
+      document.getElementById('docSectionTitle').textContent =
+        date ? 'Available Doctors' : 'All Doctors';
+
+      // Clear slot panel whenever filters change
+      clearSlotSection();
+
+      // Guard: past date typed manually → show warning in doc grid
+      if (date && date < toISODate(new Date())) {
+        document.getElementById('docGrid').innerHTML =
+          '<div class="no-docs-msg"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>' +
+          'Please select today or a future date.</div>';
+        return;
+      }
+
+      if (date) {
+        // Backend call: for today returns doctors with any non-past slot (open OR taken);
+        //               for future dates returns doctors with ≥1 OPEN slot
+        try {
+          document.getElementById('docGrid').innerHTML =
+            '<div class="text-muted p-3"><span class="s-spinner" style="display:inline-block;"></span> Finding available doctors…</div>';
+          const url = '/api/doctor/available?date=' + date +
+                      (spec ? '&specialization=' + encodeURIComponent(spec) : '');
+          const docs = await apiGet(url);
+          renderDocCards(docs, date);
+        } catch (e) {
+          document.getElementById('docGrid').innerHTML =
+            '<p class="text-danger p-3">Failed to load doctors.</p>';
+        }
+      } else {
+        // No date → filter client-side by spec only (no availability check)
+        const filtered = spec
+          ? allDoctors.filter(d => (d.category || 'General Practitioner') === spec)
+          : allDoctors;
+        renderDocCards(filtered, null);
+      }
+    }
+
+    // ── Render doctor cards ───────────────────────────────────────────────
+    function renderDocCards(doctors, date) {
+      const grid = document.getElementById('docGrid');
+      if (!doctors || !doctors.length) {
+        grid.innerHTML =
+          '<div class="no-docs-msg">' +
+          '<i class="bi bi-person-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.5;"></i>' +
+          (date
+            ? 'No doctors have upcoming slots on this date for the selected specialisation.'
+            : 'No doctors match the selected specialisation.') +
+          '</div>';
+        return;
+      }
+
+      grid.innerHTML = doctors.map(d => {
+        const spec = d.category || 'General Practitioner';
+        const fee  = d.consultationFee || '500';
+        const imgBlock = d.imageLink
+          ? `<div class="doc-img-wrap"><img src="${imgSrc(d.imageLink)}" alt="Dr. ${d.name || ''}"/></div>`
+          : `<div class="doc-img-wrap">👨‍⚕️</div>`;
+
+        const btnLabel = date
+          ? `<i class="bi bi-clock me-1"></i>Book Slot – ₹${fee}`
+          : `<i class="bi bi-calendar-plus me-1"></i>Book Consultation – ₹${fee}`;
+
+        return `<div class="doc-card" id="docCard_${d.id}">
+          ${imgBlock}
+          <div class="doc-body">
+            <h5>Dr. ${d.name || '—'}</h5>
+            <p class="spec">🩺 ${spec}</p>
+            <p class="fee-tag"><i class="bi bi-currency-rupee"></i> Consultation Fee: ₹${fee}</p>
+            <button class="book-btn"
+              onclick="selectDoctor(${d.id}, '${(d.name || '').replace(/'/g,"\\'")}', '${fee}')">
+              ${btnLabel}
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Select a doctor → load slots ──────────────────────────────────────
+    function selectDoctor(docId, docName, fee) {
+      const date = document.getElementById('slotDatePick').value;
+
+      if (!date) {
+        // Prompt user to pick a date before choosing a doctor
+        document.getElementById('slotDatePick').focus();
+        document.getElementById('slotDatePick').style.borderColor = '#e74c3c';
+        document.getElementById('slotDatePick').style.boxShadow   = '0 0 0 3px rgba(231,76,60,0.18)';
+        setTimeout(() => {
+          document.getElementById('slotDatePick').style.borderColor = '';
+          document.getElementById('slotDatePick').style.boxShadow   = '';
+        }, 2000);
+        showAlert('Date Required', 'Please select a date first to see available slots.');
+        return;
+      }
+
+      // Highlight selected card
+      document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('active-doc'));
+      const card = document.getElementById('docCard_' + docId);
+      if (card) card.classList.add('active-doc');
+
+      activeDoctorId  = docId;
+      activeDoctorFee = fee;
+
+      // Show slot section with doctor + date header
+      document.getElementById('slotSectionTitle').textContent =
+        'Dr. ' + docName + '  ·  ' + formatDisplayDate(date);
+      document.getElementById('slotSection').style.display = 'block';
+      loadSlots(docId, date);
+
+      // Smooth scroll to slot section
+      document.getElementById('slotSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function clearSlotSection() {
+      document.getElementById('slotSection').style.display = 'none';
+      document.getElementById('slotWrap').innerHTML = '';
+      document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('active-doc'));
+      activeDoctorId = null;
+    }
+
+    // ── Load + render slots ───────────────────────────────────────────────
+    async function loadSlots(doctorId, date) {
+      const c = document.getElementById('slotWrap');
+      c.innerHTML = '<div class="s-ph"><span class="s-spinner"></span></div>';
+      try {
+        const slots = await apiGet('/api/v1/slots?doctorId=' + doctorId + '&date=' + date);
+        renderSlots(slots, doctorId, date);
+      } catch (err) {
+        c.innerHTML = `<div class="s-ph" style="color:#c0392b;"><i class="bi bi-exclamation-circle"></i> Could not load slots: ${err.message}</div>`;
+      }
+    }
+
+    function renderSlots(slots, doctorId, date) {
+      const c = document.getElementById('slotWrap');
+
+      // For today: filter out slots whose start time has already passed
+      const isToday = date === toISODate(new Date());
+      const nowHHMM = isToday ? new Date().toTimeString().slice(0, 5) : null;
+      const activeSlots = isToday
+        ? slots.filter(slot => (slot.startTime || '').substring(0, 5) >= nowHHMM)
+        : slots;
+
+      if (!activeSlots.length) {
+        c.innerHTML = isToday
+          ? '<div class="s-ph"><i class="bi bi-clock-history" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>All slots for today have passed. No open slots remaining.</div>'
+          : '<div class="s-ph"><i class="bi bi-calendar-x" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No slots available for this doctor on the selected date.</div>';
+        return;
+      }
+
+      let openCount = 0, takenCount = 0;
+
+      const btns = activeSlots.map(slot => {
+        const startTime = (slot.startTime || '').substring(0, 5);
+        const endTime = (slot.endTime || '').substring(0, 5);
+        const label = `${startTime} – ${endTime}`;
+        if (slot.status === 'OPEN') {
+          openCount++;
+          return `<button class="s-btn" title="Click to book – ₹${activeDoctorFee} payment required"
+                    data-label="${label}"
+                    data-doctor="${doctorId}"
+                    data-date="${date}"
+                    data-start="${slot.startTime}"
+                    onclick="bookSlot(${slot.id}, this)">${label}</button>`;
+        }
+        takenCount++;
+        return `<button class="s-btn s-disabled" disabled title="${slot.status}">${label}</button>`;
+      }).join('');
+
+      const countParts = [
+        `<span style="color:#27ae60">${openCount} open</span>`,
+        `<span style="color:#888">${takenCount} taken</span>`
+      ].join(', ');
+
+      c.innerHTML = `
+        <div class="slot-lbl">
+          <i class="bi bi-clock"></i>
+          ${activeSlots.length} slot${activeSlots.length !== 1 ? 's' : ''} — ${countParts}
+        </div>
+        <div class="s-legend">
+          <div class="s-leg-item"><div class="s-dot s-dot-open"></div> Available</div>
+          <div class="s-leg-item"><div class="s-dot s-dot-taken"></div> Booked / Pending</div>
+        </div>
+        <div class="s-grid">${btns}</div>`;
+    }
+
+    // ── Book a slot → payment ─────────────────────────────────────────────
+    function bookSlot(slotId, btnEl) {
+      const label     = btnEl.getAttribute('data-label') || btnEl.textContent.trim();
+      const doctorId  = btnEl.getAttribute('data-doctor');
+      const date      = btnEl.getAttribute('data-date');
+      const startTime = btnEl.getAttribute('data-start');
+      const appointmentTime = date + 'T' + startTime;
+
+      showConfirmation(
+        'Book Appointment',
+        `Book ${label} slot?\n\nYou will be redirected to pay ₹${activeDoctorFee} to confirm your appointment.`,
+        async () => {
+          btnEl.disabled    = true;
+          btnEl.textContent = 'Processing…';
+
+          try {
+            const res = await fetch(API_BASE + '/api/payments/initiate', {
+              method:  'POST',
+              headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+              body:    JSON.stringify({
+                doctorId:        parseInt(doctorId),
+                patientId:       auth.roleId,
+                appointmentTime: appointmentTime,
+                slotId:          slotId
+              })
+            });
+
+            const data = await res.json();
+
+            if (res.status === 409) {
+              showAlert('Slot Unavailable', data.error || 'This slot is no longer available. Please choose another.', () => {
+                loadSlots(doctorId, date);
+              });
+              return;
+            }
+            if (!res.ok) {
+              showAlert('Booking Error', 'Could not initiate booking: ' + (data.error || 'Server error ' + res.status), () => {
+                btnEl.disabled    = false;
+                btnEl.textContent = label;
+              });
+              return;
+            }
+
+            if (data.appointmentId) {
+              if (data.expiresAt) {
+                localStorage.setItem('paymentExpiry_' + data.appointmentId,
+                  String(new Date(data.expiresAt).getTime()));
+              }
+              window.location.href = 'Payments.html?appointmentId=' + data.appointmentId;
+            }
+
+          } catch (err) {
+            showAlert('Error', 'Error: ' + err.message, () => {
+              btnEl.disabled    = false;
+              btnEl.textContent = label;
+            });
+          }
+        }
+      );
+    }
+
+    // ── Load patient appointments ─────────────────────────────────────────
+    async function loadAppointments() {
+      try {
+        const list = await apiGet('/api/appointments/patient?patientId=' + auth.roleId);
+        document.getElementById('aptCount').textContent = list.length;
+        if (!list.length) {
+          document.getElementById('aptWrap').innerHTML =
+            '<p class="text-muted p-4 text-center">No consultations yet. Book your first one above!</p>';
+          return;
+        }
+
+        const docNames = {}, docFees = {};
+        await Promise.all([...new Set(list.map(a => a.doctorId))].map(async id => {
+          try {
+            const d = await apiGet('/api/doctor/search?id=' + id);
+            docNames[id] = 'Dr. ' + (d.name || id);
+            docFees[id] = d.consultationFee || 500;  // Store doctor fees for refund calculation
+          } catch { docNames[id] = 'Doctor #' + id; docFees[id] = 500; }
+        }));
+
+        // Store globally for confirmation dialogs
+        globalAppointments = list;
+        globalDocNames = docNames;
+        globalDocFees = docFees;
+
+        const rows = list.map(a => {
+          const doctorFee = parseInt(docFees[a.doctorId] || 500);
+          const badge   = statusBadge(a.status, a, doctorFee);
+          const aptTime = a.appointmentTime
+            ? parseAptTime(a.appointmentTime).toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'})
+            : '—';
+
+          // Calculate refund amount and type
+          let refundDisplay = '—';
+          if (a.status === 'MISSED') {
+            refundDisplay = `<span style="color:#2980b9; font-weight:600;">₹${doctorFee.toLocaleString('en-IN')}</span>`;
+          } else if (a.status === 'CANCELLED' && a.refundAmount > 0) {
+            refundDisplay = `<span style="color:#e67e22; font-weight:600;">₹${a.refundAmount.toLocaleString('en-IN')}</span>`;
+          } else if (a.status === 'CANCELLED' && !a.refundAmount) {
+            refundDisplay = '<span style="color:#999;">₹0</span>';
+          }
+
+          const joinBtn = a.status === 'BOOKED' ? buildJoinBtn(a.id, a.appointmentTime) : '';
+          const payBtn  = a.status === 'PENDING_PAYMENT' ? buildPayBtn(a.id) : '';
+          const presBtn = (a.status === 'BOOKED' || a.status === 'COMPLETED')
+            ? `<button class="btn btn-sm btn-outline-info ms-1" onclick="downloadPrescription(${a.id})">
+                <i class="bi bi-file-earmark-medical"></i> Rx</button>`
+            : '';
+          // FEAT-01 fix: Show cancel button ONLY when JOIN CALL button is NOT visible
+          // (i.e., appointment is more than 10 minutes away)
+          const cancelBtn = shouldShowCancelBtn(a.status, a.appointmentTime)
+            ? `<button class="btn btn-sm btn-outline-danger ms-1" onclick="confirmCancel(${a.id})">
+                <i class="bi bi-x-circle"></i> Cancel</button>`
+            : '';
+          return `<tr>
+            <td>${a.id}</td>
+            <td>${docNames[a.doctorId] || '—'}</td>
+            <td>${aptTime}</td>
+            <td>${badge}</td>
+            <td>${a.transactionId || '—'}</td>
+            <td>${refundDisplay}</td>
+            <td style="white-space:nowrap;">${joinBtn}${payBtn}${presBtn}${cancelBtn}</td>
+          </tr>`;
+        }).join('');
+
+        document.getElementById('aptWrap').innerHTML = `
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead style="background:#006666;color:#fff;">
+                <tr><th>ID</th><th>Doctor</th><th>Date &amp; Time</th><th>Status</th><th>Txn ID</th><th>Refund Amount</th><th>Action</th></tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`;
+      } catch (e) {
+        document.getElementById('aptWrap').innerHTML =
+          '<p class="text-muted p-4 text-center">Could not load appointments.</p>';
+      }
+    }
+
+    // ── Dynamic Join Call button ──────────────────────────────────────────
+    function buildJoinBtn(aptId, rawTime) {
+      if (!rawTime) return '';
+      const aptDate    = parseAptTime(rawTime);
+      const now        = new Date();
+      const diffMs     = aptDate - now;
+      const tenMin     = 10 * 60 * 1000;
+      const fifteenMin = 15 * 60 * 1000;
+
+      if (diffMs < -fifteenMin) return '';
+
+      if (diffMs > tenMin) {
+        const totalMins = Math.ceil(diffMs / 60000);
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        const label = h > 0 ? `Opens in ${h}h ${m}m` : `Opens in ${m}m`;
+        return `<button class="btn btn-sm btn-secondary ms-1" disabled
+                  data-countdown="${aptDate.getTime()}"
+                  title="Join Call available 10 minutes before the appointment">
+                  <i class="bi bi-camera-video"></i> <span class="cd-label">${label}</span></button>`;
+      }
+      return `<a href="Room.html?appointmentId=${aptId}" class="btn btn-sm btn-success ms-1">
+                <i class="bi bi-camera-video-fill"></i> Join Call</a>`;
+    }
+
+    // ── Check if CANCEL button should be shown ─────────────────────────
+    // Cancel button is shown ONLY when JOIN CALL button is NOT visible
+    // (i.e., appointment is more than 10 minutes away)
+    function shouldShowCancelBtn(status, rawTime) {
+      if (status !== 'PENDING_PAYMENT' && status !== 'BOOKED') {
+        return false;  // Can't cancel other statuses
+      }
+      if (!rawTime) {
+        return true;   // No appointment time, show cancel (shouldn't happen for BOOKED)
+      }
+      const aptDate    = parseAptTime(rawTime);
+      const now        = new Date();
+      const diffMs     = aptDate - now;
+      const tenMin     = 10 * 60 * 1000;
+      const fifteenMin = 15 * 60 * 1000;
+
+      // Show cancel button if:
+      // - Appointment is more than 10 minutes away (JOIN CALL not visible yet), AND
+      // - Appointment is not more than 15 minutes in the past (appointment not too old)
+      return diffMs > tenMin && diffMs > -fifteenMin;
+    }
+
+    // ── Payment countdown button ──────────────────────────────────────────
+    function buildPayBtn(aptId) {
+      const key      = 'paymentExpiry_' + aptId;
+      const stored   = localStorage.getItem(key);
+      const expiryMs = stored ? parseInt(stored, 10) : 0;
+      const leftMs   = expiryMs - Date.now();
+
+      if (expiryMs && leftMs > 0) {
+        const m = Math.floor(leftMs / 60000);
+        const s = Math.floor((leftMs % 60000) / 1000).toString().padStart(2, '0');
+        return `<a href="Payments.html?appointmentId=${aptId}"
+                   class="btn btn-sm btn-warning ms-1"
+                   data-payexpiry="${expiryMs}"
+                   title="Complete payment — window closes in ${m}:${s}">
+                  <i class="bi bi-credit-card"></i>
+                  Complete Payment <span class="pay-cd">(${m}:${s})</span>
+                </a>`;
+      }
+      return `<a href="Payments.html?appointmentId=${aptId}"
+                 class="btn btn-sm btn-outline-secondary ms-1"
+                 style="color:#888;border-color:#bbb;"
+                 title="Payment window has expired">
+                <i class="bi bi-clock-history"></i> Session Expired
+              </a>`;
+    }
+
+    function parseAptTime(val) {
+      if (!val) return new Date(NaN);
+      if (Array.isArray(val)) {
+        return new Date(val[0], val[1] - 1, val[2], val[3] || 0, val[4] || 0, val[5] || 0);
+      }
+      return new Date(val);
+    }
+
+    function statusBadge(s, appointment, doctorFee) {
+      const map = {
+        PENDING_PAYMENT: 'badge-pending',
+        BOOKED:          'badge-booked',
+        COMPLETED:       'badge-completed',
+        CANCELLED:       'badge-cancelled',
+        MISSED:          'badge-missed'
+      };
+
+      // Determine label based on status and refund info
+      let label = s;
+      if (s === 'MISSED') {
+        label = 'Missed – Refund Processed';
+      } else if (s === 'CANCELLED' && appointment && appointment.refundAmount > 0) {
+        // Determine who cancelled based on refund amount
+        const fullRefund = doctorFee;
+        const halfRefund = Math.floor(doctorFee / 2);
+
+        if (appointment.refundAmount === fullRefund) {
+          // Full refund = Doctor cancelled
+          label = 'Cancelled by Doctor – Refund Initiated';
+          map[s] = 'badge-cancelled-refund';  // Use orange badge
+        } else if (appointment.refundAmount === halfRefund) {
+          // Half refund = Patient cancelled
+          label = 'Cancelled by You – Partial Refund';
+          map[s] = 'badge-cancelled-refund';  // Use orange badge
+        }
+      } else if (s === 'CANCELLED' && (!appointment || !appointment.refundAmount)) {
+        label = 'Cancelled – No Refund';
+      }
+
+      return `<span class="${map[s] || 'badge-pending'}">${label || '—'}</span>`;
+    }
+
+    // ── Download prescription ─────────────────────────────────────────────
+    async function downloadPrescription(aptId) {
+      try {
+        const data = await apiGet('/api/appointments/' + aptId + '/prescription');
+        const link = document.createElement('a');
+        link.href     = 'data:application/octet-stream;base64,' + data.prescription;
+        link.download = 'prescription-apt-' + aptId + '.pdf';
+        link.click();
+      } catch (e) {
+        showAlert('No Prescription', 'No prescription uploaded yet for this appointment.');
+      }
+    }
+
+    // ── FEAT-01: Cancel appointment with refund ──────────────────────────
+    function confirmCancel(aptId) {
+      // Find the appointment to get its details
+      const appointment = globalAppointments.find(a => a.id === aptId);
+      if (!appointment) {
+        showAlert('Not Found', 'Appointment not found.');
+        return;
+      }
+
+      const doctorFee = parseInt(globalDocFees[appointment.doctorId] || 500);
+      const refundAmount = Math.floor(doctorFee / 2);  // 50% refund for patient cancellation
+      const retainedAmount = doctorFee - refundAmount;  // 50% retained as penalty
+
+      let title = '';
+      let msg = '';
+
+      if (appointment.status === 'BOOKED') {
+        title = 'Cancel Appointment?';
+        msg = `Doctor: ${globalDocNames[appointment.doctorId]}\n` +
+              `Time: ${new Date(appointment.appointmentTime).toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'})}\n\n` +
+              `REFUND DETAILS:\n` +
+              `Consultation Fee: ₹${doctorFee.toLocaleString('en-IN')}\n` +
+              `Refund Amount (50%): ₹${refundAmount.toLocaleString('en-IN')}\n` +
+              `Cancellation Fee (50%): −₹${retainedAmount.toLocaleString('en-IN')}\n\n` +
+              `You'll receive ₹${refundAmount.toLocaleString('en-IN')} within 24 hours.\n` +
+              `The slot will be released for other patients to book.`;
+      } else if (appointment.status === 'PENDING_PAYMENT') {
+        title = 'Cancel Appointment?';
+        msg = `Doctor: ${globalDocNames[appointment.doctorId]}\n` +
+              `Time: ${new Date(appointment.appointmentTime).toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'})}\n\n` +
+              `PAYMENT STATUS: Not Confirmed\n\n` +
+              `NO REFUND will be issued because payment has not been confirmed yet.\n` +
+              `The appointment slot will be released for other patients to book.`;
+      } else {
+        showAlert('Cannot Cancel', 'This appointment cannot be cancelled.');
+        return;
+      }
+
+      showConfirmation(title, msg, () => {
+        cancelAppointment(aptId);
+      });
+    }
+
+    async function cancelAppointment(aptId) {
+      try {
+        const reason = 'Patient initiated cancellation';
+        const res = await fetch(API_BASE + '/api/appointments/' + aptId + '?reason=' + encodeURIComponent(reason), {
+          method: 'DELETE', headers: authHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Use backend message which includes refund percentage and slot release details
+          const msg = data.message || 'Appointment cancelled successfully.';
+          showToast(msg, false);
+          setTimeout(() => loadAppointments(), 800);
+        } else {
+          showToast('Cancellation failed: ' + await res.text(), true);
+        }
+      } catch (e) {
+        showToast('Cancellation failed: ' + e.message, true);
+      }
+    }
+
+    function showToast(msg, isError) {
+      // Simple toast notification (or use existing toast function if available)
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:6px;color:#fff;font-weight:600;z-index:9999;' +
+        (isError ? 'background:#e74c3c;' : 'background:#27ae60;');
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ── Live countdown ticker ─────────────────────────────────────────────
+    function tickCountdowns() {
+      const now    = Date.now();
+      const tenMin = 10 * 60 * 1000;
+      let   reload = false;
+
+      document.querySelectorAll('[data-countdown]').forEach(btn => {
+        const aptMs  = parseInt(btn.dataset.countdown, 10);
+        const diffMs = aptMs - now;
+        if (diffMs <= tenMin) {
+          reload = true;
+        } else {
+          const h   = Math.floor(diffMs / 3600000);
+          const m   = Math.floor((diffMs % 3600000) / 60000);
+          const lbl = h > 0 ? `Opens in ${h}h ${m}m` : `Opens in ${m}m`;
+          const sp  = btn.querySelector('.cd-label');
+          if (sp) sp.textContent = lbl;
+        }
+      });
+
+      document.querySelectorAll('[data-payexpiry]').forEach(link => {
+        const expMs  = parseInt(link.dataset.payexpiry, 10);
+        const leftMs = expMs - now;
+        if (leftMs <= 0) {
+          reload = true;
+        } else {
+          const m  = Math.floor(leftMs / 60000);
+          const s  = Math.floor((leftMs % 60000) / 1000).toString().padStart(2, '0');
+          const sp = link.querySelector('.pay-cd');
+          if (sp) sp.textContent = '(' + m + ':' + s + ')';
+        }
+      });
+
+      if (reload) loadAppointments();
+    }
+
+
+    // ── Boot ──────────────────────────────────────────────────────────────
+    loadDoctors();
+    loadAppointments();
+    setInterval(loadAppointments, 30000);
+    setInterval(tickCountdowns, 1000);
+  </script>
+</body>
+</html>

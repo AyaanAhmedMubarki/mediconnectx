@@ -2,7 +2,6 @@
 mediconnectx/mediconnectx/src/main/resources/application.properties
 
 # IDE / local settings
-.claude/
 .idea/
 *.iml
 .vscode/

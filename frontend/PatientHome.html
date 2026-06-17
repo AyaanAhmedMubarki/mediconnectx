@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediConnectX – Patient Home</title>
+  <style>
+    body, h1, h2, p, ul, li { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+    body { background: linear-gradient(rgba(0,45,45,0.28),rgba(0,45,45,0.28)), url("images/MainPageImage.jpg") center/cover no-repeat fixed; min-height: 100vh; }
+    .navbar {
+      background-color: #003d3d; padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .logo { color: #fff; font-size: 1.4rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.01em; }
+    .hamburger { display: none; background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; padding: 0; line-height: 1; }
+    .nav-links { list-style: none; display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,0.88); text-decoration: none; font-size: 0.95rem; padding: 6px 15px; border-radius: 20px; transition: background 0.2s, color 0.2s; white-space: nowrap; letter-spacing: 0.02em; }
+    .nav-links a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-links a.nav-active { background: rgba(255,255,255,0.28); color: #fff; font-weight: 600; }
+    .hero {
+      min-height: 60vh; color: #fff;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center; position: relative;
+    }
+    .hero::after { content: ""; position: absolute; inset: 0; background: none; }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; padding: 30px 20px; }
+    .hero h1 { font-size: 3rem; font-weight: 700; color: #ffffff; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); }
+    .hero p { font-size: 1.2rem; font-weight: 500; color: #e6f9f9; margin-top: 15px; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
+    .card-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 40px 20px; background: transparent; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.35); overflow: hidden; text-align: center; transition: transform 0.2s; cursor: pointer; }
+    .card:hover { transform: scale(1.03); }
+    .card-image { width: 100%; height: 160px; object-fit: cover; }
+    .card-content { padding: 12px; }
+    .card-content h2 { color: #006666; margin-bottom: 8px; font-size: 1rem; }
+    .card-content p { font-size: 0.85rem; color: #666; }
+    footer { text-align: center; padding: 14px; background: #003d3d; color: white; font-size: 0.9rem; }
+    @media(max-width:1400px) { .card-container { grid-template-columns: repeat(4, 1fr); } }
+    @media(max-width:1024px) { .card-container { grid-template-columns: repeat(3, 1fr); } }
+    @media(max-width:768px) { .card-container { grid-template-columns: repeat(2, 1fr); } }
+
+    /* ── Chatbot Modal ── */
+    .chatbot-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; }
+    .chatbot-modal.active { display: flex; }
+    .chatbot-modal-content { background: #fff; border-radius: 14px; width: 90%; max-width: 600px; height: 85vh; max-height: 700px; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .chatbot-modal-header { background: linear-gradient(to right, #006666, #009999); color: white; padding: 16px 20px; border-radius: 14px 14px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .chatbot-modal-header h3 { margin: 0; font-size: 1.1rem; }
+    .chatbot-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+    .chatbot-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .chatbot-message { display: flex; gap: 8px; margin-bottom: 8px; animation: slideIn 0.3s ease-out; }
+    .chatbot-message.user { justify-content: flex-end; }
+    .chatbot-msg-content { max-width: 70%; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; word-wrap: break-word; }
+    .chatbot-message.bot .chatbot-msg-content { background: #e8f9f9; color: #006666; border-left: 3px solid #009999; }
+    .chatbot-message.user .chatbot-msg-content { background: #006666; color: #fff; }
+    .chatbot-input-area { padding: 12px 16px; border-top: 1px solid #e0e0e0; display: flex; gap: 8px; }
+    .chatbot-input-wrapper { flex: 1; display: flex; gap: 6px; }
+    #chatbotInput { flex: 1; padding: 10px 12px; border: 1.5px solid #d0e8e8; border-radius: 6px; font-size: 0.9rem; font-family: inherit; outline: none; resize: none; max-height: 80px; }
+    #chatbotInput:focus { border-color: #009999; box-shadow: 0 0 0 2px rgba(0,153,153,0.1); }
+    .chatbot-send-btn { padding: 10px 14px; background: #006666; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+    .chatbot-send-btn:hover { background: #009999; }
+    .chatbot-send-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .chatbot-welcome { text-align: center; color: #666; padding: 20px; }
+    .chatbot-welcome h4 { color: #006666; margin-bottom: 8px; font-size: 0.95rem; }
+    .chatbot-welcome p { margin: 4px 0; font-size: 0.85rem; }
+    .chatbot-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+    .chatbot-pill { padding: 6px 10px; background: #e8f9f9; color: #006666; border: 1px solid #009999; border-radius: 16px; cursor: pointer; font-size: 0.8rem; }
+    .chatbot-pill:hover { background: #009999; color: white; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @media(max-width:768px){
+      .logo{font-size:1.1rem;}
+      .hamburger{display:block;}
+      .navbar nav{position:absolute;top:100%;left:0;width:100%;z-index:99;}
+      .nav-links{display:none;flex-direction:column;background:#003d3d;padding:0.8rem 1.5rem;gap:0;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+      .nav-links.open{display:flex;}
+      .nav-links li{border-bottom:1px solid rgba(255,255,255,0.15);}
+      .nav-links li:last-child{border-bottom:none;}
+      .nav-links a{display:block;padding:0.65rem 0;}
+      .hero h1{font-size:2rem;}
+      .hero p{font-size:1rem;}
+      .hero{min-height:45vh;}
+      .card-container{padding:16px;gap:16px;}
+      .card-image{height:150px;}
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1 id="welcomeTitle">Welcome Back!</h1>
+      <p>Your health is our priority. View your events, profile and wellness journey easily.</p>
+    </div>
+  </section>
+
+  <main>
+    <div class="card-container">
+      <div class="card" onclick="window.location.href='Patient.html'">
+        <img src="images/PatientImage.jpg" alt="Dashboard" class="card-image" />
+        <div class="card-content">
+          <h2>My Dashboard</h2>
+          <p>View your event registrations and assistance requests.</p>
+        </div>
+      </div>
+      <div class="card" onclick="window.location.href='PatientEvents.html'">
+        <img src="images/BookAppointmentImage.jpg" alt="Events" class="card-image" />
+        <div class="card-content">
+          <h2>Browse Events</h2>
+          <p>Explore and register for upcoming health & wellness events.</p>
+        </div>
+      </div>
+      <div class="card" onclick="window.location.href='PatientProfile.html'">
+        <img src="images/MyProfileImage.jpg" alt="Profile" class="card-image" style="object-fit:contain;background:#f9f9f9;padding:4px;" />
+        <div class="card-content">
+          <h2>My Profile</h2>
+          <p>Update your personal details, health metrics and photo.</p>
+        </div>
+      </div>
+      <div class="card" onclick="window.location.href='PatientMeets.html'">
+        <img src="images/ConsultationImage.jpg" alt="Consultations" class="card-image" />
+        <div class="card-content">
+          <h2>Book Consultation</h2>
+          <p>Book a video consultation with a doctor and join the call.</p>
+        </div>
+      </div>
+      <div class="card" onclick="openChatbotModal()">
+        <img src="images/ChatbotImage.jpg" alt="AI Chatbot" class="card-image" />
+        <div class="card-content">
+          <h2>AI Health Chatbot</h2>
+          <p>Get instant health guidance from our AI-powered assistant.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Chatbot Modal -->
+  <div class="chatbot-modal" id="chatbotModal">
+    <div class="chatbot-modal-content">
+      <div class="chatbot-modal-header">
+        <h3><i class="bi bi-chat-dots-fill"></i> AI Health Chatbot</h3>
+        <button class="chatbot-close" onclick="closeChatbotModal()">✕</button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chatbot-welcome">
+          <h4>💚 Your Personal Health Assistant</h4>
+          <p>I can help you with:</p>
+          <p>✓ Understanding your symptoms</p>
+          <p>✓ Health and wellness advice</p>
+          <p>✓ When to see a doctor</p>
+          <div class="chatbot-pills">
+            <button class="chatbot-pill" onclick="suggestChatbotQuestion('What should I do if I have a fever?')">Fever relief</button>
+            <button class="chatbot-pill" onclick="suggestChatbotQuestion('How can I improve my overall health?')">Stay healthy</button>
+            <button class="chatbot-pill" onclick="suggestChatbotQuestion('When should I see a doctor for headache?')">Headache</button>
+          </div>
+        </div>
+      </div>
+      <div class="chatbot-input-area">
+        <div class="chatbot-input-wrapper">
+          <textarea id="chatbotInput" placeholder="Ask your health question..." rows="1"></textarea>
+          <button class="chatbot-send-btn" id="chatbotSendBtn" onclick="sendChatbotMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© 2026 MediConnectX – Smart Medical Management System. All Rights Reserved.</p></footer>
+
+  <script src="api.js"></script>
+  <script>
+    const auth = requireAuth('PATIENT');
+    if (auth) {
+      document.getElementById('welcomeTitle').textContent = 'Welcome Back, ' + auth.name + '!';
+    }
+
+    // ── OpenAI API Configuration ──
+    const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY_HERE';
+    const OPENAI_MODEL = 'gpt-4o-mini';
+    const CHAT_API_URL = 'https://api.openai.com/v1/chat/completions';
+    let chatbotHistory = [];
+
+    const SYSTEM_PROMPT = `You are a personal health assistant for MediConnectX supporting patients.
+Your role is to:
+1. Answer general health and wellness questions for patients
+2. Help patients understand their symptoms and health conditions
+3. Provide preventive health and lifestyle advice
+4. Guide patients on when to seek medical consultation
+5. Help with appointment booking and healthcare navigation
+IMPORTANT: Always remind patients that you are an AI and not a replacement for professional medical advice. Encourage them to consult doctors for serious concerns.`;
+
+    // ── Chatbot Modal Functions ──
+    function openChatbotModal() {
+      document.getElementById('chatbotModal').classList.add('active');
+      setTimeout(() => document.getElementById('chatbotInput').focus(), 100);
+    }
+
+    function closeChatbotModal() {
+      document.getElementById('chatbotModal').classList.remove('active');
+    }
+
+    // ── Textarea Auto-resize ──
+    document.getElementById('chatbotInput').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+    });
+
+    // ── Send Message on Enter ──
+    document.getElementById('chatbotInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatbotMessage();
+      }
+    });
+
+    async function sendChatbotMessage() {
+      const userMessage = document.getElementById('chatbotInput').value.trim();
+      if (!userMessage) return;
+
+      if (!OPENAI_API_KEY || OPENAI_API_KEY === 'YOUR_OPENAI_API_KEY_HERE') {
+        addChatbotMessage('Please configure OpenAI API key in the code.', 'bot');
+        return;
+      }
+
+      document.getElementById('chatbotSendBtn').disabled = true;
+      document.getElementById('chatbotInput').value = '';
+      document.getElementById('chatbotInput').style.height = 'auto';
+
+      addChatbotMessage(userMessage, 'user');
+
+      try {
+        const response = await getChatbotResponse(userMessage);
+        addChatbotMessage(response, 'bot');
+      } catch (error) {
+        addChatbotMessage(`Error: ${error.message}`, 'bot');
+      }
+
+      document.getElementById('chatbotSendBtn').disabled = false;
+      document.getElementById('chatbotInput').focus();
+    }
+
+    async function getChatbotResponse(userMessage) {
+      const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
+
+      chatbotHistory.forEach(msg => {
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
+      });
+
+      messages.push({ role: 'user', content: userMessage });
+
+      const response = await fetch(CHAT_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: OPENAI_MODEL,
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || `API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.choices[0].message.content;
+
+      chatbotHistory.push({ role: 'user', content: userMessage });
+      chatbotHistory.push({ role: 'bot', content: aiResponse });
+
+      if (chatbotHistory.length > 20) {
+        chatbotHistory = chatbotHistory.slice(-20);
+      }
+
+      return aiResponse;
+    }
+
+    function addChatbotMessage(message, role) {
+      const messagesDiv = document.getElementById('chatbotMessages');
+
+      const welcome = messagesDiv.querySelector('.chatbot-welcome');
+      if (welcome && role === 'user') {
+        welcome.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chatbot-message ${role}`;
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'chatbot-msg-content';
+      contentDiv.textContent = message;
+
+      messageDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(messageDiv);
+
+      setTimeout(() => { messagesDiv.scrollTop = messagesDiv.scrollHeight; }, 50);
+    }
+
+    function suggestChatbotQuestion(question) {
+      document.getElementById('chatbotInput').value = question;
+      document.getElementById('chatbotInput').focus();
+      sendChatbotMessage();
+    }
+  </script>
+</body>
+</html>
